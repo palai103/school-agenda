@@ -2,8 +2,14 @@ language: java
 
 jdk: openjdk8
 
+addons:
+  sonarcloud:
+    organization: "eyedema-palai103-school-agenda"
+    token:
+      secure: $SONAR_TOKEN
+
 # skip installation step
 install: true
 
 script:
-  - mvn clean verify -Pjacoco coveralls:report
+  - mvn clean verify -Pjacoco coveralls:report sonar:sonar
