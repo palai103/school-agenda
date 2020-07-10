@@ -5,8 +5,7 @@ jdk: openjdk8
 addons:
   sonarcloud:
     organization: "eyedema-palai103-school-agenda"
-    token:
-      secure: $SONAR_TOKEN
+    token: ${SONAR_TOKEN}
 
 # skip installation step
 install: true
