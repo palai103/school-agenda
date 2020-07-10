@@ -1,0 +1,9 @@
+language: java
+
+jdk: openjdk8
+
+# skip installation step
+install: true
+
+script:
+	- mvn -f it.unifi.school-agenda/pom.xml clean verify
