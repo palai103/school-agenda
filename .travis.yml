@@ -6,4 +6,4 @@ jdk: openjdk8
 install: true
 
 script:
-	- mvn -f it.unifi.school-agenda/pom.xml clean verify
+  - mvn clean verify
