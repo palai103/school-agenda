@@ -1,1 +1,1 @@
-# school-agenda
+# School Agenda
