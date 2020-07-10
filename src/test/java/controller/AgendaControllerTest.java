@@ -3,11 +3,13 @@ package controller;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.inOrder;
 
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -43,6 +45,21 @@ public class AgendaControllerTest {
 		
 		// verify
 		verify(agendaView).showAllStudents(allStudents);
+	}
+	
+	@Test
+	public void testAddStudentWhenStudentIsNewShouldAddAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		when(agendaService.findStudent(testStudent)).thenReturn(false);
+		
+		// exercise
+		agendaController.addStudent(testStudent);
+		
+		// verify
+		InOrder inOrder = inOrder(agendaView, agendaService);
+		inOrder.verify(agendaService).addStudent(testStudent);
+		inOrder.verify(agendaView).notifyStudentAdded(testStudent);
 	}
 
 }

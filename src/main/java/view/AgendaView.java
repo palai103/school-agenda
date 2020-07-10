@@ -8,4 +8,6 @@ public interface AgendaView {
 
 	void showAllStudents(List<Student> allStudents);
 
+	void notifyStudentAdded(Student student);
+
 }

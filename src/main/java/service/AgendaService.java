@@ -11,4 +11,14 @@ public class AgendaService {
 		return null;
 	}
 
+	public Boolean findStudent(Student student) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void addStudent(Student student) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
