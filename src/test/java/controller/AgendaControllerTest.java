@@ -290,5 +290,7 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotRemoved(testCourse);
 	}
+	
+	
 
 }
