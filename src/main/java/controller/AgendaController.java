@@ -40,12 +40,10 @@ public class AgendaController {
 
 			if (Boolean.TRUE.equals(agendaService.studentHasCourse(student, course))) {
 				agendaView.notifyCourseNotAddedToStudent(student, course);
-				return;
 			}
 			else {
 				agendaService.addCourseToStudent(student, course);
 				agendaView.notifyCourseAddedToStudent(student, course);
-				return;
 			}
 		}
 		else {
@@ -59,12 +57,10 @@ public class AgendaController {
 
 			if (Boolean.FALSE.equals(agendaService.studentHasCourse(student, course))) {
 				agendaView.notifyCourseNotRemovedFromStudent(student, course);
-				return;
 			}
 			else {
 				agendaService.removeCourseFromStudent(student, course);
 				agendaView.notifyCourseRemovedFromStudent(student, course);
-				return;
 			}
 		}
 		else {
