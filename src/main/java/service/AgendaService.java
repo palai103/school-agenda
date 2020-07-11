@@ -47,4 +47,14 @@ public class AgendaService {
 		return null;
 	}
 
+	public void addCourse(Course course) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void removeCourse(Course course) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

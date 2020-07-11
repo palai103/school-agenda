@@ -233,5 +233,62 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
 	}
+	
+	/*Add course*/
+	@Test
+	public void testAddCourseWhenCourseIsNotPresentShouldAddAndFeedback() {
+		// setup
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findCourse(testCourse)).thenReturn(false);
+
+		// exercise
+		agendaController.addCourse(testCourse);
+
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).addCourse(testCourse);
+		inOrder.verify(agendaView).notifyCourseAdded(testCourse);
+	}
+	
+	@Test
+	public void testAddCourseWhenCourseIsAlreadyPresentShouldNotAddAndFeedback() {
+		// setup
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+
+		// exercise
+		agendaController.addCourse(testCourse);
+
+		// verify
+		verify(agendaView).notifyCourseNotAdded(testCourse);
+	}
+	
+	@Test
+	public void testRemoveCourseWhenCourseIsAlreadyPresentShouldRemoveAndFeedback() {
+		// setup
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+
+		// exercise
+		agendaController.removeCourse(testCourse);
+
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).removeCourse(testCourse);
+		inOrder.verify(agendaView).notifyCourseRemoved(testCourse);
+	}
+	
+	@Test
+	public void testRemoveCourseWhenCourseIsNotPresentShouldNotRemoveAndFeedback() {
+		// setup
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findCourse(testCourse)).thenReturn(false);
+
+		// exercise
+		agendaController.removeCourse(testCourse);
+
+		// verify
+		verify(agendaView).notifyCourseNotRemoved(testCourse);
+	}
 
 }
