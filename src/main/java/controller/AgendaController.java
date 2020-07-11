@@ -12,32 +12,25 @@ public class AgendaController {
 
 	public void getAllStudents() {
 		agendaView.showAllStudents(agendaService.getAllStudents());
-		return;
 	}
 
 	public void addStudent(Student student) {
 		if (Boolean.FALSE.equals(agendaService.findStudent(student))) {
 			agendaService.addStudent(student);
-
 			agendaView.notifyStudentAdded(student);
-			return;
 		}
 		else {
 			agendaView.notifyStudentNotAdded(student);
-			return;
 		}
 	}
 
 	public void removeStudent(Student student) {
 		if (Boolean.TRUE.equals(agendaService.findStudent(student))) {
 			agendaService.removeStudent(student);
-
 			agendaView.notifyStudentRemoved(student);
-			return;
 		}
 		else {
 			agendaView.notifyStudentNotRemoved(student);
-			return;
 		}
 	}
 
@@ -51,22 +44,12 @@ public class AgendaController {
 			}
 			else {
 				agendaService.addCourseToStudent(student, course);
-
 				agendaView.notifyCourseAddedToStudent(student, course);
 				return;
 			}
 		}
-
-		if (Boolean.FALSE.equals(agendaService.findStudent(student)) &&
-				Boolean.TRUE.equals(agendaService.findCourse(course))) {
+		else {
 			agendaView.notifyCourseNotAddedToStudent(student, course);
-			return;
-		}
-
-		if (Boolean.TRUE.equals(agendaService.findStudent(student)) &&
-				Boolean.FALSE.equals(agendaService.findCourse(course))) {
-			agendaView.notifyCourseNotAddedToStudent(student, course);
-			return;
 		}
 	}
 
@@ -80,24 +63,33 @@ public class AgendaController {
 			}
 			else {
 				agendaService.removeCourseFromStudent(student, course);
-
 				agendaView.notifyCourseRemovedFromStudent(student, course);
 				return;
 			}
 		}
-
-		if (Boolean.FALSE.equals(agendaService.findStudent(student)) &&
-				Boolean.TRUE.equals(agendaService.findCourse(course))) {
+		else {
 			agendaView.notifyCourseNotRemovedFromStudent(student, course);
-			return;
 		}
+	}
 
-		if (Boolean.TRUE.equals(agendaService.findStudent(student)) &&
-				Boolean.FALSE.equals(agendaService.findCourse(course))) {
-			agendaView.notifyCourseNotRemovedFromStudent(student, course);
-			return;
+	public void addCourse(Course course) {
+		if(Boolean.FALSE.equals(agendaService.findCourse(course))) {
+			agendaService.addCourse(course);
+			agendaView.notifyCourseAdded(course);
 		}
+		else {
+			agendaView.notifyCourseNotAdded(course);
+		}
+	}
 
+	public void removeCourse(Course course) {
+		if(Boolean.TRUE.equals(agendaService.findCourse(course))) {
+			agendaService.removeCourse(course);
+			agendaView.notifyCourseRemoved(course);
+		}
+		else {
+			agendaView.notifyCourseNotRemoved(course);
+		}
 	}	
 
 }
