@@ -95,9 +95,14 @@ public class AgendaController {
 			if(Boolean.TRUE.equals(agendaService.courseHasStudent(student, course))) {
 				agendaService.removeStudentFromCourse(student, course);
 				agendaView.notifyStudentRemovedFromCourse(student, course);
+			} 
+			else {
+				agendaView.notifyStudentNotRemovedFromCourse(student, course);
 			}
 		}
-		
+		else {
+			agendaView.notifyStudentNotRemovedFromCourse(student, course);
+		}	
 	}	
 
 }

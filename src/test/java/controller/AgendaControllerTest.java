@@ -311,5 +311,51 @@ public class AgendaControllerTest {
 		inOrder.verify(agendaView).notifyStudentRemovedFromCourse(testStudent, testCourse);
 	}
 	
+	@Test
+	public void testRemoveStudentFromCourseWhenCourseNotHasItShouldNotRemoveAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(true);
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(false);
+		
+		// exercise
+		agendaController.removeStudentFromCourse(testStudent, testCourse);
+		
+		// verify
+		verify(agendaView).notifyStudentNotRemovedFromCourse(testStudent, testCourse);
+	}
+	
+	@Test
+	public void testRemoveStudentFromCourseWhenStudentIsNotPresentShouldNotRemoveAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(false);
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+		
+		// exercise
+		agendaController.removeStudentFromCourse(testStudent, testCourse);
+		
+		// verify
+		verify(agendaView).notifyStudentNotRemovedFromCourse(testStudent, testCourse);
+	}
+	
+	@Test
+	public void testRemoveStudentFromCourseWhenCourseIsNotPresentShouldNotRemoveAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(true);
+		when(agendaService.findCourse(testCourse)).thenReturn(false);
+		
+		// exercise
+		agendaController.removeStudentFromCourse(testStudent, testCourse);
+		
+		// verify
+		verify(agendaView).notifyStudentNotRemovedFromCourse(testStudent, testCourse);
+	}
+	
 
 }
