@@ -299,7 +299,7 @@ public class AgendaControllerTest {
 		Course testCourse = new Course("1", "testCourse");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
-		when(agendaService.courseHasStudent(testStudent)).thenReturn(true);
+		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(true);
 
 		// exercise
 		agendaController.addStudentToCourse(testStudent, testCourse);
