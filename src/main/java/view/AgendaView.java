@@ -33,4 +33,6 @@ public interface AgendaView {
 
 	void notifyCourseNotRemoved(Course course);
 
+	void notifyStudentAddedToCourse(Student student, Course course);
+
 }
