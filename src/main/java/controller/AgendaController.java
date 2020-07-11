@@ -86,6 +86,18 @@ public class AgendaController {
 		else {
 			agendaView.notifyCourseNotRemoved(course);
 		}
+	}
+
+	public void removeStudentFromCourse(Student student, Course course) {
+		if(Boolean.TRUE.equals(agendaService.findStudent(student)) &&
+				Boolean.TRUE.equals(agendaService.findCourse(course))) {
+			
+			if(Boolean.TRUE.equals(agendaService.courseHasStudent(student, course))) {
+				agendaService.removeStudentFromCourse(student, course);
+				agendaView.notifyStudentRemovedFromCourse(student, course);
+			}
+		}
+		
 	}	
 
 }
