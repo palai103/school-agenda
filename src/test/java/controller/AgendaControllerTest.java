@@ -291,6 +291,25 @@ public class AgendaControllerTest {
 		verify(agendaView).notifyCourseNotRemoved(testCourse);
 	}
 	
+	/*Remove student from course*/
+	
+	@Test
+	public void testRemoveStudentFromCourseShouldRemoveAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(true);
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(true);
+		
+		// exercise
+		agendaController.removeStudentFromCourse(testStudent, testCourse);
+		
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).removeStudentFromCourse(testStudent, testCourse);
+		inOrder.verify(agendaView).notifyStudentRemovedFromCourse(testStudent, testCourse);
+	}
 	
 
 }

@@ -57,4 +57,14 @@ public class AgendaService {
 		
 	}
 
+	public Boolean courseHasStudent(Student student, Course course) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void removeStudentFromCourse(Student student, Course course) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
