@@ -152,7 +152,7 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotAddedToStudent(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testAddCourseToStudentWhenStudentHasItShouldNotAddAndFeedback() {
 		// setup
@@ -168,7 +168,7 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotAddedToStudent(testStudent, testCourse);
 	}
-	
+
 	/*Remove course from student*/
 	@Test
 	public void testRemoveCourseFromStudentShouldRemoveAndFeedback() {
@@ -187,7 +187,7 @@ public class AgendaControllerTest {
 		inOrder.verify(agendaService).removeCourseFromStudent(testStudent, testCourse);
 		inOrder.verify(agendaView).notifyCourseRemovedFromStudent(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudentWhenStudentIsNotPresentShouldNotAddAndFeedback() {
 		// setup
@@ -202,7 +202,7 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudentWhenCourseIsNotPresentShouldNotRemoveAndFeedback() {
 		// setup
@@ -217,7 +217,7 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudentWhenStudentNotHasItShouldNotRemoveAndFeedback() {
 		// setup
@@ -233,7 +233,7 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
 	}
-	
+
 	/*Add course*/
 	@Test
 	public void testAddCourseWhenCourseIsNotPresentShouldAddAndFeedback() {
@@ -249,7 +249,7 @@ public class AgendaControllerTest {
 		inOrder.verify(agendaService).addCourse(testCourse);
 		inOrder.verify(agendaView).notifyCourseAdded(testCourse);
 	}
-	
+
 	@Test
 	public void testAddCourseWhenCourseIsAlreadyPresentShouldNotAddAndFeedback() {
 		// setup
@@ -262,7 +262,7 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotAdded(testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveCourseWhenCourseIsAlreadyPresentShouldRemoveAndFeedback() {
 		// setup
@@ -277,7 +277,7 @@ public class AgendaControllerTest {
 		inOrder.verify(agendaService).removeCourse(testCourse);
 		inOrder.verify(agendaView).notifyCourseRemoved(testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveCourseWhenCourseIsNotPresentShouldNotRemoveAndFeedback() {
 		// setup
@@ -290,9 +290,28 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotRemoved(testCourse);
 	}
-	
+
+	/*Add student to course*/
+	@Test
+	public void testAddStudentToCourseShouldAddAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(true);
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(true);
+
+		// exercise
+		agendaController.addStudentToCourse(testStudent, testCourse);
+
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).addStudentToCourse(testStudent, testCourse);
+		inOrder.verify(agendaView).notifyStudentAddedToCourse(testStudent, testCourse);
+	}
+
 	/*Remove student from course*/
-	
+
 	@Test
 	public void testRemoveStudentFromCourseShouldRemoveAndFeedback() {
 		// setup
@@ -301,15 +320,15 @@ public class AgendaControllerTest {
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(true);
-		
+
 		// exercise
 		agendaController.removeStudentFromCourse(testStudent, testCourse);
-		
+
 		// verify
 		InOrder inOrder = inOrder(agendaService, agendaView);
 		inOrder.verify(agendaService).removeStudentFromCourse(testStudent, testCourse);
 		inOrder.verify(agendaView).notifyStudentRemovedFromCourse(testStudent, testCourse);
 	}
-	
+
 
 }
