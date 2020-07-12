@@ -72,4 +72,9 @@ public class AgendaService {
 		
 	}
 
+	public List<Course> getAllCourses() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
