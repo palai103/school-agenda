@@ -2,7 +2,9 @@ package controller;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.inOrder;
 
 import java.util.List;
@@ -74,6 +76,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyStudentNotAdded(testStudent);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 
 	@Test
@@ -102,6 +105,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyStudentNotRemoved(testStudent);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 
 	/*Add course to student*/
@@ -136,6 +140,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotAddedToStudent(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 
 	@Test
@@ -151,6 +156,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotAddedToStudent(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	@Test
@@ -167,6 +173,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotAddedToStudent(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	/*Remove course from student*/
@@ -201,6 +208,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	@Test
@@ -216,6 +224,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	@Test
@@ -232,6 +241,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	/*Add course*/
@@ -261,6 +271,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotAdded(testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	@Test
@@ -289,6 +300,7 @@ public class AgendaControllerTest {
 
 		// verify
 		verify(agendaView).notifyCourseNotRemoved(testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	/*Remove student from course*/
@@ -325,6 +337,7 @@ public class AgendaControllerTest {
 		
 		// verify
 		verify(agendaView).notifyStudentNotRemovedFromCourse(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
 	@Test
@@ -356,6 +369,75 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyStudentNotRemovedFromCourse(testStudent, testCourse);
 	}
+	
+	/*Add student to course*/
+	
+	@Test
+	public void testAddStudentToCourseShouldAddAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(true);
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+		
+		// exercise
+		agendaController.addStudentToCourse(testStudent, testCourse);
+		
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).addStudentToCourse(testStudent, testCourse);
+		inOrder.verify(agendaView).notifyStudentAddedToCourse(testStudent, testCourse);
+	}
+	
+	@Test
+	public void testAddStudentToCourseWhenCourseHasItShouldNotAddAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(true);
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(true);
+		
+		// exercise
+		agendaController.addStudentToCourse(testStudent, testCourse);
+		
+		// verify
+		verify(agendaView).notifyStudentNotAddedToCourse(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
+	}
+	
+	@Test
+	public void testAddStudentToCourseWhenStudentIsNotPresentShouldNotAddAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(false);
+		when(agendaService.findCourse(testCourse)).thenReturn(true);
+		
+		// exercise
+		agendaController.addStudentToCourse(testStudent, testCourse);
+		
+		// verify
+		verify(agendaView).notifyStudentNotAddedToCourse(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
+	}
+	
+	@Test
+	public void testAddStudentToCourseWhenCourseIsNotPresentShouldNotAddAndFeedback() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		Course testCourse = new Course("1", "testCourse");
+		when(agendaService.findStudent(testStudent)).thenReturn(true);
+		when(agendaService.findCourse(testCourse)).thenReturn(false);
+		
+		// exercise
+		agendaController.addStudentToCourse(testStudent, testCourse);
+		
+		// verify
+		verify(agendaView).notifyStudentNotAddedToCourse(testStudent, testCourse);
+		verifyNoMoreInteractions(ignoreStubs(agendaService));
+	}
+	
 	
 
 }
