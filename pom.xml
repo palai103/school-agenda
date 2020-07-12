@@ -60,7 +60,6 @@
 						<version>1.4.10</version>
 						<configuration>
 							<targetClasses>
-								<!-- excludes testing.example.bank.app.Main -->
 								<param>controller.AgendaController</param>
 							</targetClasses>
 							<targetTests>
@@ -69,7 +68,7 @@
 							<mutators>
 								<mutator>DEFAULTS</mutator>
 							</mutators>
-							<mutationThreshold>80</mutationThreshold>
+							<mutationThreshold>100</mutationThreshold>
 						</configuration>
 					</plugin>
 				</plugins>
@@ -84,8 +83,6 @@
 					<groupId>org.eluder.coveralls</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
 					<version>4.3.0</version>
-					<!-- <configuration> <repoToken>yourcoverallsprojectrepositorytoken</repoToken> 
-						</configuration> -->
 				</plugin>
 
 				<plugin>

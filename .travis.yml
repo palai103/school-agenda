@@ -10,5 +10,9 @@ addons:
 # skip installation step
 install: true
 
+cache:
+  directories:
+    - $HOME/.m2
+
 script:
   - mvn clean verify -Pjacoco coveralls:report sonar:sonar org.pitest:pitest-maven:mutationCoverage
