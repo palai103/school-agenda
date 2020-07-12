@@ -36,7 +36,9 @@ public class AgendaControllerTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 	}
-
+	
+	/*Get all students*/
+	
 	@Test
 	public void testGetAllStudents() {
 		// setup
@@ -47,9 +49,13 @@ public class AgendaControllerTest {
 		agendaController.getAllStudents();
 
 		// verify
-		verify(agendaView).showAllStudents(allStudents);
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).getAllStudents();
+		inOrder.verify(agendaView).showAllStudents(allStudents);
 	}
-
+	
+	/*Add student*/
+	
 	@Test
 	public void testAddStudentWhenStudentIsNotPresentShouldAddAndFeedback() {
 		// setup
@@ -78,7 +84,9 @@ public class AgendaControllerTest {
 		verify(agendaView).notifyStudentNotAdded(testStudent);
 		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
-
+	
+	/*Remove student*/
+	
 	@Test
 	public void testRemoveStudentWhenStudentIsAlreadyPresentShouldRemoveAndFeedback() {
 		// setup
@@ -438,6 +446,22 @@ public class AgendaControllerTest {
 		verifyNoMoreInteractions(ignoreStubs(agendaService));
 	}
 	
+	/*Get all courses*/
 	
+	@Test
+	public void testGetAllCourses() {
+		// setup
+		List<Course> allCourses = asList(new Course("1", "testCourse"));
+		when(agendaService.getAllCourses()).thenReturn(allCourses);
+		
+		// exercise
+		agendaController.getAllCourses();
+		
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).getAllCourses();
+		inOrder.verify(agendaView).showAllCourses(allCourses);
+
+	}
 
 }

@@ -41,4 +41,6 @@ public interface AgendaView {
 
 	void notifyStudentAddedToCourse(Student student, Course course);
 
+	void showAllCourses(List<Course> allCourses);
+
 }

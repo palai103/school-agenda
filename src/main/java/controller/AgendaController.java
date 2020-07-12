@@ -119,6 +119,11 @@ public class AgendaController {
 			agendaView.notifyStudentNotAddedToCourse(student, course);
 		}
 
+	}
+
+	public void getAllCourses() {
+		agendaView.showAllCourses(agendaService.getAllCourses());
+		
 	}	
 
 }
