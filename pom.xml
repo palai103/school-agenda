@@ -54,6 +54,24 @@
 							</execution>
 						</executions>
 					</plugin>
+					<plugin>
+						<groupId>org.pitest</groupId>
+						<artifactId>pitest-maven</artifactId>
+						<version>1.4.10</version>
+						<configuration>
+							<targetClasses>
+								<!-- excludes testing.example.bank.app.Main -->
+								<param>controller.AgendaController</param>
+							</targetClasses>
+							<targetTests>
+								<param>controller.AgendaControllerTest</param>
+							</targetTests>
+							<mutators>
+								<mutator>DEFAULTS</mutator>
+							</mutators>
+							<mutationThreshold>80</mutationThreshold>
+						</configuration>
+					</plugin>
 				</plugins>
 			</build>
 		</profile>
@@ -66,9 +84,8 @@
 					<groupId>org.eluder.coveralls</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
 					<version>4.3.0</version>
-					<!-- <configuration>
-						<repoToken>yourcoverallsprojectrepositorytoken</repoToken>
-					</configuration> -->
+					<!-- <configuration> <repoToken>yourcoverallsprojectrepositorytoken</repoToken> 
+						</configuration> -->
 				</plugin>
 
 				<plugin>

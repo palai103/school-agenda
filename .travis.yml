@@ -11,4 +11,4 @@ addons:
 install: true
 
 script:
-  - mvn clean verify -Pjacoco coveralls:report sonar:sonar
+  - mvn clean verify -Pjacoco coveralls:report sonar:sonar org.pitest:pitest-maven:mutationCoverage
