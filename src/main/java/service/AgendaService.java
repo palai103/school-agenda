@@ -67,4 +67,14 @@ public class AgendaService {
 		
 	}
 
+	public void addStudentToCourse(Student student, Course course) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public List<Course> getAllCourses() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }
