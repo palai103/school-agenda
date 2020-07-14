@@ -4,17 +4,28 @@ import java.util.List;
 
 import model.Course;
 import model.Student;
+import repository.StudentRepository;
+import repository.TransactionManager;
 
 public class AgendaService {
 
+	private TransactionManager transactionManager;
+
+	public AgendaService(TransactionManager transactionManager) {
+		this.transactionManager = transactionManager;
+	}
+
 	public List<Student> getAllStudents() {
-		// TODO Auto-generated method stub
-		return null;
+		return transactionManager.studentTransaction(StudentRepository::findAll);
 	}
 
 	public Boolean findStudent(Student student) {
-		// TODO Auto-generated method stub
-		return null;
+		return transactionManager.studentTransaction(studentRepository -> {
+			if (studentRepository.findById(student.getId()) != null)
+				return true;
+			else
+				return false;
+		});
 	}
 	
 	public Boolean findCourse(Course course) {
