@@ -75,6 +75,12 @@
 							<targetTests>
 								<param>controller.AgendaControllerTest</param>
 							</targetTests>
+							<targetTests>
+								<param>service.AgendaService</param>
+							</targetTests>
+							<targetTests>
+								<param>service.AgendaServiceTest</param>
+							</targetTests>
 							<mutators>
 								<mutator>DEFAULTS</mutator>
 							</mutators>

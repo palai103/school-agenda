@@ -21,10 +21,7 @@ public class AgendaService {
 
 	public Boolean findStudent(Student student) {
 		return transactionManager.studentTransaction(studentRepository -> {
-			if (studentRepository.findById(student.getId()) != null)
-				return true;
-			else
-				return false;
+			return studentRepository.findById(student.getId()) != null;
 		});
 	}
 	
