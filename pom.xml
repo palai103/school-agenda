@@ -78,6 +78,7 @@
 								</excludedClasses> -->
 
 							<targetClasses>
+							
 								<param>controller.AgendaController</param>
 							</targetClasses>
 							<targetTests>
