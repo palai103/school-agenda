@@ -11,7 +11,7 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		
+
 		<junit.version>4.13</junit.version>
 		<mockito.version>3.3.3</mockito.version>
 		<assertjswing.version>3.9.2</assertjswing.version>
@@ -74,20 +74,15 @@
 						<artifactId>pitest-maven</artifactId>
 						<version>${pitest.version}</version>
 						<configuration>
-							<excludedClasses>
-								<param>*Test</param>
-								<param>it.unifi.app.school-agenda.model.*</param>
-							</excludedClasses>
-							
-							<!-- <targetClasses>
-								<param>controller.AgendaController</param>
-								<param>service.AgendaService</param>
-							</targetClasses>
+							<!-- <excludedClasses> <param>*Test</param> <param>it.unifi.app.school-agenda.model.*</param> 
+								</excludedClasses> -->
 
+							<targetClasses>
+								<param>controller.AgendaController</param>
+							</targetClasses>
 							<targetTests>
 								<param>controller.AgendaControllerTest</param>
-								<param>service.AgendaServiceTest</param>
-							</targetTests> -->
+							</targetTests>
 
 							<mutators>
 								<mutator>DEFAULTS</mutator>
