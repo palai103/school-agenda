@@ -10,7 +10,7 @@ import repository.TransactionManager;
 public class AgendaService {
 
 	private TransactionManager transactionManager;
-
+	
 	public AgendaService(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
@@ -26,8 +26,9 @@ public class AgendaService {
 	}
 	
 	public Boolean findCourse(Course course) {
-		// TODO Auto-generated method stub
-		return null;
+		return transactionManager.courseTransaction(courseRepository -> {
+			return courseRepository.findById(course.getId()) != null;
+		});
 	}
 
 	public void addStudent(Student student) {

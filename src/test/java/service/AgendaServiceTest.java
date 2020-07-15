@@ -14,8 +14,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import model.Course;
 import model.Student;
 import repository.CourseRepository;
+import repository.CourseTransactionCode;
 import repository.StudentRepository;
 import repository.StudentTransactionCode;
 import repository.TransactionManager;
@@ -39,6 +41,9 @@ public class AgendaServiceTest {
 		
 		when(transactionManager.studentTransaction(any())).thenAnswer(
 				answer((StudentTransactionCode<?> code) -> code.apply(studentRepository)));
+		
+		when(transactionManager.courseTransaction(any())).thenAnswer(
+				answer((CourseTransactionCode<?> code) -> code.apply(courseRepository)));
 		
 		agendaService = new AgendaService(transactionManager);
 	}
@@ -91,5 +96,49 @@ public class AgendaServiceTest {
 		verify(transactionManager).studentTransaction(any());
 	}
 	
+	@Test
+	public void testFindStudentWhenDoesNotExistShouldReturnFalse() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		
+		when(studentRepository.findById("1")).thenReturn(null);
+
+		// exercise
+		Boolean studentNotExists = agendaService.findStudent(testStudent);
+
+		// verify
+		assertThat(studentNotExists).isFalse();
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testFindCourseWhenExistsShouldReturnTrue() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		
+		when(courseRepository.findById("1")).thenReturn(testCourse);
+
+		// exercise
+		Boolean courseExists = agendaService.findCourse(testCourse);
+
+		// verify
+		assertThat(courseExists).isTrue();
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testFindCourseWhenDoesNotExistShouldReturnFalse() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		
+		when(courseRepository.findById("1")).thenReturn(null);
+
+		// exercise
+		Boolean courseNotExists = agendaService.findCourse(testCourse);
+
+		// verify
+		assertThat(courseNotExists).isFalse();
+		verify(transactionManager).courseTransaction(any());
+	}
 	
 }

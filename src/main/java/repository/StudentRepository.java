@@ -6,7 +6,7 @@ import model.Student;
 
 public interface StudentRepository {
 
-	 List<Student> findAll();
+	List<Student> findAll();
 
 	Student findById(String id);
 

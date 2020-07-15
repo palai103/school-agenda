@@ -11,9 +11,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+		
 		<junit.version>4.13</junit.version>
-		<mockito.version>3.2.4</mockito.version>
+		<mockito.version>3.3.3</mockito.version>
 		<assertjswing.version>3.9.2</assertjswing.version>
+		<pitest.version>1.5.2</pitest.version>
+		<coveralls.version>4.3.0</coveralls.version>
+		<jacoco.version>0.8.5</jacoco.version>
+		<sonar.version>3.7.0.1746</sonar.version>
 	</properties>
 	<description>A simple school agenda</description>
 
@@ -48,7 +53,7 @@
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.5</version>
+						<version>${jacoco.version}</version>
 						<configuration>
 							<excludes>
 								<exclude>/model/*.*</exclude>
@@ -67,20 +72,23 @@
 					<plugin>
 						<groupId>org.pitest</groupId>
 						<artifactId>pitest-maven</artifactId>
-						<version>1.4.10</version>
+						<version>${pitest.version}</version>
 						<configuration>
-							<targetClasses>
+							<excludedClasses>
+								<param>*Test</param>
+								<param>it.unifi.app.school-agenda.model.*</param>
+							</excludedClasses>
+							
+							<!-- <targetClasses>
 								<param>controller.AgendaController</param>
+								<param>service.AgendaService</param>
 							</targetClasses>
+
 							<targetTests>
 								<param>controller.AgendaControllerTest</param>
-							</targetTests>
-							<targetTests>
-								<param>service.AgendaService</param>
-							</targetTests>
-							<targetTests>
 								<param>service.AgendaServiceTest</param>
-							</targetTests>
+							</targetTests> -->
+
 							<mutators>
 								<mutator>DEFAULTS</mutator>
 							</mutators>
@@ -98,13 +106,13 @@
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>4.3.0</version>
+					<version>${coveralls.version}</version>
 				</plugin>
 
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.7.0.1746</version>
+					<version>${sonar.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
