@@ -4,13 +4,17 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -139,6 +143,171 @@ public class AgendaServiceTest {
 		// verify
 		assertThat(courseNotExists).isFalse();
 		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testAddStudentWhenNotEmptyShouldAdd() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+
+		// exercise
+		agendaService.addStudent(testStudent);
+
+		// verify
+		verify(studentRepository).save(testStudent);
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testAddStudentWhenEmptyShouldNotAdd() {
+		// setup
+		Student testStudent = null;
+		
+		// exercise
+		agendaService.addStudent(testStudent);
+
+		// verify
+		verifyNoInteractions(studentRepository);
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testRemoveStudentWhenNotEmptyShouldRemove() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+
+		// exercise
+		agendaService.removeStudent(testStudent);
+
+		// verify
+		verify(studentRepository).delete(testStudent);
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testRemoveStudentWhenEmptyShouldNotRemove() {
+		// setup
+		Student testStudent = null;
+
+		// exercise
+		agendaService.removeStudent(testStudent);
+
+		// verify
+		verifyNoInteractions(studentRepository);
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testGetAllCoursesWithNotEmptyListShouldReturnListWithAllCourses() {
+		// setup
+		Course firstCourse = new Course("1", "test course one");
+		Course secondCourse = new Course("2", "test course two");
+		
+		List<Course> allCourses = asList(firstCourse, secondCourse);
+		when(courseRepository.findAll()).thenReturn(allCourses);
+
+		// exercise
+		List<Course> retrievedCourses = agendaService.getAllCourses();
+
+		// verify
+		assertThat(retrievedCourses).containsExactly(firstCourse, secondCourse);
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testGetAllCoursesWithEmptyListShouldReturnEmptyList() {
+		// setup
+		List<Course> allCourses = asList();
+		when(courseRepository.findAll()).thenReturn(allCourses);
+
+		// exercise
+		List<Course> retrievedCourses = agendaService.getAllCourses();
+
+		// verify
+		assertThat(retrievedCourses).isEmpty();
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testAddCourseWhenNotEmptyShouldAdd() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+
+		// exercise
+		agendaService.addCourse(testCourse);
+
+		// verify
+		verify(courseRepository).save(testCourse);
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testAddCourseWhenEmptyShouldNotAdd() {
+		// setup
+		Course testCourse = null;
+
+		// exercise
+		agendaService.addCourse(testCourse);
+
+		// verify
+		verifyNoInteractions(courseRepository);
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testRemoveCourseWhenNotEmptyShouldRemove() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+
+		// exercise
+		agendaService.removeCourse(testCourse);
+
+		// verify
+		verify(courseRepository).delete(testCourse);
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testRemoveCourseWhenEmptyShouldNotRemove() {
+		// setup
+		Course testCourse = null;
+
+		// exercise
+		agendaService.removeCourse(testCourse);
+
+		// verify
+		verifyNoInteractions(courseRepository);
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testAddCourseToStudentWhenStudentExistsShouldAdd() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+		when(studentRepository.findById("1")).thenReturn(testStudent);
+
+		// exercise
+		agendaService.addCourseToStudent(testStudent, testCourse);
+
+		// verify
+		verify(studentRepository).updateStudentCourses(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testAddCourseToStudentWhenStudentDoesNotExistShouldNotAdd() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+		when(studentRepository.findById("1")).thenReturn(null);
+
+		// exercise
+		agendaService.addCourseToStudent(testStudent, testCourse);
+
+		// verify
+		verify(studentRepository, never()).updateStudentCourses(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).studentTransaction(any());
 	}
 	
 }

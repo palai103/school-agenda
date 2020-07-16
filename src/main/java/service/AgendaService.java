@@ -4,6 +4,7 @@ import java.util.List;
 
 import model.Course;
 import model.Student;
+import repository.CourseRepository;
 import repository.StudentRepository;
 import repository.TransactionManager;
 
@@ -32,18 +33,27 @@ public class AgendaService {
 	}
 
 	public void addStudent(Student student) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.studentTransaction(studentRepository -> {
+			if (student != null)
+				studentRepository.save(student);
+			return null;
+		});
 	}
 
 	public void removeStudent(Student student) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.studentTransaction(studentRepository -> {
+			if (student != null)
+				studentRepository.delete(student);
+			return null;
+		});		
 	}
 
 	public void addCourseToStudent(Student student, Course course) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.studentTransaction(studentRepository -> {
+			if (studentRepository.findById(student.getId()) != null)
+				studentRepository.updateStudentCourses(student.getId(), course.getId());
+			return null;
+		});
 	}
 
 	public void removeCourseFromStudent(Student student, Course course) {
@@ -57,13 +67,19 @@ public class AgendaService {
 	}
 
 	public void addCourse(Course course) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.courseTransaction(courseRepository -> {
+			if (course != null)
+				courseRepository.save(course);
+			return null;
+		});		
 	}
 
 	public void removeCourse(Course course) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.courseTransaction(courseRepository -> {
+			if (course != null)
+				courseRepository.delete(course);
+			return null;
+		});
 	}
 
 	public Boolean courseHasStudent(Student student, Course course) {
@@ -82,8 +98,7 @@ public class AgendaService {
 	}
 
 	public List<Course> getAllCourses() {
-		// TODO Auto-generated method stub
-		return null;
+		return transactionManager.courseTransaction(CourseRepository::findAll);
 	}
 
 }

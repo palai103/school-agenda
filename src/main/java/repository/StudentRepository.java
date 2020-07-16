@@ -10,4 +10,10 @@ public interface StudentRepository {
 
 	Student findById(String id);
 
+	void save(Student student);
+
+	void delete(Student student);
+
+	void updateStudentCourses(String studenId, String courseId);
+
 }
