@@ -2,6 +2,7 @@ package repository;
 
 import java.util.List;
 
+import model.Course;
 import model.Student;
 
 public interface StudentRepository {
@@ -15,5 +16,9 @@ public interface StudentRepository {
 	void delete(Student student);
 
 	void updateStudentCourses(String studenId, String courseId);
+
+	void removeStudentCourse(String studentId, String courseId);
+
+	List<String> findStudentCourses(String studentId);
 
 }

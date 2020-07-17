@@ -14,4 +14,8 @@ public interface CourseRepository {
 
 	void delete(Course course);
 
+	void updateCourseStudents(String studentId, String courseId);
+
+	void removeCourseStudent(String studentId, String courseId);
+
 }

@@ -310,4 +310,173 @@ public class AgendaServiceTest {
 		verify(transactionManager).studentTransaction(any());
 	}
 	
+	@Test
+	public void testRemoveCourseFromStudentWhenStudentExistsSouldRemove() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+		when(studentRepository.findById("1")).thenReturn(testStudent);
+
+		// exercise
+		agendaService.removeCourseFromStudent(testStudent, testCourse);
+		
+		// verify
+		verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testRemoveCourseFromSudentWhenStudentDoesNotExistShouldNotRemove() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+		when(studentRepository.findById("1")).thenReturn(null);
+
+		// exercise
+		agendaService.removeCourseFromStudent(testStudent, testCourse);
+
+		// verify
+		verify(studentRepository, never()).removeStudentCourse(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testStudentHasCourseWhenSudentExistsAndHasItShouldReturnTrue() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+		
+		List<String> studentCourses = asList(testCourse.getId());
+
+		when(studentRepository.findById("1")).thenReturn(testStudent);
+		when(studentRepository.findStudentCourses("1")).thenReturn(studentCourses);
+
+		// exercise
+		Boolean hasCourse = agendaService.studentHasCourse(testStudent, testCourse);
+
+		// verify
+		assertThat(hasCourse).isTrue();
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testStudentHasCourseWhenStudentExistsAndDoesNotHaveItShouldReturnFalse() {
+		// setup
+		Course courseWithinList = new Course("1", "test course inside");
+		Course courseOutsideList = new Course("2", "test course outside");
+		Student testStudent = new Student("1", "test student");
+		
+		List<String> studentCourses = asList(courseWithinList.getId());
+		
+		when(studentRepository.findById("1")).thenReturn(testStudent);
+		when(studentRepository.findStudentCourses("1")).thenReturn(studentCourses);
+
+		// exercise
+		Boolean hasCourse = agendaService.studentHasCourse(testStudent, courseOutsideList);
+
+		// verify
+		assertThat(hasCourse).isFalse();
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testStudentHasCourseWhenStudentDoesNotExistShouldReturnFalse() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+		when(studentRepository.findById("1")).thenReturn(null);
+
+		// exercise
+		Boolean hasCourse = agendaService.studentHasCourse(testStudent, testCourse);
+
+		// verify
+		assertThat(hasCourse).isFalse();
+		verify(transactionManager).studentTransaction(any());
+	}
+	
+	@Test
+	public void testAddStudentToCourseWhenCourseExistsShouldAdd() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("1", "test course");
+		when(courseRepository.findById("1")).thenReturn(testCourse);
+
+		// exercise
+		agendaService.addStudentToCourse(testStudent, testCourse);
+
+		// verify
+		verify(courseRepository).updateCourseStudents(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testAddStudentToCourseWhenCourseDoesNotExistShouldNotAdd() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("1", "test course");
+		when(courseRepository.findById("1")).thenReturn(null);
+
+		// exercise
+		agendaService.addStudentToCourse(testStudent, testCourse);
+
+		// verify
+		verify(courseRepository, never()).updateCourseStudents(testStudent.getId(), testCourse.getId());;
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testRemoveStudentFromCourseWhenCourseExistsSouldRemove() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("1", "test course");
+		when(courseRepository.findById("1")).thenReturn(testCourse);
+
+		// exercise
+		agendaService.removeStudentFromCourse(testStudent, testCourse);
+
+		// verify
+		verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	@Test
+	public void testRemoveStudentFromCourseWhenCourseDoesNotExistShouldNotRemove() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("1", "test course");
+		when(courseRepository.findById("1")).thenReturn(null);
+
+		// exercise
+		agendaService.removeStudentFromCourse(testStudent, testCourse);
+
+		// verify
+		verify(courseRepository, never()).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).courseTransaction(any());
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }

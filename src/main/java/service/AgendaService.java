@@ -1,5 +1,6 @@
 package service;
 
+import java.util.Collections;
 import java.util.List;
 
 import model.Course;
@@ -57,13 +58,22 @@ public class AgendaService {
 	}
 
 	public void removeCourseFromStudent(Student student, Course course) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.studentTransaction(studentRepository -> {
+			if (studentRepository.findById(student.getId()) != null)
+				studentRepository.removeStudentCourse(student.getId(), course.getId());
+			return null;
+		});	
 	}
 
 	public Boolean studentHasCourse(Student student, Course course) {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> studentCourses = transactionManager.studentTransaction(studentRepository -> {
+			if (studentRepository.findById(student.getId()) != null)
+				return studentRepository.findStudentCourses(student.getId());
+			else
+				return Collections.emptyList();
+		});
+		
+		return studentCourses.contains(course.getId());
 	}
 
 	public void addCourse(Course course) {
@@ -88,13 +98,19 @@ public class AgendaService {
 	}
 
 	public void removeStudentFromCourse(Student student, Course course) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.courseTransaction(courseReposiory -> {
+			if (courseReposiory.findById(course.getId()) != null)
+				courseReposiory.removeCourseStudent(student.getId(), course.getId());
+			return null;
+		});	
 	}
 
 	public void addStudentToCourse(Student student, Course course) {
-		// TODO Auto-generated method stub
-		
+		transactionManager.courseTransaction(courseRepository -> {
+			if (courseRepository.findById(course.getId()) != null)
+				courseRepository.updateCourseStudents(student.getId(), course.getId());
+			return null;
+		});
 	}
 
 	public List<Course> getAllCourses() {
