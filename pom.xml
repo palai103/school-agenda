@@ -19,6 +19,8 @@
 		<coveralls.version>4.3.0</coveralls.version>
 		<jacoco.version>0.8.5</jacoco.version>
 		<sonar.version>3.7.0.1746</sonar.version>
+		<mongoserver.version>1.33.0</mongoserver.version>
+		<mongodriver.version>3.12.6</mongodriver.version>
 	</properties>
 	<description>A simple school agenda</description>
 
@@ -42,6 +44,25 @@
 			<artifactId>assertj-swing-junit</artifactId>
 			<version>${assertjswing.version}</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>de.bwaldvogel</groupId>
+			<artifactId>mongo-java-server</artifactId>
+			<version>${mongoserver.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>${mongodriver.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>1.2.3</version>
 		</dependency>
 	</dependencies>
 
@@ -78,7 +99,7 @@
 								</excludedClasses> -->
 
 							<targetClasses>
-							
+
 								<param>controller.AgendaController</param>
 							</targetClasses>
 							<targetTests>
