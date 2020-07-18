@@ -11,39 +11,50 @@ import org.bson.Document;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 
 import model.Student;
 
 public class StudentMongoRepository implements StudentRepository{
 	
+	private static final String DB_NAME = "schoolagenda";
+	private static final String DB_COLLECTION = "students";
+	
 	private MongoCollection<Document> studentCollection;
 
 	public StudentMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
-		studentCollection = mongoClient.getDatabase(dbName).getCollection(dbCollection);
+		studentCollection = mongoClient.getDatabase(DB_NAME).getCollection(DB_COLLECTION);
 	}
 
 	@Override
 	public List<Student> findAll() {
-		return StreamSupport.stream(studentCollection.find().spliterator(), false)
-				.map(this::fromDocumentToStudent).collect(Collectors.toList());
+		return StreamSupport.
+				stream(studentCollection.find().spliterator(), false)
+				.map(this::fromDocumentToStudent)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public Student findById(String id) {
-		// TODO Auto-generated method stub
+		Document document  = studentCollection.find(Filters.eq("id", id)).first();
+		if(document != null) {
+			return fromDocumentToStudent(document);
+		}
 		return null;
 	}
 
 	@Override
 	public void save(Student student) {
-		// TODO Auto-generated method stub
+		studentCollection.insertOne(
+				new Document()
+				.append("id", student.getId())
+				.append("name", student.getName()));
 		
 	}
 
 	@Override
 	public void delete(Student student) {
-		// TODO Auto-generated method stub
-		
+		studentCollection.deleteOne(Filters.eq("id", student.getId()));		
 	}
 
 	@Override
