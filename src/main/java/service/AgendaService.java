@@ -93,8 +93,14 @@ public class AgendaService {
 	}
 
 	public Boolean courseHasStudent(Student student, Course course) {
-		// TODO Auto-generated method stub
-		return null;
+		List<String> courseStudents = transactionManager.courseTransaction(courseRepository -> {
+			if (courseRepository.findById(course.getId()) != null)
+				return courseRepository.findCourseStudents(course.getId());
+			else
+				return Collections.emptyList();
+		});
+		
+		return courseStudents.contains(student.getId());
 	}
 
 	public void removeStudentFromCourse(Student student, Course course) {

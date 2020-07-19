@@ -10,6 +10,7 @@ import org.bson.Document;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 
 import model.Course;
 
@@ -56,18 +57,24 @@ public class CourseMongoRepository implements CourseRepository{
 
 	@Override
 	public void updateCourseStudents(String studentId, String courseId) {
-		// TODO Auto-generated method stub
-		
+		courseCollection.updateOne(Filters.eq(ID, courseId), 
+				Updates.push(STUDENTS, studentId));		
 	}
 
 	@Override
 	public void removeCourseStudent(String studentId, String courseId) {
-		// TODO Auto-generated method stub
-		
+		courseCollection.updateOne(Filters.eq(ID, courseId), 
+				Updates.pull(STUDENTS, studentId));		
 	}
 	
 	private Course fromDocumentToCourse(Document document) {
 		return new Course(document.getString(ID), document.getString("name"));
+	}
+
+	@Override
+	public List<String> findCourseStudents(String courseId) {
+		return courseCollection.find(Filters.eq(ID, courseId))
+				.first().getList(STUDENTS, String.class);
 	}
 
 }

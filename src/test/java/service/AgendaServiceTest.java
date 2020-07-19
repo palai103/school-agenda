@@ -358,6 +358,45 @@ public class AgendaServiceTest {
 	}
 
 	@Test
+	public void testCourseHasStudentWhenCourseExistsAndHasItShouldReturnTrue() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+
+		List<String> courseStudents = asList(testStudent.getId());
+
+		when(courseRepository.findById("1")).thenReturn(testCourse);
+		when(courseRepository.findCourseStudents("1")).thenReturn(courseStudents);
+
+		//exercise
+		Boolean hasStudent = agendaService.courseHasStudent(testStudent, testCourse);
+
+		// verify
+		assertThat(hasStudent).isTrue();
+		verify(transactionManager).courseTransaction(any());
+	}
+
+	@Test
+	public void testCourseHasStudentsWhenCourseExistsAndDoesNotHaveItShouldReturnFalse() {
+		//setup
+		Student studentWithinList = new Student("1", "test student inside");
+		Student studentOutsideList = new Student("2", "test student outside");
+		Course testCourse = new Course("1", "test course");
+
+		List<String> courseStudents = asList(studentWithinList.getId());
+
+		when(courseRepository.findById("1")).thenReturn(testCourse);
+		when(courseRepository.findCourseStudents("1")).thenReturn(courseStudents);
+
+		// exercise
+		Boolean hasStudent = agendaService.courseHasStudent(studentOutsideList, testCourse);
+
+		//verify
+		assertThat(hasStudent).isFalse();
+		verify(transactionManager).courseTransaction(any());
+	}
+
+	@Test
 	public void testStudentHasCourseWhenStudentExistsAndDoesNotHaveItShouldReturnFalse() {
 		// setup
 		Course courseWithinList = new Course("1", "test course inside");
@@ -451,5 +490,5 @@ public class AgendaServiceTest {
 		verify(courseRepository, never()).removeCourseStudent(testStudent.getId(), testCourse.getId());
 		verify(transactionManager).courseTransaction(any());
 	}
-	
+
 }

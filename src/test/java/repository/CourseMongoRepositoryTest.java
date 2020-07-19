@@ -116,6 +116,56 @@ public class CourseMongoRepositoryTest {
 		//verify
 		assertThat(readAllCoursesFromDatabase()).isEmpty();
 	}
+	
+	@Test
+	public void testGetStudentsFromCourseWhenStudentListIsEmpty() {
+		//setup
+		addTestCourseToDatabase("idCourse", "testCourse", Collections.emptyList());
+
+		//exercise
+		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+
+		//verify
+		assertThat(courseStudents).isEqualTo(Collections.emptyList());
+	}
+	
+	@Test
+	public void testGetStudentsFromCourseWhenStudentListIsNotEmpty() {
+		//setup
+		addTestCourseToDatabase("idCourse", "testCourse", Collections.singletonList("idStudent"));
+
+		//exercise
+		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+
+		//verify
+		assertThat(courseStudents).isEqualTo(Collections.singletonList("idStudent"));
+	}
+	
+	@Test
+	public void testAddStudentToCourseWhenStudentIsNotNull() {
+		//setup
+		addTestCourseToDatabase("idCourse", "testCourse", Collections.emptyList());
+
+		//exercise
+		courseMongoRepository.updateCourseStudents("idStudent", "idCourse");
+		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+
+		//verify
+		assertThat(courseStudents).containsExactly("idStudent");
+	}
+
+	@Test
+	public void testRemoveCourseToStudentWhenCourseIsNotNull() {
+		//setup
+		addTestCourseToDatabase("idCourse", "testCourse", Collections.singletonList("idStudent"));
+
+		//exercise
+		courseMongoRepository.removeCourseStudent("idStudent", "idCourse");
+		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+
+		//verify
+		assertThat(courseStudents).isEmpty();
+	}
 
 	private void addTestCourseToDatabase(String id, String name, List<String> students) {
 		courseCollection.insertOne(new Document()

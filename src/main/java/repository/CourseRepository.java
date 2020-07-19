@@ -18,4 +18,6 @@ public interface CourseRepository {
 
 	void removeCourseStudent(String studentId, String courseId);
 
+	List<String> findCourseStudents(String courseId);
+
 }
