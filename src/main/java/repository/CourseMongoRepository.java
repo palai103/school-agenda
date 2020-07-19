@@ -2,16 +2,21 @@ package repository;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.bson.Document;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 
 import model.Course;
 
 public class CourseMongoRepository implements CourseRepository{
 	
+	private static final String ID = "id";
+	private static final String STUDENTS = "students";
 	private MongoCollection<Document> courseCollection;
 
 	public CourseMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
@@ -20,25 +25,33 @@ public class CourseMongoRepository implements CourseRepository{
 
 	@Override
 	public List<Course> findAll() {
-		return Collections.emptyList();
+		return StreamSupport.
+				stream(courseCollection.find().spliterator(), false)
+				.map(this::fromDocumentToCourse)
+				.collect(Collectors.toList());
 	}
 
 	@Override
 	public Course findById(String id) {
-		// TODO Auto-generated method stub
+		Document document  = courseCollection.find(Filters.eq(ID, id)).first();
+		if(document != null) {
+			return fromDocumentToCourse(document);
+		}
 		return null;
 	}
 
 	@Override
 	public void save(Course course) {
-		// TODO Auto-generated method stub
-		
+		courseCollection.insertOne(
+				new Document()
+				.append(ID, course.getId())
+				.append("name", course.getName())
+				.append(STUDENTS, Collections.emptyList()));
 	}
 
 	@Override
 	public void delete(Course course) {
-		// TODO Auto-generated method stub
-		
+		courseCollection.deleteOne(Filters.eq(ID, course.getId()));		
 	}
 
 	@Override
@@ -51,6 +64,10 @@ public class CourseMongoRepository implements CourseRepository{
 	public void removeCourseStudent(String studentId, String courseId) {
 		// TODO Auto-generated method stub
 		
+	}
+	
+	private Course fromDocumentToCourse(Document document) {
+		return new Course(document.getString(ID), document.getString("name"));
 	}
 
 }

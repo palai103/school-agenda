@@ -16,6 +16,8 @@ import model.Student;
 
 public class StudentMongoRepository implements StudentRepository{
 
+	private static final String ID = "id";
+	private static final String COURSES = "courses";
 	private MongoCollection<Document> studentCollection;
 
 	public StudentMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
@@ -32,7 +34,7 @@ public class StudentMongoRepository implements StudentRepository{
 
 	@Override
 	public Student findById(String id) {
-		Document document  = studentCollection.find(Filters.eq("id", id)).first();
+		Document document  = studentCollection.find(Filters.eq(ID, id)).first();
 		if(document != null) {
 			return fromDocumentToStudent(document);
 		}
@@ -43,37 +45,36 @@ public class StudentMongoRepository implements StudentRepository{
 	public void save(Student student) {
 		studentCollection.insertOne(
 				new Document()
-				.append("id", student.getId())
+				.append(ID, student.getId())
 				.append("name", student.getName())
-				.append("courses", Collections.emptyList()));
-
+				.append(COURSES, Collections.emptyList()));
 	}
 
 	@Override
 	public void delete(Student student) {
-		studentCollection.deleteOne(Filters.eq("id", student.getId()));
+		studentCollection.deleteOne(Filters.eq(ID, student.getId()));
 	}
 
 	@Override
 	public void updateStudentCourses(String studentId, String courseId) {
-		studentCollection.updateOne(Filters.eq("id", studentId), 
-				Updates.push("courses", courseId));
+		studentCollection.updateOne(Filters.eq(ID, studentId), 
+				Updates.push(COURSES, courseId));
 	}
 
 	@Override
 	public void removeStudentCourse(String studentId, String courseId) {
-		studentCollection.updateOne(Filters.eq("id", studentId), 
-				Updates.pull("courses", courseId));		
+		studentCollection.updateOne(Filters.eq(ID, studentId), 
+				Updates.pull(COURSES, courseId));		
 	}
 
 	@Override
 	public List<String> findStudentCourses(String studentId) {
-		return studentCollection.find(Filters.eq("id", studentId))
-				.first().getList("courses", String.class);
+		return studentCollection.find(Filters.eq(ID, studentId))
+				.first().getList(COURSES, String.class);
 	}
 
 	private Student fromDocumentToStudent(Document document) {
-		return new Student(document.getString("id"), document.getString("name"));
+		return new Student(document.getString(ID), document.getString("name"));
 	}
 
 }
