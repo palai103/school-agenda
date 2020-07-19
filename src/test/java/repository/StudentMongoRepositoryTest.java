@@ -3,8 +3,6 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.net.InetSocketAddress;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -118,7 +116,7 @@ public class StudentMongoRepositoryTest {
 
 		//verify
 		assertThat(readAllStudentsFromDatabase()).isEmpty();
-	}
+	}	
 
 	private void addTestStudentToDatabase(String id, String name, List<Course> courses) {
 		studentColletion.insertOne(new Document()

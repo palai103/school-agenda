@@ -1,8 +1,5 @@
 package repository;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -17,13 +14,10 @@ import model.Student;
 
 public class StudentMongoRepository implements StudentRepository{
 	
-	private static final String DB_NAME = "schoolagenda";
-	private static final String DB_COLLECTION = "students";
-	
 	private MongoCollection<Document> studentCollection;
 
 	public StudentMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
-		studentCollection = mongoClient.getDatabase(DB_NAME).getCollection(DB_COLLECTION);
+		studentCollection = mongoClient.getDatabase(dbName).getCollection(dbCollection);
 	}
 
 	@Override
