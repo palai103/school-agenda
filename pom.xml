@@ -96,12 +96,13 @@
 						<artifactId>pitest-maven</artifactId>
 						<version>${pitest.version}</version>
 						<configuration>
-							<targetClasses>
-								<param>controller.AgendaController</param>
-							</targetClasses>
-							<targetTests>
-								<param>controller.AgendaControllerTest</param>
-							</targetTests>
+							<excludedClasses>
+								<param>*Test</param>
+								<param>it.unifi.app.school-agenda.model.*</param>
+							</excludedClasses>
+<!-- 							<excludedTestClasses> -->
+<!-- 								<param>controller.AgendaControllerTest</param> -->
+<!-- 							</excludedTestClasses> -->
 							<mutators>
 								<mutator>DEFAULTS</mutator>
 							</mutators>
