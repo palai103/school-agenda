@@ -2,7 +2,6 @@ package repository;
 
 import java.util.List;
 
-import model.Course;
 import model.Student;
 
 public interface StudentRepository {

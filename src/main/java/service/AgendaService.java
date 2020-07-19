@@ -22,15 +22,15 @@ public class AgendaService {
 	}
 
 	public Boolean findStudent(Student student) {
-		return transactionManager.studentTransaction(studentRepository -> {
-			return studentRepository.findById(student.getId()) != null;
-		});
+		return transactionManager.studentTransaction(studentRepository -> 
+			studentRepository.findById(student.getId()) != null
+		);
 	}
 	
 	public Boolean findCourse(Course course) {
-		return transactionManager.courseTransaction(courseRepository -> {
-			return courseRepository.findById(course.getId()) != null;
-		});
+		return transactionManager.courseTransaction(courseRepository -> 
+			courseRepository.findById(course.getId()) != null
+		);
 	}
 
 	public void addStudent(Student student) {

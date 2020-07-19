@@ -20,7 +20,6 @@ import com.mongodb.client.MongoCollection;
 
 import de.bwaldvogel.mongo.MongoServer;
 import de.bwaldvogel.mongo.backend.memory.MemoryBackend;
-import model.Course;
 import model.Student;
 
 import org.bson.Document;
@@ -118,7 +117,57 @@ public class StudentMongoRepositoryTest {
 		assertThat(readAllStudentsFromDatabase()).isEmpty();
 	}	
 
-	private void addTestStudentToDatabase(String id, String name, List<Course> courses) {
+	@Test
+	public void testGetCoursesFromStudentWhenCourseListIsEmpty() {
+		//setup
+		addTestStudentToDatabase("idStudent", "testStudent", Collections.emptyList());
+
+		//exercise
+		List<String> studentCourses = studentMongoRepository.findStudentCourses("idStudent");
+
+		//verify
+		assertThat(studentCourses).isEqualTo(Collections.emptyList());
+	}
+
+	@Test
+	public void testGetCoursesFromStudentWhenCourseListIsNotEmpty() {
+		//setup
+		addTestStudentToDatabase("idStudent", "testStudent", Collections.singletonList("idCourse"));
+
+		//exercise
+		List<String> studentCourses = studentMongoRepository.findStudentCourses("idStudent");
+
+		//verify
+		assertThat(studentCourses).isEqualTo(Collections.singletonList("idCourse"));
+	}
+
+	@Test
+	public void testAddCourseToStudentWhenCourseIsNotNull() {
+		//setup
+		addTestStudentToDatabase("idStudent", "testStudent", Collections.emptyList());
+
+		//exercise
+		studentMongoRepository.updateStudentCourses("idStudent", "idCourse");
+		List<String> studentCourses = studentMongoRepository.findStudentCourses("idStudent");
+
+		//verify
+		assertThat(studentCourses).containsExactly("idCourse");
+	}
+
+	@Test
+	public void testRemoveCourseToStudentWhenCourseIsNotNull() {
+		//setup
+		addTestStudentToDatabase("idStudent", "testStudent", Collections.singletonList("idCourse"));
+
+		//exercise
+		studentMongoRepository.removeStudentCourse("idStudent", "idCourse");
+		List<String> studentCourses = studentMongoRepository.findStudentCourses("idStudent");
+
+		//verify
+		assertThat(studentCourses).isEmpty();
+	}
+
+	private void addTestStudentToDatabase(String id, String name, List<String> courses) {
 		studentColletion.insertOne(new Document()
 				.append("id", id)
 				.append("name", name)
