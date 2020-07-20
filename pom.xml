@@ -11,6 +11,17 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+
+		<junit.version>4.13</junit.version>
+		<mockito.version>3.3.3</mockito.version>
+		<assertjswing.version>3.9.2</assertjswing.version>
+		<pitest.version>1.5.2</pitest.version>
+		<coveralls.version>4.3.0</coveralls.version>
+		<jacoco.version>0.8.5</jacoco.version>
+		<sonar.version>3.7.0.1746</sonar.version>
+		<mongoserver.version>1.33.0</mongoserver.version>
+		<mongodriver.version>3.12.6</mongodriver.version>
+		<logback-classic.version>1.2.3</logback-classic.version>
 	</properties>
 	<description>A simple school agenda</description>
 
@@ -18,15 +29,41 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.13</version>
+			<version>${junit.version}</version>
 			<scope>test</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>3.2.4</version>
+			<version>${mockito.version}</version>
 			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-swing-junit</artifactId>
+			<version>${assertjswing.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>de.bwaldvogel</groupId>
+			<artifactId>mongo-java-server</artifactId>
+			<version>${mongoserver.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.mongodb</groupId>
+			<artifactId>mongo-java-driver</artifactId>
+			<version>${mongodriver.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-classic</artifactId>
+			<version>${logback-classic.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -38,7 +75,7 @@
 					<plugin>
 						<groupId>org.jacoco</groupId>
 						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>0.8.5</version>
+						<version>${jacoco.version}</version>
 						<configuration>
 							<excludes>
 								<exclude>/model/*.*</exclude>
@@ -57,14 +94,15 @@
 					<plugin>
 						<groupId>org.pitest</groupId>
 						<artifactId>pitest-maven</artifactId>
-						<version>1.4.10</version>
+						<version>${pitest.version}</version>
 						<configuration>
-							<targetClasses>
-								<param>controller.AgendaController</param>
-							</targetClasses>
-							<targetTests>
-								<param>controller.AgendaControllerTest</param>
-							</targetTests>
+							<excludedClasses>
+								<param>*Test</param>
+								<param>model.*</param>
+							</excludedClasses>
+<!-- 							<excludedTestClasses> -->
+<!-- 								<param>controller.AgendaControllerTest</param> -->
+<!-- 							</excludedTestClasses> -->
 							<mutators>
 								<mutator>DEFAULTS</mutator>
 							</mutators>
@@ -82,13 +120,13 @@
 				<plugin>
 					<groupId>org.eluder.coveralls</groupId>
 					<artifactId>coveralls-maven-plugin</artifactId>
-					<version>4.3.0</version>
+					<version>${coveralls.version}</version>
 				</plugin>
 
 				<plugin>
 					<groupId>org.sonarsource.scanner.maven</groupId>
 					<artifactId>sonar-maven-plugin</artifactId>
-					<version>3.7.0.1746</version>
+					<version>${sonar.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>
