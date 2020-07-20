@@ -1,6 +1,5 @@
 package service;
 
-import java.util.Collections;
 import java.util.List;
 
 import model.Course;
@@ -66,10 +65,9 @@ public class AgendaService {
 	}
 
 	public Boolean studentHasCourse(Student student, Course course) {
-		List<String> studentCourses = transactionManager.studentTransaction(studentRepository -> {
-			return studentRepository.findStudentCourses(student.getId());
-		});
-		
+		List<String> studentCourses = transactionManager.studentTransaction(studentRepository -> 
+			studentRepository.findStudentCourses(student.getId())
+		);		
 		return studentCourses.contains(course.getId());
 	}
 
@@ -90,10 +88,9 @@ public class AgendaService {
 	}
 
 	public Boolean courseHasStudent(Student student, Course course) {
-		List<String> courseStudents = transactionManager.courseTransaction(courseRepository -> {
-				return courseRepository.findCourseStudents(course.getId());
-		});
-		
+		List<String> courseStudents = transactionManager.courseTransaction(courseRepository -> 
+				courseRepository.findCourseStudents(course.getId())
+		);		
 		return courseStudents.contains(student.getId());
 	}
 

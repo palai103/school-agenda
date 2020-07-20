@@ -100,9 +100,6 @@
 								<param>*Test</param>
 								<param>model.*</param>
 							</excludedClasses>
-<!-- 							<excludedTestClasses> -->
-<!-- 								<param>controller.AgendaControllerTest</param> -->
-<!-- 							</excludedTestClasses> -->
 							<mutators>
 								<mutator>DEFAULTS</mutator>
 							</mutators>
