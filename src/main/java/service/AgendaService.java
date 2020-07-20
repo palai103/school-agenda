@@ -11,7 +11,7 @@ import repository.TransactionManager;
 public class AgendaService {
 
 	private TransactionManager transactionManager;
-	
+
 	public AgendaService(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
@@ -22,14 +22,14 @@ public class AgendaService {
 
 	public Boolean findStudent(Student student) {
 		return transactionManager.studentTransaction(studentRepository -> 
-			studentRepository.findById(student.getId()) != null
-		);
+		studentRepository.findById(student.getId()) != null
+				);
 	}
-	
+
 	public Boolean findCourse(Course course) {
 		return transactionManager.courseTransaction(courseRepository -> 
-			courseRepository.findById(course.getId()) != null
-		);
+		courseRepository.findById(course.getId()) != null
+				);
 	}
 
 	public void addStudent(Student student) {
@@ -66,8 +66,7 @@ public class AgendaService {
 
 	public Boolean studentHasCourse(Student student, Course course) {
 		List<String> studentCourses = transactionManager.studentTransaction(studentRepository -> 
-			studentRepository.findStudentCourses(student.getId())
-		);		
+		studentRepository.findStudentCourses(student.getId()));		
 		return studentCourses.contains(course.getId());
 	}
 
@@ -89,8 +88,7 @@ public class AgendaService {
 
 	public Boolean courseHasStudent(Student student, Course course) {
 		List<String> courseStudents = transactionManager.courseTransaction(courseRepository -> 
-				courseRepository.findCourseStudents(course.getId())
-		);		
+		courseRepository.findCourseStudents(course.getId()));		
 		return courseStudents.contains(student.getId());
 	}
 
