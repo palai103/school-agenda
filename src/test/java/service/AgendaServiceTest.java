@@ -490,5 +490,4 @@ public class AgendaServiceTest {
 		verify(courseRepository, never()).removeCourseStudent(testStudent.getId(), testCourse.getId());
 		verify(transactionManager).courseTransaction(any());
 	}
-
 }
