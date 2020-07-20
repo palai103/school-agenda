@@ -91,10 +91,7 @@ public class AgendaService {
 
 	public Boolean courseHasStudent(Student student, Course course) {
 		List<String> courseStudents = transactionManager.courseTransaction(courseRepository -> {
-			if (courseRepository.findById(course.getId()) != null)
 				return courseRepository.findCourseStudents(course.getId());
-			else
-				return Collections.emptyList();
 		});
 		
 		return courseStudents.contains(student.getId());
