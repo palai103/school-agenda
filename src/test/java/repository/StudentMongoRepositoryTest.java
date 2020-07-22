@@ -52,7 +52,8 @@ public class StudentMongoRepositoryTest {
 	public void setup() {
 		mongoClient = new MongoClient(new ServerAddress(serverAddres));
 		studentMongoRepository = new StudentMongoRepository(mongoClient, DB_NAME, DB_COLLECTION);
-		mongoClient.getDatabase(DB_NAME).drop();studentColletion = mongoClient.getDatabase(DB_NAME).getCollection(DB_COLLECTION);
+		mongoClient.getDatabase(DB_NAME).drop();
+		studentColletion = mongoClient.getDatabase(DB_NAME).getCollection(DB_COLLECTION);
 	}
 
 	@After
