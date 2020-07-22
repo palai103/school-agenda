@@ -1,8 +1,8 @@
 import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Arrays.asList;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -67,13 +67,33 @@ public class CourseMongoRepositoryTestIT {
 		courseRepository.save(new Course("1", "test course 1"));
 		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1"));
 	}
-	
+
 	@Test
 	public void testDelete() {
 		addCourseToDatabse("1", "test course 1", Collections.emptyList());
 		addCourseToDatabse("2", "test course 2", Collections.emptyList());
 		courseRepository.delete(new Course("2", "test course 2"));
 		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1"));
+	}
+
+	@Test
+	public void testUpdateCourseStudents() {
+		addCourseToDatabse("1", "test course 1", Collections.emptyList());
+		courseRepository.updateCourseStudents("2", "1");
+		assertThat(courseRepository.findCourseStudents("1")).containsExactly("2");
+	}
+	
+	@Test
+	public void testRemoveCourseStudent() {
+		addCourseToDatabse("1", "test course 1", asList("2"));
+		courseRepository.removeCourseStudent("2", "1");
+		assertThat(courseRepository.findCourseStudents("1")).isEmpty();
+	}
+	
+	@Test
+	public void testFindCourseStudents() {
+		addCourseToDatabse("1", "test course 1", asList("2", "3"));
+		assertThat(courseRepository.findCourseStudents("1")).containsAll(asList("2", "3"));
 	}
 
 	private void addCourseToDatabse(String id, String name, List<String> students) {
