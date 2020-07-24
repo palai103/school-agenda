@@ -4,15 +4,18 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.AdditionalAnswers.answer;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.inOrder;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
@@ -22,6 +25,7 @@ import repository.CourseRepository;
 import repository.CourseTransactionCode;
 import repository.StudentRepository;
 import repository.StudentTransactionCode;
+import repository.TransactionCode;
 import repository.TransactionManager;
 
 public class AgendaServiceTest {
@@ -46,6 +50,9 @@ public class AgendaServiceTest {
 
 		when(transactionManager.courseTransaction(any())).thenAnswer(
 				answer((CourseTransactionCode<?> code) -> code.apply(courseRepository)));
+		
+		when(transactionManager.compositeTransaction(any())).thenAnswer(
+				answer((TransactionCode<?> code) -> code.apply(studentRepository, courseRepository)));
 
 		agendaService = new AgendaService(transactionManager);
 	}
@@ -173,13 +180,19 @@ public class AgendaServiceTest {
 	public void testRemoveStudentWhenNotEmptyShouldRemove() {
 		// setup
 		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("1", "test course");
+		when(studentRepository.findStudentCourses(testStudent.getId()))
+			.thenReturn(Collections.singletonList(testCourse.getId()));
 
 		// exercise
 		agendaService.removeStudent(testStudent);
 
 		// verify
-		verify(studentRepository).delete(testStudent);
-		verify(transactionManager).studentTransaction(any());
+		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
+		inOrder.verify(transactionManager).compositeTransaction(any());
+		inOrder.verify(studentRepository).findStudentCourses(testStudent.getId());
+		inOrder.verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).delete(testStudent);
 	}
 
 	@Test
@@ -192,7 +205,7 @@ public class AgendaServiceTest {
 
 		// verify
 		verifyNoInteractions(studentRepository);
-		verify(transactionManager).studentTransaction(any());
+		verify(transactionManager).compositeTransaction(any());
 	}
 
 	@Test

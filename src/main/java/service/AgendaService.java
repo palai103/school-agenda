@@ -21,15 +21,13 @@ public class AgendaService {
 	}
 
 	public Boolean findStudent(Student student) {
-		return transactionManager.studentTransaction(studentRepository -> 
-		studentRepository.findById(student.getId()) != null
-				);
+		return transactionManager
+				.studentTransaction(studentRepository -> studentRepository.findById(student.getId()) != null);
 	}
 
 	public Boolean findCourse(Course course) {
-		return transactionManager.courseTransaction(courseRepository -> 
-		courseRepository.findById(course.getId()) != null
-				);
+		return transactionManager
+				.courseTransaction(courseRepository -> courseRepository.findById(course.getId()) != null);
 	}
 
 	public void addStudent(Student student) {
@@ -41,11 +39,16 @@ public class AgendaService {
 	}
 
 	public void removeStudent(Student student) {
-		transactionManager.studentTransaction(studentRepository -> {
-			if (student != null)
+		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+			if (student != null) {
+				List<String> studentCourses = studentRepository.findStudentCourses(student.getId());
+				for (String courseId : studentCourses) {
+					courseRepository.removeCourseStudent(student.getId(), courseId);
+				}
 				studentRepository.delete(student);
+			}
 			return null;
-		});		
+		});
 	}
 
 	public void addCourseToStudent(Student student, Course course) {
@@ -61,12 +64,12 @@ public class AgendaService {
 			if (studentRepository.findById(student.getId()) != null)
 				studentRepository.removeStudentCourse(student.getId(), course.getId());
 			return null;
-		});	
+		});
 	}
 
 	public Boolean studentHasCourse(Student student, Course course) {
-		List<String> studentCourses = transactionManager.studentTransaction(studentRepository -> 
-		studentRepository.findStudentCourses(student.getId()));		
+		List<String> studentCourses = transactionManager
+				.studentTransaction(studentRepository -> studentRepository.findStudentCourses(student.getId()));
 		return studentCourses.contains(course.getId());
 	}
 
@@ -75,7 +78,7 @@ public class AgendaService {
 			if (course != null)
 				courseRepository.save(course);
 			return null;
-		});		
+		});
 	}
 
 	public void removeCourse(Course course) {
@@ -87,8 +90,8 @@ public class AgendaService {
 	}
 
 	public Boolean courseHasStudent(Student student, Course course) {
-		List<String> courseStudents = transactionManager.courseTransaction(courseRepository -> 
-		courseRepository.findCourseStudents(course.getId()));		
+		List<String> courseStudents = transactionManager
+				.courseTransaction(courseRepository -> courseRepository.findCourseStudents(course.getId()));
 		return courseStudents.contains(student.getId());
 	}
 
@@ -97,7 +100,7 @@ public class AgendaService {
 			if (courseReposiory.findById(course.getId()) != null)
 				courseReposiory.removeCourseStudent(student.getId(), course.getId());
 			return null;
-		});	
+		});
 	}
 
 	public void addStudentToCourse(Student student, Course course) {

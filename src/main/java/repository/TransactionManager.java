@@ -6,4 +6,6 @@ public interface TransactionManager {
 
 	<T> T courseTransaction(CourseTransactionCode<T> code);
 
+	<T> T compositeTransaction(TransactionCode<T> code);
+
 }
