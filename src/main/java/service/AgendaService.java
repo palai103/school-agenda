@@ -1,5 +1,6 @@
 package service;
 
+import java.util.Iterator;
 import java.util.List;
 
 import model.Course;
@@ -52,17 +53,21 @@ public class AgendaService {
 	}
 
 	public void addCourseToStudent(Student student, Course course) {
-		transactionManager.studentTransaction(studentRepository -> {
-			if (studentRepository.findById(student.getId()) != null)
+		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+			if (studentRepository.findById(student.getId()) != null) {
 				studentRepository.updateStudentCourses(student.getId(), course.getId());
+				courseRepository.updateCourseStudents(student.getId(), course.getId());
+			}
 			return null;
 		});
 	}
 
 	public void removeCourseFromStudent(Student student, Course course) {
-		transactionManager.studentTransaction(studentRepository -> {
-			if (studentRepository.findById(student.getId()) != null)
+		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+			if (studentRepository.findById(student.getId()) != null) {
 				studentRepository.removeStudentCourse(student.getId(), course.getId());
+				courseRepository.removeCourseStudent(student.getId(), course.getId());
+			}
 			return null;
 		});
 	}
@@ -82,9 +87,14 @@ public class AgendaService {
 	}
 
 	public void removeCourse(Course course) {
-		transactionManager.courseTransaction(courseRepository -> {
-			if (course != null)
+		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+			if (course != null) {
+				List<String> courseStudents = courseRepository.findCourseStudents(course.getId());
+				for (String studentId : courseStudents) {
+					studentRepository.removeStudentCourse(studentId, course.getId());
+				}
 				courseRepository.delete(course);
+			}
 			return null;
 		});
 	}
@@ -96,17 +106,21 @@ public class AgendaService {
 	}
 
 	public void removeStudentFromCourse(Student student, Course course) {
-		transactionManager.courseTransaction(courseReposiory -> {
-			if (courseReposiory.findById(course.getId()) != null)
-				courseReposiory.removeCourseStudent(student.getId(), course.getId());
+		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+			if (courseRepository.findById(course.getId()) != null) {
+				courseRepository.removeCourseStudent(student.getId(), course.getId());
+				studentRepository.removeStudentCourse(student.getId(), course.getId());
+			}
 			return null;
 		});
 	}
 
 	public void addStudentToCourse(Student student, Course course) {
-		transactionManager.courseTransaction(courseRepository -> {
-			if (courseRepository.findById(course.getId()) != null)
+		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+			if (courseRepository.findById(course.getId()) != null) {
 				courseRepository.updateCourseStudents(student.getId(), course.getId());
+				studentRepository.updateStudentCourses(student.getId(), course.getId());
+			}
 			return null;
 		});
 	}

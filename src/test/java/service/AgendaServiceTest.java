@@ -45,19 +45,19 @@ public class AgendaServiceTest {
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
 
-		when(transactionManager.studentTransaction(any())).thenAnswer(
-				answer((StudentTransactionCode<?> code) -> code.apply(studentRepository)));
+		when(transactionManager.studentTransaction(any()))
+				.thenAnswer(answer((StudentTransactionCode<?> code) -> code.apply(studentRepository)));
 
-		when(transactionManager.courseTransaction(any())).thenAnswer(
-				answer((CourseTransactionCode<?> code) -> code.apply(courseRepository)));
-		
-		when(transactionManager.compositeTransaction(any())).thenAnswer(
-				answer((TransactionCode<?> code) -> code.apply(studentRepository, courseRepository)));
+		when(transactionManager.courseTransaction(any()))
+				.thenAnswer(answer((CourseTransactionCode<?> code) -> code.apply(courseRepository)));
+
+		when(transactionManager.compositeTransaction(any()))
+				.thenAnswer(answer((TransactionCode<?> code) -> code.apply(studentRepository, courseRepository)));
 
 		agendaService = new AgendaService(transactionManager);
 	}
 
-	/*Get all students*/
+	/* Get all students */
 
 	@Test
 	public void testGetAllStudentsWithNotEmptyListShouldReturnListWithAllStudents() {
@@ -182,7 +182,7 @@ public class AgendaServiceTest {
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course");
 		when(studentRepository.findStudentCourses(testStudent.getId()))
-			.thenReturn(Collections.singletonList(testCourse.getId()));
+				.thenReturn(Collections.singletonList(testCourse.getId()));
 
 		// exercise
 		agendaService.removeStudent(testStudent);
@@ -269,13 +269,19 @@ public class AgendaServiceTest {
 	public void testRemoveCourseWhenNotEmptyShouldRemove() {
 		// setup
 		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+		when(courseRepository.findCourseStudents(testCourse.getId()))
+				.thenReturn(Collections.singletonList(testStudent.getId()));
 
 		// exercise
 		agendaService.removeCourse(testCourse);
 
 		// verify
-		verify(courseRepository).delete(testCourse);
-		verify(transactionManager).courseTransaction(any());
+		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
+		inOrder.verify(transactionManager).compositeTransaction(any());
+		inOrder.verify(courseRepository).findCourseStudents(testCourse.getId());
+		inOrder.verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).delete(testCourse);
 	}
 
 	@Test
@@ -288,7 +294,7 @@ public class AgendaServiceTest {
 
 		// verify
 		verifyNoInteractions(courseRepository);
-		verify(transactionManager).courseTransaction(any());
+		verify(transactionManager).compositeTransaction(any());
 	}
 
 	@Test
@@ -302,8 +308,10 @@ public class AgendaServiceTest {
 		agendaService.addCourseToStudent(testStudent, testCourse);
 
 		// verify
-		verify(studentRepository).updateStudentCourses(testStudent.getId(), testCourse.getId());
-		verify(transactionManager).studentTransaction(any());
+		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
+		inOrder.verify(transactionManager).compositeTransaction(any());
+		inOrder.verify(studentRepository).updateStudentCourses(testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).updateCourseStudents(testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -318,11 +326,12 @@ public class AgendaServiceTest {
 
 		// verify
 		verify(studentRepository, never()).updateStudentCourses(testStudent.getId(), testCourse.getId());
-		verify(transactionManager).studentTransaction(any());
+		verify(courseRepository, never()).updateCourseStudents(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).compositeTransaction(any());
 	}
 
 	@Test
-	public void testRemoveCourseFromStudentWhenStudentExistsSouldRemove() {
+	public void testRemoveCourseFromStudentWhenStudentExistsShouldRemove() {
 		// setup
 		Course testCourse = new Course("1", "test course");
 		Student testStudent = new Student("1", "test student");
@@ -332,8 +341,10 @@ public class AgendaServiceTest {
 		agendaService.removeCourseFromStudent(testStudent, testCourse);
 
 		// verify
-		verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
-		verify(transactionManager).studentTransaction(any());
+		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
+		inOrder.verify(transactionManager).compositeTransaction(any());
+		inOrder.verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -348,7 +359,8 @@ public class AgendaServiceTest {
 
 		// verify
 		verify(studentRepository, never()).removeStudentCourse(testStudent.getId(), testCourse.getId());
-		verify(transactionManager).studentTransaction(any());
+		verify(courseRepository, never()).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		verify(transactionManager).compositeTransaction(any());
 	}
 
 	@Test
@@ -381,7 +393,7 @@ public class AgendaServiceTest {
 		when(courseRepository.findById("1")).thenReturn(testCourse);
 		when(courseRepository.findCourseStudents("1")).thenReturn(courseStudents);
 
-		//exercise
+		// exercise
 		Boolean hasStudent = agendaService.courseHasStudent(testStudent, testCourse);
 
 		// verify
@@ -391,7 +403,7 @@ public class AgendaServiceTest {
 
 	@Test
 	public void testCourseHasStudentsWhenCourseExistsAndDoesNotHaveItShouldReturnFalse() {
-		//setup
+		// setup
 		Student studentWithinList = new Student("1", "test student inside");
 		Student studentOutsideList = new Student("2", "test student outside");
 		Course testCourse = new Course("1", "test course");
@@ -404,7 +416,7 @@ public class AgendaServiceTest {
 		// exercise
 		Boolean hasStudent = agendaService.courseHasStudent(studentOutsideList, testCourse);
 
-		//verify
+		// verify
 		assertThat(hasStudent).isFalse();
 		verify(transactionManager).courseTransaction(any());
 	}
@@ -455,8 +467,10 @@ public class AgendaServiceTest {
 		agendaService.addStudentToCourse(testStudent, testCourse);
 
 		// verify
-		verify(courseRepository).updateCourseStudents(testStudent.getId(), testCourse.getId());
-		verify(transactionManager).courseTransaction(any());
+		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
+		inOrder.verify(transactionManager).compositeTransaction(any());
+		inOrder.verify(courseRepository).updateCourseStudents(testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).updateStudentCourses(testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -470,8 +484,9 @@ public class AgendaServiceTest {
 		agendaService.addStudentToCourse(testStudent, testCourse);
 
 		// verify
-		verify(courseRepository, never()).updateCourseStudents(testStudent.getId(), testCourse.getId());;
-		verify(transactionManager).courseTransaction(any());
+		verify(courseRepository, never()).updateCourseStudents(testStudent.getId(), testCourse.getId());
+		;
+		verify(transactionManager).compositeTransaction(any());
 	}
 
 	@Test
@@ -485,8 +500,10 @@ public class AgendaServiceTest {
 		agendaService.removeStudentFromCourse(testStudent, testCourse);
 
 		// verify
-		verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
-		verify(transactionManager).courseTransaction(any());
+		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
+		inOrder.verify(transactionManager).compositeTransaction(any());
+		inOrder.verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -501,6 +518,6 @@ public class AgendaServiceTest {
 
 		// verify
 		verify(courseRepository, never()).removeCourseStudent(testStudent.getId(), testCourse.getId());
-		verify(transactionManager).courseTransaction(any());
+		verify(transactionManager).compositeTransaction(any());
 	}
 }
