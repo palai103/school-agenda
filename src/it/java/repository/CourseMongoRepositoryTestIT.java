@@ -1,3 +1,4 @@
+package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Arrays.asList;
 
@@ -50,15 +51,15 @@ public class CourseMongoRepositoryTestIT {
 
 	@Test
 	public void testFindAll() {
-		addCourseToDatabse("1", "test course 1", Collections.emptyList());
-		addCourseToDatabse("2", "test course 2", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", Collections.emptyList());
+		addCourseToDatabase("2", "test course 2", Collections.emptyList());
 		assertThat(courseRepository.findAll()).containsExactly(new Course("1", "test course 1"),
 				new Course("2", "test course 2"));
 	}
 
 	@Test
 	public void testFindById() {
-		addCourseToDatabse("1", "test course 1", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", Collections.emptyList());
 		assertThat(courseRepository.findById("1")).isEqualTo(new Course("1", "test course 1"));
 	}
 
@@ -70,33 +71,33 @@ public class CourseMongoRepositoryTestIT {
 
 	@Test
 	public void testDelete() {
-		addCourseToDatabse("1", "test course 1", Collections.emptyList());
-		addCourseToDatabse("2", "test course 2", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", Collections.emptyList());
+		addCourseToDatabase("2", "test course 2", Collections.emptyList());
 		courseRepository.delete(new Course("2", "test course 2"));
 		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1"));
 	}
 
 	@Test
 	public void testUpdateCourseStudents() {
-		addCourseToDatabse("1", "test course 1", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", Collections.emptyList());
 		courseRepository.updateCourseStudents("2", "1");
 		assertThat(courseRepository.findCourseStudents("1")).containsExactly("2");
 	}
 	
 	@Test
 	public void testRemoveCourseStudent() {
-		addCourseToDatabse("1", "test course 1", asList("2"));
+		addCourseToDatabase("1", "test course 1", asList("2"));
 		courseRepository.removeCourseStudent("2", "1");
 		assertThat(courseRepository.findCourseStudents("1")).isEmpty();
 	}
 	
 	@Test
 	public void testFindCourseStudents() {
-		addCourseToDatabse("1", "test course 1", asList("2", "3"));
+		addCourseToDatabase("1", "test course 1", asList("2", "3"));
 		assertThat(courseRepository.findCourseStudents("1")).containsAll(asList("2", "3"));
 	}
 
-	private void addCourseToDatabse(String id, String name, List<String> students) {
+	private void addCourseToDatabase(String id, String name, List<String> students) {
 		courseCollection.insertOne(new Document().append("id", id).append("name", name).append("students", students));
 	}
 
