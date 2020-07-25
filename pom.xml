@@ -115,6 +115,7 @@
 					<excludedClasses>
 						<param>*Test</param>
 						<param>model.*</param>
+						<param>repository.TransactionManagerMongo</param>
 					</excludedClasses>
 					<mutators>
 						<mutator>DEFAULTS</mutator>
