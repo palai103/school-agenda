@@ -1,8 +1,6 @@
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.bson.Document;
 import org.junit.After;
@@ -88,14 +86,20 @@ public class TransactionManagerTestIT {
 	public void testCompositeTransaction() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course course = new Course("1", "test course 1");
+		Course testCourse = new Course("1", "test course 1");
+		studentMongoRepository.save(testStudent);
+		courseMongoRepository.save(testCourse);
 		
 		// exercise
-		transactionManagerMongo.compositeTransaction((studentRepository, courseRepository) -> {
-			return null;
+		Course retrievedCourse = transactionManagerMongo.compositeTransaction((studentRepository, courseRepository) -> {
+			studentRepository.updateStudentCourses(testStudent.getId(), testCourse.getId());
+			courseRepository.updateCourseStudents(testStudent.getId(), testCourse.getId());
+			
+			List<String> courses = studentRepository.findStudentCourses(testStudent.getId());
+			return courses.contains(testCourse.getId()) ? courseRepository.findById(testCourse.getId()) : null;
 		});
 		
 		// verify
-
+		assertThat(retrievedCourse).isEqualTo(testCourse);
 	}
 }

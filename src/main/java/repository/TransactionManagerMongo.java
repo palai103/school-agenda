@@ -20,6 +20,7 @@ public class TransactionManagerMongo implements TransactionManager {
 	public <T> T studentTransaction(StudentTransactionCode<T> code) {
 		T valueToReturn = null;
 		ClientSession clientSession = client.startSession();
+
 		try {
 			clientSession.startTransaction();
 			valueToReturn = code.apply(studentMongoRepository);
@@ -36,6 +37,7 @@ public class TransactionManagerMongo implements TransactionManager {
 	public <T> T courseTransaction(CourseTransactionCode<T> code) {
 		T valueToReturn = null;
 		ClientSession clientSession = client.startSession();
+
 		try {
 			clientSession.startTransaction();
 			valueToReturn = code.apply(courseMongoRepository);
@@ -50,7 +52,18 @@ public class TransactionManagerMongo implements TransactionManager {
 
 	@Override
 	public <T> T compositeTransaction(TransactionCode<T> code) {
-		// TODO Auto-generated method stub
-		return null;
+		T valueToReturn = null;
+		ClientSession clientSession = client.startSession();
+		
+		try {
+			clientSession.startTransaction();
+			valueToReturn = code.apply(studentMongoRepository, courseMongoRepository);
+			clientSession.commitTransaction();
+		} catch (RuntimeException rte) {
+			clientSession.abortTransaction();
+		} finally {
+			clientSession.close();
+		}
+		return valueToReturn;
 	}
 }
