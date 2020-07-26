@@ -1,8 +1,8 @@
+package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.List;
 
-import org.bson.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -11,14 +11,10 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import model.Course;
 import model.Student;
-import repository.CourseMongoRepository;
-import repository.StudentMongoRepository;
-import repository.TransactionManagerMongo;
 
 public class TransactionManagerTestIT {
 	private static final String DB_NAME = "schoolagenda";
@@ -32,9 +28,6 @@ public class TransactionManagerTestIT {
 	private MongoClient client;
 	private StudentMongoRepository studentMongoRepository;
 	private CourseMongoRepository courseMongoRepository;
-	private MongoCollection<Document> studentCollection;
-	private MongoCollection<Document> courseCollection;
-
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
@@ -43,8 +36,8 @@ public class TransactionManagerTestIT {
 		transactionManagerMongo = new TransactionManagerMongo(client, studentMongoRepository, courseMongoRepository);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
-		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
-		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
+		database.getCollection(DB_COLLECTION_STUDENTS);
+		database.getCollection(DB_COLLECTION_COURSES);
 	}
 
 	@After

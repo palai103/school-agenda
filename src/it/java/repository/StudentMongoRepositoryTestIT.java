@@ -1,3 +1,4 @@
+package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Arrays.asList;
 
@@ -19,9 +20,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import model.Student;
-import repository.StudentMongoRepository;
 
-public class StudentMongoRepositoryTestcontainersIT {
+public class StudentMongoRepositoryTestIT {
 
 	private static final String DB_NAME = "schoolagenda";
 	private static final String DB_COLLECTION = "students";
