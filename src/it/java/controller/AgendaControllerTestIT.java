@@ -3,7 +3,6 @@ package controller;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
 
-import org.bson.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -14,7 +13,6 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import model.Course;
@@ -41,8 +39,6 @@ public class AgendaControllerTestIT {
 	private StudentMongoRepository studentMongoRepository;
 	private CourseMongoRepository courseMongoRepository;
 	private TransactionManagerMongo transactionManagerMongo;
-	private MongoCollection<Document> studentCollection;
-	private MongoCollection<Document> courseCollection;
 	private AgendaService agendaService;
 	private AgendaController agendaController;
 
@@ -56,8 +52,6 @@ public class AgendaControllerTestIT {
 		transactionManagerMongo = new TransactionManagerMongo(client, studentMongoRepository, courseMongoRepository);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
-		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
-		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
 
 		agendaService = new AgendaService(transactionManagerMongo);
 		agendaController = new AgendaController(agendaView, agendaService);
@@ -205,26 +199,4 @@ public class AgendaControllerTestIT {
 		// verify
 		verify(agendaView).showAllCourses(asList(testCourse));
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-
 }
