@@ -1,6 +1,6 @@
 package repository;
-import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Arrays.asList;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +20,6 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import model.Course;
-import repository.CourseMongoRepository;
 
 public class CourseMongoRepositoryTestIT {
 

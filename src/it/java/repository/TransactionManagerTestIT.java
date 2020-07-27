@@ -36,8 +36,6 @@ public class TransactionManagerTestIT {
 		transactionManagerMongo = new TransactionManagerMongo(client, studentMongoRepository, courseMongoRepository);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
-		database.getCollection(DB_COLLECTION_STUDENTS);
-		database.getCollection(DB_COLLECTION_COURSES);
 	}
 
 	@After
