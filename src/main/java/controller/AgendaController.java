@@ -10,6 +10,11 @@ public class AgendaController {
 	private AgendaView agendaView;
 	private AgendaService agendaService;
 
+	public AgendaController(AgendaView agendaView, AgendaService agendaService) {
+		this.agendaView = agendaView;
+		this.agendaService = agendaService;
+	}
+
 	public void getAllStudents() {
 		agendaView.showAllStudents(agendaService.getAllStudents());
 	}
