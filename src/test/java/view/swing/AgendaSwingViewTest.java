@@ -58,8 +58,8 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		window.button("removeCourseButton").requireDisabled();
 		
 		// Lists check
-		window.list("studentsList");
-		window.list("coursesList");		
+		// window.list("studentsList");
+		// window.list("coursesList");		
 	}
 	
 	@Test
