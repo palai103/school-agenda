@@ -2,8 +2,11 @@ language: java
 
 jdk: openjdk8
 
+dist: xenial
+
 services:
    - docker
+   - xvfb
 
 addons:
   sonarcloud:
