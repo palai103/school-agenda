@@ -8,6 +8,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.List;
 
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -40,6 +41,8 @@ public class AgendaSwingView extends JFrame implements AgendaView {
     private JLabel lblStudentName;
     private JButton btnAddNewStudent;
     private JButton btnRemoveStudent;
+    private JList<Student> studentsList;
+    private JScrollPane scrollPaneCourses;
     private JLabel lblStudentInfoErrorMessage;
     private JPanel coursePanel;
     private JLabel lblCourse;
@@ -48,15 +51,24 @@ public class AgendaSwingView extends JFrame implements AgendaView {
     private JLabel lblCfu;
     private JButton btnAddNewCourse;
     private JButton btnRemoveCourse;
+    private JList<Course> coursesList;
+    private JScrollPane scrollPaneStudents;
     private JLabel lblCourseInfoErrorMessage;
-    private JScrollPane scrollPane;
-    private JScrollPane scrollPane_1;
-
-
+    
+    private DefaultListModel<Student> studentslistModel;
+    private DefaultListModel<Course> coursesListModel;
 
     public void setAgendaController(AgendaController agendaController) {
         this.agendaController = agendaController;
     }
+    
+    public DefaultListModel<Student> getListStudentsModel() {
+		return studentslistModel;
+	}
+    
+    public DefaultListModel<Course> getListCoursesModel() {
+		return coursesListModel;
+	}
 
     /**
      * Launch the application.
@@ -77,7 +89,6 @@ public class AgendaSwingView extends JFrame implements AgendaView {
     /**
      * Create the frame.
      */
-    @SuppressWarnings("rawtypes")
     public AgendaSwingView() {
         KeyAdapter addStudentButtonEnabler = new KeyAdapter() {
             @Override
@@ -85,7 +96,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
                 btnAddNewStudent
                         .setEnabled(
                                 !fieldStudentId.getText().trim().isEmpty() &&
-                                        !fieldStudentName.getText().trim().isEmpty()
+                                !fieldStudentName.getText().trim().isEmpty()
                         );
             }
         };
@@ -103,6 +114,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         gbl_contentPane.rowWeights = new double[] { 1.0, Double.MIN_VALUE };
         contentPane.setLayout(gbl_contentPane);
 
+        /** Student Panel */
         studentPanel = new JPanel();
         GridBagConstraints gbc_studentPanel = new GridBagConstraints();
         gbc_studentPanel.insets = new Insets(0, 0, 0, 5);
@@ -111,10 +123,10 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         gbc_studentPanel.gridy = 0;
         contentPane.add(studentPanel, gbc_studentPanel);
         GridBagLayout gbl_studentPanel = new GridBagLayout();
-        gbl_studentPanel.columnWidths = new int[] { 0, 0, 0 };
-        gbl_studentPanel.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        gbl_studentPanel.columnWeights = new double[] { 0.0, 1.0, Double.MIN_VALUE };
-        gbl_studentPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, Double.MIN_VALUE };
+        gbl_studentPanel.columnWidths = new int[] { 0, 0, 0, 0, 0 };
+        gbl_studentPanel.rowHeights = new int[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+        gbl_studentPanel.columnWeights = new double[] { 0.0, 1.0, 1.0, 1.0, Double.MIN_VALUE };
+        gbl_studentPanel.rowWeights = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
         studentPanel.setLayout(gbl_studentPanel);
 
         lblStudent = new JLabel("Student");
@@ -138,6 +150,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         fieldStudentId.addKeyListener(addStudentButtonEnabler);
         fieldStudentId.setName("studentIDTextField");
         GridBagConstraints gbc_fieldStudentId = new GridBagConstraints();
+        gbc_fieldStudentId.gridwidth = 2;
         gbc_fieldStudentId.insets = new Insets(0, 0, 5, 0);
         gbc_fieldStudentId.fill = GridBagConstraints.HORIZONTAL;
         gbc_fieldStudentId.gridx = 1;
@@ -158,6 +171,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         fieldStudentName.addKeyListener(addStudentButtonEnabler);
         fieldStudentName.setName("studentNameTextField");
         GridBagConstraints gbc_fieldStudentName = new GridBagConstraints();
+        gbc_fieldStudentName.gridwidth = 2;
         gbc_fieldStudentName.insets = new Insets(0, 0, 5, 0);
         gbc_fieldStudentName.fill = GridBagConstraints.HORIZONTAL;
         gbc_fieldStudentName.gridx = 1;
@@ -169,25 +183,34 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         btnAddNewStudent.setName("addNewStudentButton");
         btnAddNewStudent.setEnabled(false);
         GridBagConstraints gbc_btnAddNewStudent = new GridBagConstraints();
+        gbc_btnAddNewStudent.gridwidth = 3;
         gbc_btnAddNewStudent.insets = new Insets(0, 0, 5, 0);
         gbc_btnAddNewStudent.gridx = 1;
         gbc_btnAddNewStudent.gridy = 5;
         studentPanel.add(btnAddNewStudent, gbc_btnAddNewStudent);
         
-        scrollPane_1 = new JScrollPane();
-        GridBagConstraints gbc_scrollPane_1 = new GridBagConstraints();
-        gbc_scrollPane_1.insets = new Insets(0, 0, 5, 0);
-        gbc_scrollPane_1.fill = GridBagConstraints.BOTH;
-        gbc_scrollPane_1.gridx = 1;
-        gbc_scrollPane_1.gridy = 6;
-        studentPanel.add(scrollPane_1, gbc_scrollPane_1);
+        scrollPaneStudents = new JScrollPane();
+        GridBagConstraints gbc_scrollPaneStudents = new GridBagConstraints();
+        gbc_scrollPaneStudents.gridwidth = 3;
+        gbc_scrollPaneStudents.insets = new Insets(0, 0, 5, 0);
+        gbc_scrollPaneStudents.fill = GridBagConstraints.BOTH;
+        gbc_scrollPaneStudents.gridx = 1;
+        gbc_scrollPaneStudents.gridy = 6;
+        studentPanel.add(scrollPaneStudents, gbc_scrollPaneStudents);
+        
+        studentslistModel = new DefaultListModel<>();
+        studentsList = new JList<>(studentslistModel);
+        studentsList.addListSelectionListener(e -> btnRemoveStudent.setEnabled(studentsList.getSelectedIndex() != -1));
+        studentsList.setName("studentsList");
+        studentsList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        scrollPaneStudents.setViewportView(studentsList);
 
         btnRemoveStudent = new JButton("Remove student");
         btnRemoveStudent.setName("removeStudentButton");
         btnRemoveStudent.setEnabled(false);
         GridBagConstraints gbc_btnRemoveStudent = new GridBagConstraints();
         gbc_btnRemoveStudent.gridx = 1;
-        gbc_btnRemoveStudent.gridy = 8;
+        gbc_btnRemoveStudent.gridy = 9;
         studentPanel.add(btnRemoveStudent, gbc_btnRemoveStudent);
 
         lblStudentInfoErrorMessage = new JLabel("");
@@ -196,9 +219,11 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         gbc_lblStudentInfoErrorMessage.insets = new Insets(0, 0, 5, 0);
         gbc_lblStudentInfoErrorMessage.gridwidth = 2;
         gbc_lblStudentInfoErrorMessage.gridx = 0;
-        gbc_lblStudentInfoErrorMessage.gridy = 7;
+        gbc_lblStudentInfoErrorMessage.gridy = 8;
         studentPanel.add(lblStudentInfoErrorMessage, gbc_lblStudentInfoErrorMessage);
 
+        
+        /** Course Panel */
         coursePanel = new JPanel();
         GridBagConstraints gbc_coursePanel = new GridBagConstraints();
         gbc_coursePanel.fill = GridBagConstraints.BOTH;
@@ -233,7 +258,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         fieldCourseId = new JTextField();
         fieldCourseId.setName("courseIDTextField");
         GridBagConstraints gbc_fieldCourseId = new GridBagConstraints();
-        gbc_fieldCourseId.gridwidth = 3;
+        gbc_fieldCourseId.gridwidth = 2;
         gbc_fieldCourseId.insets = new Insets(0, 0, 5, 0);
         gbc_fieldCourseId.fill = GridBagConstraints.HORIZONTAL;
         gbc_fieldCourseId.gridx = 1;
@@ -253,7 +278,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         fieldCourseName = new JTextField();
         fieldCourseName.setName("courseNameTextField");
         GridBagConstraints gbc_fieldCourseName = new GridBagConstraints();
-        gbc_fieldCourseName.gridwidth = 3;
+        gbc_fieldCourseName.gridwidth = 2;
         gbc_fieldCourseName.insets = new Insets(0, 0, 5, 0);
         gbc_fieldCourseName.fill = GridBagConstraints.HORIZONTAL;
         gbc_fieldCourseName.gridx = 1;
@@ -273,7 +298,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         fieldCourseCFU = new JTextField();
         fieldCourseCFU.setName("courseCFUTextField");
         GridBagConstraints gbc_fieldCourseCFU = new GridBagConstraints();
-        gbc_fieldCourseCFU.gridwidth = 3;
+        gbc_fieldCourseCFU.gridwidth = 2;
         gbc_fieldCourseCFU.insets = new Insets(0, 0, 5, 0);
         gbc_fieldCourseCFU.fill = GridBagConstraints.HORIZONTAL;
         gbc_fieldCourseCFU.gridx = 1;
@@ -290,14 +315,20 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         gbc_btnAddNewCourse.gridy = 5;
         coursePanel.add(btnAddNewCourse, gbc_btnAddNewCourse);
 
-        scrollPane = new JScrollPane();
-        GridBagConstraints gbc_scrollPane = new GridBagConstraints();
-        gbc_scrollPane.gridwidth = 2;
-        gbc_scrollPane.insets = new Insets(0, 0, 5, 5);
-        gbc_scrollPane.fill = GridBagConstraints.BOTH;
-        gbc_scrollPane.gridx = 1;
-        gbc_scrollPane.gridy = 6;
-        coursePanel.add(scrollPane, gbc_scrollPane);
+        scrollPaneCourses = new JScrollPane();
+        GridBagConstraints gbc_scrollPaneCourses = new GridBagConstraints();
+        gbc_scrollPaneCourses.gridwidth = 3;
+        gbc_scrollPaneCourses.insets = new Insets(0, 0, 5, 5);
+        gbc_scrollPaneCourses.fill = GridBagConstraints.BOTH;
+        gbc_scrollPaneCourses.gridx = 1;
+        gbc_scrollPaneCourses.gridy = 6;
+        coursePanel.add(scrollPaneCourses, gbc_scrollPaneCourses);
+        
+        coursesListModel = new DefaultListModel<>();
+        coursesList = new JList<>(coursesListModel);
+        coursesList.setName("coursesList");
+        coursesList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        scrollPaneCourses.setViewportView(coursesList);
 
         btnRemoveCourse = new JButton("Remove Course");
         btnRemoveCourse.setName("removeCourseButton");
@@ -314,7 +345,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
         gbc_lblCourseInfoErrorMessage.insets = new Insets(0, 0, 5, 0);
         gbc_lblCourseInfoErrorMessage.gridwidth = 2;
         gbc_lblCourseInfoErrorMessage.gridx = 0;
-        gbc_lblCourseInfoErrorMessage.gridy = 7;
+        gbc_lblCourseInfoErrorMessage.gridy = 8;
         studentPanel.add(lblCourseInfoErrorMessage, gbc_lblCourseInfoErrorMessage);
 
     }

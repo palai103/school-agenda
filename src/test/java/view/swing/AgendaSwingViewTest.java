@@ -3,6 +3,7 @@ package view.swing;
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
+import org.assertj.swing.fixture.JButtonFixture;
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
 import org.junit.Test;
@@ -10,6 +11,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
 import controller.AgendaController;
+import model.Student;
 
 public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	@Mock
@@ -58,8 +60,8 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		window.button("removeCourseButton").requireDisabled();
 		
 		// Lists check
-		// window.list("studentsList");
-		// window.list("coursesList");		
+		window.list("studentsList");
+		window.list("coursesList");		
 	}
 	
 	@Test
@@ -88,5 +90,17 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		studentIDTextField.enterText(" ");
 		studentNameTextField.enterText("test");
 		window.button("addNewStudentButton").requireDisabled();
+	}
+	
+	@Test
+	public void testRemoveStudentButtonShouldBeEnabledOnlyWhenAStudentIsSelected() {
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListStudentsModel().addElement(new Student("1", "test student")));
+		window.list("studentsList").selectItem(0);
+		JButtonFixture removeStudentButton = window.button("removeStudentButton");
+		removeStudentButton.requireEnabled();
+		
+		window.list("studentsList").clearSelection();
+		removeStudentButton.requireDisabled();
 	}
 }
