@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: de.bwaldvogel:mongo-java-server-memory-backend:1.33.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/bwaldvogel/mongo-java-server-memory-backend/1.33.0/mongo-java-server-memory-backend-1.33.0.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/de/bwaldvogel/mongo-java-server-memory-backend/1.33.0/mongo-java-server-memory-backend-1.33.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/de/bwaldvogel/mongo-java-server-memory-backend/1.33.0/mongo-java-server-memory-backend-1.33.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
