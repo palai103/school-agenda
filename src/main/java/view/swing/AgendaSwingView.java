@@ -126,7 +126,8 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 				.setEnabled(
 						!fieldCourseId.getText().trim().isEmpty() &&
 						!fieldCourseName.getText().trim().isEmpty() &&
-						!fieldCourseCFU.getText().trim().isEmpty()
+						!fieldCourseCFU.getText().trim().isEmpty() &&
+						fieldCourseCFU.getText().trim().matches("\\b([1-9]|[12][0-9]|3[01])\\b")
 						);
 			}
 		};
@@ -468,6 +469,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		coursesListModel = new DefaultListModel<>();
 		coursesList = new JList<>(coursesListModel);
 		coursesList.addListSelectionListener(e -> {
+			btnRemoveCourse.setEnabled(coursesList.getSelectedIndex() != -1);
 			if (studentsList.getSelectedIndex() != -1) {
 				btnAddCourseToStudent.setEnabled(studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1);
 				btnAddStudentToCourse.setEnabled(studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1);
@@ -603,55 +605,49 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 
 	@Override
 	public void notifyStudentNotRemoved(Student student) {
-		lblStudentErrorNotRemovedMessage.setText(student.toString() + " NOT removed!");
+		lblStudentErrorNotRemovedMessage.setText("ERROR! " + student.toString() + " NOT removed!");
 	}
 
 	@Override
 	public void notifyCourseAddedToStudent(Student student, Course course) {
-		// TODO Auto-generated method stub
-
+		lblCourseAddedToStudentMessage.setText(course.toString() + " added to " + student.toString());
 	}
 
 	@Override
 	public void notifyCourseNotAddedToStudent(Student student, Course course) {
-		// TODO Auto-generated method stub
-
+		lblCourseErrorNotAddedToStudentMessage.setText("ERROR! " + course.toString() + " NOT added to " + student.toString());
 	}
 
 	@Override
 	public void notifyCourseRemovedFromStudent(Student student, Course course) {
-		// TODO Auto-generated method stub
-
+		lblCourseRemovedFromStudentMessage.setText(course.toString() + " removed from " + student.toString());
 	}
 
 	@Override
 	public void notifyCourseNotRemovedFromStudent(Student student, Course course) {
-		// TODO Auto-generated method stub
-
+		lblCourseErrorNotRemovedFromStudentMessage.setText("ERROR! " + course.toString() + " NOT removed from " + student.toString());
 	}
 
 	@Override
 	public void notifyCourseAdded(Course course) {
-		// TODO Auto-generated method stub
-
+		coursesListModel.addElement(course);
+		lblCourseAddedMessage.setText(course.toString() + " successfully added!");
 	}
 
 	@Override
 	public void notifyCourseNotAdded(Course course) {
-		// TODO Auto-generated method stub
-
+		lblCourseErrorNotAddedMessage.setText("ERROR! " + course.toString() + " NOT added!");
 	}
 
 	@Override
 	public void notifyCourseRemoved(Course course) {
-		// TODO Auto-generated method stub
-
+		coursesListModel.removeElement(course);
+		lblCourseRemovedMessage.setText(course.toString() + " successfully removed!");
 	}
 
 	@Override
 	public void notifyCourseNotRemoved(Course course) {
-		// TODO Auto-generated method stub
-
+		lblCourseErrorNotRemovedMessage.setText("ERROR! " + course.toString() + " NOT removed!");
 	}
 
 	@Override
@@ -661,12 +657,12 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 
 	@Override
 	public void notifyStudentNotRemovedFromCourse(Student student, Course course) {
-		lblStudentErrorNotRemovedFromCourseMessage.setText(student.toString() + " NOT removed from " + course.toString());
+		lblStudentErrorNotRemovedFromCourseMessage.setText("ERROR! " + student.toString() + " NOT removed from " + course.toString());
 	}
 
 	@Override
 	public void notifyStudentNotAddedToCourse(Student student, Course course) {
-		lblStudentErrorNotAddedToCourseMessage.setText(student.toString() + " NOT removed from " + course.toString());
+		lblStudentErrorNotAddedToCourseMessage.setText("ERROR! " + student.toString() + " NOT added to " + course.toString());
 	}
 
 	@Override
@@ -676,7 +672,6 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 
 	@Override
 	public void showAllCourses(List<Course> allCourses) {
-		// TODO Auto-generated method stub
-
+		allCourses.stream().forEach(coursesListModel::addElement); 
 	}
 }

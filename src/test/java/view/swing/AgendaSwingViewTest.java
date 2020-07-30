@@ -120,8 +120,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 
 	@Test
 	public void testRemoveStudentButtonShouldBeEnabledOnlyWhenAStudentIsSelected() {
-		GuiActionRunner.execute(() ->
-		agendaSwingView.getListStudentsModel().addElement(new Student("1", "test student")));
+		GuiActionRunner.execute(() -> agendaSwingView.getListStudentsModel().addElement(new Student("1", "test student")));
 		window.list("studentsList").selectItem(0);
 		JButtonFixture removeStudentButton = window.button("removeStudentButton");
 		removeStudentButton.requireEnabled();
@@ -179,7 +178,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	}
 
 	@Test
-	public void testShowAllStudentsShouldAddStudentToTheList() {
+	public void testShowAllStudentsShouldAddStudentsToTheList() {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
 		Student testStudent2 = new Student("2", "test student 2");
@@ -235,7 +234,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		});
 
 		// verify
-		window.label("studentErrorNotRemovedLabel").requireText(testStudent.toString() + " NOT removed!");
+		window.label("studentErrorNotRemovedLabel").requireText("ERROR! " + testStudent.toString() + " NOT removed!");
 	}
 
 	@Test
@@ -272,7 +271,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		});
 
 		// verify
-		window.label("studentErrorNotAddedToCourseLabel").requireText(testStudent.toString() + " NOT removed from " + testCourse.toString());
+		window.label("studentErrorNotAddedToCourseLabel").requireText("ERROR! " + testStudent.toString() + " NOT added to " + testCourse.toString());
 	}
 
 	@Test
@@ -302,7 +301,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		});
 
 		// verify
-		window.label("studentErrorNotRemovedFromCourseLabel").requireText(testStudent.toString() + " NOT removed from " + testCourse.toString());
+		window.label("studentErrorNotRemovedFromCourseLabel").requireText("ERROR! " + testStudent.toString() + " NOT removed from " + testCourse.toString());
 	}
 
 	@Test
@@ -329,6 +328,19 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 
 		// verify
 		window.button("addNewCourseButton").requireEnabled();
+	}
+	
+	@Test
+	public void testWhenCourseCFUIsNotANumberThenAddCourseButtonShouldBeDisabled() {
+		JTextComponentFixture courseIDTextField = window.textBox("courseIDTextField");
+		JTextComponentFixture courseNameTextField = window.textBox("courseNameTextField");
+		JTextComponentFixture courseCFUTextField = window.textBox("courseCFUTextField");
+
+		courseIDTextField.enterText("1");
+		courseNameTextField.enterText("test");
+		courseCFUTextField.enterText("definitely not a number");
+		
+		window.button("addNewCourseButton").requireDisabled();
 	}
 
 	@Test
@@ -393,18 +405,156 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		window.button("addNewCourseButton").requireDisabled();
 	}
 
+	@Test
+	public void testRemoveCourseButtonShouldBeEnabledOnlyWhenACourseIsSelected() {
+		GuiActionRunner.execute(() -> agendaSwingView.getListCoursesModel().addElement(new Course("1", "test course")));
+		window.list("coursesList").selectItem(0);
+		JButtonFixture removeCourseButton = window.button("removeCourseButton");
+		removeCourseButton.requireEnabled();
 
+		window.list("coursesList").clearSelection();
+		removeCourseButton.requireDisabled();
+	}
 
+	@Test
+	public void testShowAllCoursesShouldAddCoursesToTheList() {
+		// setup
+		Course testCourse1 = new Course("1", "test course 1");
+		Course testCourse2 = new Course("2", "test course 2");
 
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.showAllCourses(asList(testCourse1, testCourse2));
+		});
 
+		// verify
+		String[] listContents = window.list("coursesList").contents();
+		assertThat(listContents).containsExactly(testCourse1.toString(), testCourse2.toString());
+	}
 
+	@Test
+	public void testNotifyCourseNotAddedShouldShowCourseErrorNotAddedMessage() {
+		// setup
+		Course testCourse = new Course("1", "test course");
 
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseNotAdded(testCourse);
+		});
 
+		// verify
+		window.label("courseErrorNotAddedLabel").requireText("ERROR! " + testCourse.toString() + " NOT added!");
+	}
 
+	@Test
+	public void testNotifyCourseAddedShouldAddTheStudentToTheListAndShowStudentMessage() {
+		// setup
+		Course testCourse = new Course("1", "test course");
 
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseAdded(testCourse);
+		});
 
+		// verify
+		String[] listContents = window.list("coursesList").contents();
+		assertThat(listContents).containsExactly(testCourse.toString());
+		window.label("courseAddedLabel").requireText(testCourse.toString() + " successfully added!");
+	}
 
+	@Test
+	public void testNotifyCourseNotRemovedShouldShowCourseErrorNotRemovedMessage() {
+		// setup
+		Course testCourse = new Course("1", "test course");
 
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseNotRemoved(testCourse);
+		});
 
+		// verify
+		window.label("courseErrorNotRemovedLabel").requireText("ERROR! " + testCourse.toString() + " NOT removed!");
+	}
 
+	@Test
+	public void testNotifyCourseRemovedShouldRemoveTheCourseFromTheListAndShowCourseRemovedMessage() {
+		// setup
+		Course testCourse1 = new Course("1", "test course 1");
+		Course testCourse2 = new Course("2", "test course 2");
+		GuiActionRunner.execute(() -> {
+			DefaultListModel<Course> listCoursesModel = agendaSwingView.getListCoursesModel();
+			listCoursesModel.addElement(testCourse1);
+			listCoursesModel.addElement(testCourse2);
+		});
+
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseRemoved(testCourse1);
+		});
+
+		// verify
+		String[] listContents = window.list("coursesList").contents();
+		assertThat(listContents).containsExactly(testCourse2.toString());
+		window.label("courseRemovedLabel").requireText(testCourse1.toString() + " successfully removed!");
+	}
+
+	@Test
+	public void testNotifyCourseNotAddedToStudentShouldShowCourseErrorNotAddedToStudentMessage() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseNotAddedToStudent(testStudent, testCourse);
+		});
+
+		// verify
+		window.label("courseErrorNotAddedToStudentLabel").requireText("ERROR! " + testCourse.toString() + " NOT added to " + testStudent.toString());
+	}
+
+	@Test
+	public void testNotifyCourseAddedToStudentShouldShowCourseAddedToStudentMessage() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseAddedToStudent(testStudent, testCourse);
+		});
+
+		// verify
+		window.label("courseAddedToStudentLabel").requireText(testCourse.toString() + " added to " + testStudent.toString());
+	}
+
+	@Test
+	public void testNotifyCourseNotRemovedFromStudentShouldShowCourseErrorNotRemovedFromStudentMessage() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseNotRemovedFromStudent(testStudent, testCourse);
+		});
+
+		// verify
+		window.label("courseErrorNotRemovedFromStudentLabel").requireText("ERROR! " + testCourse.toString() + " NOT removed from " + testStudent.toString());
+	}
+
+	@Test
+	public void testNotifyCourseRemovedFromStudentShouldShowCourseRemovedFromStudentMessage() {
+		// setup
+		Course testCourse = new Course("1", "test course");
+		Student testStudent = new Student("1", "test student");
+
+		// exercise
+		GuiActionRunner.execute(() -> {
+			agendaSwingView.notifyCourseRemovedFromStudent(testStudent, testCourse);
+		});
+
+		// verify
+		window.label("courseRemovedFromStudentLabel").requireText(testCourse.toString() + " removed from " + testStudent.toString());
+	}
 }
