@@ -123,7 +123,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testFindCourseWhenExistsShouldReturnTrue() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		when(courseRepository.findById("1")).thenReturn(testCourse);
 
@@ -138,7 +138,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testFindCourseWhenDoesNotExistShouldReturnFalse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		when(courseRepository.findById("1")).thenReturn(null);
 
@@ -180,7 +180,7 @@ public class AgendaServiceTest {
 	public void testRemoveStudentWhenNotEmptyShouldRemove() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		when(studentRepository.findStudentCourses(testStudent.getId()))
 				.thenReturn(Collections.singletonList(testCourse.getId()));
 
@@ -211,8 +211,8 @@ public class AgendaServiceTest {
 	@Test
 	public void testGetAllCoursesWithNotEmptyListShouldReturnListWithAllCourses() {
 		// setup
-		Course firstCourse = new Course("1", "test course one");
-		Course secondCourse = new Course("2", "test course two");
+		Course firstCourse = new Course("1", "test course one", "9");
+		Course secondCourse = new Course("2", "test course two", "9");
 
 		List<Course> allCourses = asList(firstCourse, secondCourse);
 		when(courseRepository.findAll()).thenReturn(allCourses);
@@ -242,7 +242,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testAddCourseWhenNotEmptyShouldAdd() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		// exercise
 		agendaService.addCourse(testCourse);
@@ -268,7 +268,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testRemoveCourseWhenNotEmptyShouldRemove() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		when(courseRepository.findCourseStudents(testCourse.getId()))
 				.thenReturn(Collections.singletonList(testStudent.getId()));
@@ -300,7 +300,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testAddCourseToStudentWhenStudentExistsShouldAdd() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		when(studentRepository.findById("1")).thenReturn(testStudent);
 
@@ -317,7 +317,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testAddCourseToStudentWhenStudentDoesNotExistShouldNotAdd() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		when(studentRepository.findById("1")).thenReturn(null);
 
@@ -333,7 +333,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testRemoveCourseFromStudentWhenStudentExistsShouldRemove() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		when(studentRepository.findById("1")).thenReturn(testStudent);
 
@@ -350,7 +350,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testRemoveCourseFromSudentWhenStudentDoesNotExistShouldNotRemove() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		when(studentRepository.findById("1")).thenReturn(null);
 
@@ -366,7 +366,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testStudentHasCourseWhenSudentExistsAndHasItShouldReturnTrue() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 
 		List<String> studentCourses = asList(testCourse.getId());
@@ -385,7 +385,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testCourseHasStudentWhenCourseExistsAndHasItShouldReturnTrue() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 
 		List<String> courseStudents = asList(testStudent.getId());
@@ -406,7 +406,7 @@ public class AgendaServiceTest {
 		// setup
 		Student studentWithinList = new Student("1", "test student inside");
 		Student studentOutsideList = new Student("2", "test student outside");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		List<String> courseStudents = asList(studentWithinList.getId());
 
@@ -424,8 +424,8 @@ public class AgendaServiceTest {
 	@Test
 	public void testStudentHasCourseWhenStudentExistsAndDoesNotHaveItShouldReturnFalse() {
 		// setup
-		Course courseWithinList = new Course("1", "test course inside");
-		Course courseOutsideList = new Course("2", "test course outside");
+		Course courseWithinList = new Course("1", "test course inside", "9");
+		Course courseOutsideList = new Course("2", "test course outside", "9");
 		Student testStudent = new Student("1", "test student");
 
 		List<String> studentCourses = asList(courseWithinList.getId());
@@ -444,7 +444,7 @@ public class AgendaServiceTest {
 	@Test
 	public void testStudentHasCourseWhenStudentDoesNotExistShouldReturnFalse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		when(studentRepository.findById("1")).thenReturn(null);
 
@@ -460,7 +460,7 @@ public class AgendaServiceTest {
 	public void testAddStudentToCourseWhenCourseExistsShouldAdd() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		when(courseRepository.findById("1")).thenReturn(testCourse);
 
 		// exercise
@@ -477,7 +477,7 @@ public class AgendaServiceTest {
 	public void testAddStudentToCourseWhenCourseDoesNotExistShouldNotAdd() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		when(courseRepository.findById("1")).thenReturn(null);
 
 		// exercise
@@ -493,7 +493,7 @@ public class AgendaServiceTest {
 	public void testRemoveStudentFromCourseWhenCourseExistsSouldRemove() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		when(courseRepository.findById("1")).thenReturn(testCourse);
 
 		// exercise
@@ -510,7 +510,7 @@ public class AgendaServiceTest {
 	public void testRemoveStudentFromCourseWhenCourseDoesNotExistShouldNotRemove() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		when(courseRepository.findById("1")).thenReturn(null);
 
 		// exercise

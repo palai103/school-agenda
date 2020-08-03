@@ -91,7 +91,7 @@ public class AgendaServiceTestIT {
 	@Test
 	public void testFindCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course 1");
+		Course testCourse = new Course("1", "test course 1", "9");
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
 
 		// exercise
@@ -130,7 +130,7 @@ public class AgendaServiceTestIT {
 	public void testAddCourseToStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), Collections.emptyList());
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
 
@@ -145,7 +145,7 @@ public class AgendaServiceTestIT {
 	public void testRemoveCourseFromStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
 
@@ -160,7 +160,7 @@ public class AgendaServiceTestIT {
 	public void testStudentHasCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
 
@@ -174,7 +174,7 @@ public class AgendaServiceTestIT {
 	@Test
 	public void testAddCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course 1");
+		Course testCourse = new Course("1", "test course 1", "9");
 
 		// exercise
 		agendaService.addCourse(testCourse);
@@ -186,7 +186,7 @@ public class AgendaServiceTestIT {
 	@Test
 	public void testRemoveCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course 1");
+		Course testCourse = new Course("1", "test course 1", "9");
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
 
 		// exercise
@@ -200,7 +200,7 @@ public class AgendaServiceTestIT {
 	public void testCourseHasStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
 
@@ -215,7 +215,7 @@ public class AgendaServiceTestIT {
 	public void testRemoveStudentFromCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
 
@@ -230,7 +230,7 @@ public class AgendaServiceTestIT {
 	public void testAddStudentToCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), Collections.emptyList());
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
 
@@ -244,7 +244,7 @@ public class AgendaServiceTestIT {
 	@Test
 	public void testGetAllCourses() {
 		// setup
-		Course testCourse = new Course("1", "test course 1");
+		Course testCourse = new Course("1", "test course 1", "9");
 		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
 
 		// exercise
@@ -277,6 +277,6 @@ public class AgendaServiceTestIT {
 
 	private List<Course> readAllCourseFromDatabase() {
 		return StreamSupport.stream(courseCollection.find().spliterator(), false)
-				.map(d -> new Course(d.getString("id"), d.getString("name"))).collect(Collectors.toList());
+				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu"))).collect(Collectors.toList());
 	}
 }

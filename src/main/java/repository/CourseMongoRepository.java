@@ -68,7 +68,7 @@ public class CourseMongoRepository implements CourseRepository{
 	}
 	
 	private Course fromDocumentToCourse(Document document) {
-		return new Course(document.getString(ID), document.getString("name"));
+		return new Course(document.getString(ID), document.getString("name"), document.getString("cfu"));
 	}
 
 	@Override

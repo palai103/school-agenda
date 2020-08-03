@@ -14,6 +14,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
@@ -22,7 +23,6 @@ import controller.AgendaController;
 import model.Course;
 import model.Student;
 import view.AgendaView;
-import javax.swing.JScrollPane;
 
 public class AgendaSwingView extends JFrame implements AgendaView {
 
@@ -214,6 +214,9 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnAddNewStudent = new JButton("Add new student");
 		btnAddNewStudent.setName("addNewStudentButton");
 		btnAddNewStudent.setEnabled(false);
+		btnAddNewStudent.addActionListener(
+				e -> agendaController.addStudent(new Student(fieldStudentId.getText(), fieldStudentName.getText()))
+				);
 		GridBagConstraints gbc_btnAddNewStudent = new GridBagConstraints();
 		gbc_btnAddNewStudent.gridwidth = 1;
 		gbc_btnAddNewStudent.insets = new Insets(0, 0, 5, 0);
@@ -224,6 +227,8 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnAddStudentToCourse = new JButton("Add to course");
 		btnAddStudentToCourse.setName("addStudentToCourseButton");
 		btnAddStudentToCourse.setEnabled(false);
+		btnAddStudentToCourse.addActionListener(
+				e -> agendaController.addStudentToCourse(studentsList.getSelectedValue(), coursesList.getSelectedValue()));
 		GridBagConstraints gbc_btnAddStudentToCourse = new GridBagConstraints();
 		gbc_btnAddStudentToCourse.insets = new Insets(0, 0, 5, 0);
 		gbc_btnAddStudentToCourse.gridx = 3;
@@ -257,6 +262,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnRemoveStudent = new JButton("Remove student");
 		btnRemoveStudent.setName("removeStudentButton");
 		btnRemoveStudent.setEnabled(false);
+		btnRemoveStudent.addActionListener(e -> agendaController.removeStudent(studentsList.getSelectedValue()));
 		GridBagConstraints gbc_btnRemoveStudent = new GridBagConstraints();
 		gbc_btnRemoveStudent.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRemoveStudent.gridx = 2;
@@ -266,6 +272,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnRemoveStudentFromCourse = new JButton("Remove from course");
 		btnRemoveStudentFromCourse.setName("removeStudentFromCourseButton");
 		btnRemoveStudentFromCourse.setEnabled(false);
+		btnRemoveStudentFromCourse.addActionListener(e -> agendaController.removeStudentFromCourse(studentsList.getSelectedValue(), coursesList.getSelectedValue()));
 		GridBagConstraints gbc_btnRemoveStudentFromCourse = new GridBagConstraints();
 		gbc_btnRemoveStudentFromCourse.insets = new Insets(0, 0, 5, 0);
 		gbc_btnRemoveStudentFromCourse.gridx = 3;
@@ -279,7 +286,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentErrorNotAddedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentErrorNotAddedMessage.gridwidth = 2;
 		gbc_lblStudentErrorNotAddedMessage.gridx = 0;
-		gbc_lblStudentErrorNotAddedMessage.gridy = 8;
+		gbc_lblStudentErrorNotAddedMessage.gridy = 9;
 		studentPanel.add(lblStudentErrorNotAddedMessage, gbc_lblStudentErrorNotAddedMessage);
 
 		/** Student added label */
@@ -289,7 +296,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentAddedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentAddedMessage.gridwidth = 2;
 		gbc_lblStudentAddedMessage.gridx = 0;
-		gbc_lblStudentAddedMessage.gridy = 8;
+		gbc_lblStudentAddedMessage.gridy = 9;
 		studentPanel.add(lblStudentAddedMessage, gbc_lblStudentAddedMessage);
 
 		/** Student error not removed label */
@@ -299,7 +306,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentErrorNotRemovedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentErrorNotRemovedMessage.gridwidth = 2;
 		gbc_lblStudentErrorNotRemovedMessage.gridx = 0;
-		gbc_lblStudentErrorNotRemovedMessage.gridy = 8;
+		gbc_lblStudentErrorNotRemovedMessage.gridy = 9;
 		studentPanel.add(lblStudentErrorNotRemovedMessage, gbc_lblStudentErrorNotRemovedMessage);
 
 		/** Student removed label */
@@ -309,7 +316,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentRemovedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentRemovedMessage.gridwidth = 2;
 		gbc_lblStudentRemovedMessage.gridx = 0;
-		gbc_lblStudentRemovedMessage.gridy = 8;
+		gbc_lblStudentRemovedMessage.gridy = 9;
 		studentPanel.add(lblStudentRemovedMessage, gbc_lblStudentRemovedMessage);
 
 		/** Student error not added to course label */
@@ -319,7 +326,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentErrorNotAddedToCourseMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentErrorNotAddedToCourseMessage.gridwidth = 2;
 		gbc_lblStudentErrorNotAddedToCourseMessage.gridx = 0;
-		gbc_lblStudentErrorNotAddedToCourseMessage.gridy = 8;
+		gbc_lblStudentErrorNotAddedToCourseMessage.gridy = 9;
 		studentPanel.add(lblStudentErrorNotAddedToCourseMessage, gbc_lblStudentErrorNotAddedToCourseMessage);
 
 		/** Student added to course label */
@@ -329,7 +336,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentAddedToCourseMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentAddedToCourseMessage.gridwidth = 2;
 		gbc_lblStudentAddedToCourseMessage.gridx = 0;
-		gbc_lblStudentAddedToCourseMessage.gridy = 8;
+		gbc_lblStudentAddedToCourseMessage.gridy = 9;
 		studentPanel.add(lblStudentAddedToCourseMessage, gbc_lblStudentAddedToCourseMessage);
 
 		/** Student error not removed from course label */
@@ -339,7 +346,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentErrorNotRemovedFromCourseMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentErrorNotRemovedFromCourseMessage.gridwidth = 2;
 		gbc_lblStudentErrorNotRemovedFromCourseMessage.gridx = 0;
-		gbc_lblStudentErrorNotRemovedFromCourseMessage.gridy = 8;
+		gbc_lblStudentErrorNotRemovedFromCourseMessage.gridy = 9;
 		studentPanel.add(lblStudentErrorNotRemovedFromCourseMessage, gbc_lblStudentErrorNotRemovedFromCourseMessage);
 
 		/** Student removed from course label */
@@ -349,7 +356,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblStudentRemovedFromCourseMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblStudentRemovedFromCourseMessage.gridwidth = 2;
 		gbc_lblStudentRemovedFromCourseMessage.gridx = 0;
-		gbc_lblStudentRemovedFromCourseMessage.gridy = 8;
+		gbc_lblStudentRemovedFromCourseMessage.gridy = 9;
 		studentPanel.add(lblStudentRemovedFromCourseMessage, gbc_lblStudentRemovedFromCourseMessage);
 
 
@@ -442,6 +449,8 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnAddNewCourse = new JButton("Add new course");
 		btnAddNewCourse.setName("addNewCourseButton");
 		btnAddNewCourse.setEnabled(false);
+		btnAddNewCourse.addActionListener(e -> agendaController.addCourse(new Course(fieldCourseId.getText(),
+				fieldCourseName.getText(), fieldCourseCFU.getText())));
 		GridBagConstraints gbc_btnAddNewCourse = new GridBagConstraints();
 		gbc_btnAddNewCourse.insets = new Insets(0, 0, 5, 5);
 		gbc_btnAddNewCourse.gridx = 2;
@@ -451,6 +460,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnAddCourseToStudent = new JButton("Add to student");
 		btnAddCourseToStudent.setName("addCourseToStudentButton");
 		btnAddCourseToStudent.setEnabled(false);
+		btnAddCourseToStudent.addActionListener(e -> agendaController.addCourseToStudent(studentsList.getSelectedValue(), coursesList.getSelectedValue()));
 		GridBagConstraints gbc_btnAddCourseToStudent = new GridBagConstraints();
 		gbc_btnAddCourseToStudent.insets = new Insets(0, 0, 5, 5);
 		gbc_btnAddCourseToStudent.gridx = 3;
@@ -484,6 +494,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnRemoveCourse = new JButton("Remove Course");
 		btnRemoveCourse.setName("removeCourseButton");
 		btnRemoveCourse.setEnabled(false);
+		btnRemoveCourse.addActionListener(e -> agendaController.removeCourse(coursesList.getSelectedValue()));
 		GridBagConstraints gbc_btnRemoveCourse = new GridBagConstraints();
 		gbc_btnRemoveCourse.insets = new Insets(0, 0, 0, 5);
 		gbc_btnRemoveCourse.gridx = 2;
@@ -493,6 +504,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		btnRemoveCourseFromStudent = new JButton("Remove from student");
 		btnRemoveCourseFromStudent.setName("removeCourseFromStudentButton");
 		btnRemoveCourseFromStudent.setEnabled(false);
+		btnRemoveCourseFromStudent.addActionListener(e -> agendaController.removeCourseFromStudent(studentsList.getSelectedValue(), coursesList.getSelectedValue()));
 		GridBagConstraints gbc_btnRemoveCourseFromStudent = new GridBagConstraints();
 		gbc_btnRemoveCourseFromStudent.insets = new Insets(0, 0, 0, 5);
 		gbc_btnRemoveCourseFromStudent.gridx = 3;
@@ -506,8 +518,8 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseErrorNotAddedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseErrorNotAddedMessage.gridwidth = 2;
 		gbc_lblCourseErrorNotAddedMessage.gridx = 0;
-		gbc_lblCourseErrorNotAddedMessage.gridy = 8;
-		studentPanel.add(lblCourseErrorNotAddedMessage, gbc_lblCourseErrorNotAddedMessage);
+		gbc_lblCourseErrorNotAddedMessage.gridy = 9;
+		coursePanel.add(lblCourseErrorNotAddedMessage, gbc_lblCourseErrorNotAddedMessage);
 
 		/** Course added label */
 		lblCourseAddedMessage = new JLabel("");
@@ -516,7 +528,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseAddedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseAddedMessage.gridwidth = 2;
 		gbc_lblCourseAddedMessage.gridx = 0;
-		gbc_lblCourseAddedMessage.gridy = 8;
+		gbc_lblCourseAddedMessage.gridy = 9;
 		coursePanel.add(lblCourseAddedMessage, gbc_lblCourseAddedMessage);
 
 		/** Course error not removed label */
@@ -526,7 +538,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseErrorNotRemovedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseErrorNotRemovedMessage.gridwidth = 2;
 		gbc_lblCourseErrorNotRemovedMessage.gridx = 0;
-		gbc_lblCourseErrorNotRemovedMessage.gridy = 8;
+		gbc_lblCourseErrorNotRemovedMessage.gridy = 9;
 		coursePanel.add(lblCourseErrorNotRemovedMessage, gbc_lblCourseErrorNotRemovedMessage);
 
 		/** Course removed label */
@@ -536,7 +548,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseRemovedMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseRemovedMessage.gridwidth = 2;
 		gbc_lblCourseRemovedMessage.gridx = 0;
-		gbc_lblCourseRemovedMessage.gridy = 8;
+		gbc_lblCourseRemovedMessage.gridy = 9;
 		coursePanel.add(lblCourseRemovedMessage, gbc_lblCourseRemovedMessage);
 
 		/** Course error not added to student label */
@@ -546,7 +558,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseErrorNotAddedToStudentMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseErrorNotAddedToStudentMessage.gridwidth = 2;
 		gbc_lblCourseErrorNotAddedToStudentMessage.gridx = 0;
-		gbc_lblCourseErrorNotAddedToStudentMessage.gridy = 8;
+		gbc_lblCourseErrorNotAddedToStudentMessage.gridy = 9;
 		coursePanel.add(lblCourseErrorNotAddedToStudentMessage, gbc_lblCourseErrorNotAddedToStudentMessage);
 
 		/** Course added to student label */
@@ -556,7 +568,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseAddedToStudentMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseAddedToStudentMessage.gridwidth = 2;
 		gbc_lblCourseAddedToStudentMessage.gridx = 0;
-		gbc_lblCourseAddedToStudentMessage.gridy = 8;
+		gbc_lblCourseAddedToStudentMessage.gridy = 9;
 		coursePanel.add(lblCourseAddedToStudentMessage, gbc_lblCourseAddedToStudentMessage);
 
 		/** Course error not removed from student */
@@ -566,7 +578,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseErrorNotRemovedFromStudentMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseErrorNotRemovedFromStudentMessage.gridwidth = 2;
 		gbc_lblCourseErrorNotRemovedFromStudentMessage.gridx = 0;
-		gbc_lblCourseErrorNotRemovedFromStudentMessage.gridy = 8;
+		gbc_lblCourseErrorNotRemovedFromStudentMessage.gridy = 9;
 		coursePanel.add(lblCourseErrorNotRemovedFromStudentMessage, gbc_lblCourseErrorNotRemovedFromStudentMessage);
 
 		/** Course removed from student */
@@ -576,7 +588,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbc_lblCourseRemovedFromStudentMessage.insets = new Insets(0, 0, 5, 0);
 		gbc_lblCourseRemovedFromStudentMessage.gridwidth = 2;
 		gbc_lblCourseRemovedFromStudentMessage.gridx = 0;
-		gbc_lblCourseRemovedFromStudentMessage.gridy = 8;
+		gbc_lblCourseRemovedFromStudentMessage.gridy = 9;
 		coursePanel.add(lblCourseRemovedFromStudentMessage, gbc_lblCourseRemovedFromStudentMessage);
 
 	}

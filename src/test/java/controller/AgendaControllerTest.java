@@ -121,7 +121,7 @@ public class AgendaControllerTest {
 	public void testAddCourseToStudentShouldAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.studentHasCourse(testStudent, testCourse)).thenReturn(false);
@@ -139,7 +139,7 @@ public class AgendaControllerTest {
 	public void testAddCourseToStudentWhenStudentIsNotPresentShouldNotAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(false);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 
@@ -155,7 +155,7 @@ public class AgendaControllerTest {
 	public void testAddCourseToStudentWhenCourseIsNotPresentShouldNotAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(false);
 
@@ -171,7 +171,7 @@ public class AgendaControllerTest {
 	public void testAddCourseToStudentWhenStudentHasItShouldNotAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.studentHasCourse(testStudent, testCourse)).thenReturn(true);
@@ -189,7 +189,7 @@ public class AgendaControllerTest {
 	public void testRemoveCourseFromStudentShouldRemoveAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.studentHasCourse(testStudent, testCourse)).thenReturn(true);
@@ -207,7 +207,7 @@ public class AgendaControllerTest {
 	public void testRemoveCourseFromStudentWhenStudentIsNotPresentShouldNotAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(false);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 
@@ -223,7 +223,7 @@ public class AgendaControllerTest {
 	public void testRemoveCourseFromStudentWhenCourseIsNotPresentShouldNotRemoveAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(false);
 
@@ -239,7 +239,7 @@ public class AgendaControllerTest {
 	public void testRemoveCourseFromStudentWhenStudentNotHasItShouldNotRemoveAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.studentHasCourse(testStudent, testCourse)).thenReturn(false);
@@ -256,7 +256,7 @@ public class AgendaControllerTest {
 	@Test
 	public void testAddCourseWhenCourseIsNotPresentShouldAddAndFeedback() {
 		// setup
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findCourse(testCourse)).thenReturn(false);
 
 		// exercise
@@ -271,7 +271,7 @@ public class AgendaControllerTest {
 	@Test
 	public void testAddCourseWhenCourseIsAlreadyPresentShouldNotAddAndFeedback() {
 		// setup
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 
 		// exercise
@@ -285,7 +285,7 @@ public class AgendaControllerTest {
 	@Test
 	public void testRemoveCourseWhenCourseIsAlreadyPresentShouldRemoveAndFeedback() {
 		// setup
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 
 		// exercise
@@ -300,7 +300,7 @@ public class AgendaControllerTest {
 	@Test
 	public void testRemoveCourseWhenCourseIsNotPresentShouldNotRemoveAndFeedback() {
 		// setup
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findCourse(testCourse)).thenReturn(false);
 
 		// exercise
@@ -317,7 +317,7 @@ public class AgendaControllerTest {
 	public void testRemoveStudentFromCourseShouldRemoveAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(true);
@@ -335,7 +335,7 @@ public class AgendaControllerTest {
 	public void testRemoveStudentFromCourseWhenCourseNotHasItShouldNotRemoveAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(false);
@@ -352,7 +352,7 @@ public class AgendaControllerTest {
 	public void testRemoveStudentFromCourseWhenStudentIsNotPresentShouldNotRemoveAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(false);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		
@@ -367,7 +367,7 @@ public class AgendaControllerTest {
 	public void testRemoveStudentFromCourseWhenCourseIsNotPresentShouldNotRemoveAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(false);
 		
@@ -384,7 +384,7 @@ public class AgendaControllerTest {
 	public void testAddStudentToCourseShouldAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		
@@ -401,7 +401,7 @@ public class AgendaControllerTest {
 	public void testAddStudentToCourseWhenCourseHasItShouldNotAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		when(agendaService.courseHasStudent(testStudent, testCourse)).thenReturn(true);
@@ -418,7 +418,7 @@ public class AgendaControllerTest {
 	public void testAddStudentToCourseWhenStudentIsNotPresentShouldNotAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(false);
 		when(agendaService.findCourse(testCourse)).thenReturn(true);
 		
@@ -434,7 +434,7 @@ public class AgendaControllerTest {
 	public void testAddStudentToCourseWhenCourseIsNotPresentShouldNotAddAndFeedback() {
 		// setup
 		Student testStudent = new Student("1", "testStudent");
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		when(agendaService.findStudent(testStudent)).thenReturn(true);
 		when(agendaService.findCourse(testCourse)).thenReturn(false);
 		
@@ -451,7 +451,7 @@ public class AgendaControllerTest {
 	@Test
 	public void testGetAllCourses() {
 		// setup
-		List<Course> allCourses = asList(new Course("1", "testCourse"));
+		List<Course> allCourses = asList(new Course("1", "testCourse", "9"));
 		when(agendaService.getAllCourses()).thenReturn(allCourses);
 		
 		// exercise

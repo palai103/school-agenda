@@ -74,7 +74,7 @@ public class CourseMongoRepositoryTest {
 		List<Course> courses = courseMongoRepository.findAll();
 
 		//verify
-		assertThat(courses).containsExactly(new Course("id", "testCourse"));
+		assertThat(courses).containsExactly(new Course("id", "testCourse", "9"));
 	}
 	
 	@Test
@@ -90,13 +90,13 @@ public class CourseMongoRepositoryTest {
 
 		//verify
 		assertThat(courseMongoRepository.findById("id"))
-		.isEqualTo(new Course("id", "testCourse"));
+		.isEqualTo(new Course("id", "testCourse", "9"));
 	}
 	
 	@Test
 	public void testSave() {
 		//setup
-		Course testCourse = new Course("id", "testCourse");
+		Course testCourse = new Course("id", "testCourse", "9");
 
 		//exercise
 		courseMongoRepository.save(testCourse);
@@ -108,7 +108,7 @@ public class CourseMongoRepositoryTest {
 	@Test
 	public void testDelete() {
 		//setup
-		Course testCourse = new Course("id", "testCourse");
+		Course testCourse = new Course("id", "testCourse", "9");
 
 		//exercise
 		courseMongoRepository.delete(testCourse);
@@ -177,7 +177,7 @@ public class CourseMongoRepositoryTest {
 	private List<Course> readAllCoursesFromDatabase() {
 		return StreamSupport.
 				stream(courseCollection.find().spliterator(), false)
-				.map(d -> new Course(d.getString("id"), d.getString("name")))
+				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu")))
 				.collect(Collectors.toList());
 	}
 

@@ -61,7 +61,7 @@ public class TransactionManagerTestIT {
 	@Test
 	public void testCourseTransaction() {
 		// setup
-		Course testCourse = new Course("1", "testCourse");
+		Course testCourse = new Course("1", "testCourse", "9");
 		courseMongoRepository.save(testCourse);
 
 		// exercise
@@ -77,7 +77,7 @@ public class TransactionManagerTestIT {
 	public void testCompositeTransaction() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("1", "test course 1");
+		Course testCourse = new Course("1", "test course 1", "9");
 		studentMongoRepository.save(testStudent);
 		courseMongoRepository.save(testCourse);
 		

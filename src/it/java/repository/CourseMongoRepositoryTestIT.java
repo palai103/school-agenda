@@ -52,28 +52,28 @@ public class CourseMongoRepositoryTestIT {
 	public void testFindAll() {
 		addCourseToDatabase("1", "test course 1", Collections.emptyList());
 		addCourseToDatabase("2", "test course 2", Collections.emptyList());
-		assertThat(courseRepository.findAll()).containsExactly(new Course("1", "test course 1"),
-				new Course("2", "test course 2"));
+		assertThat(courseRepository.findAll()).containsExactly(new Course("1", "test course 1", "9"),
+				new Course("2", "test course 2", "9"));
 	}
 
 	@Test
 	public void testFindById() {
 		addCourseToDatabase("1", "test course 1", Collections.emptyList());
-		assertThat(courseRepository.findById("1")).isEqualTo(new Course("1", "test course 1"));
+		assertThat(courseRepository.findById("1")).isEqualTo(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
 	public void testSave() {
-		courseRepository.save(new Course("1", "test course 1"));
-		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1"));
+		courseRepository.save(new Course("1", "test course 1", "9"));
+		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
 	public void testDelete() {
 		addCourseToDatabase("1", "test course 1", Collections.emptyList());
 		addCourseToDatabase("2", "test course 2", Collections.emptyList());
-		courseRepository.delete(new Course("2", "test course 2"));
-		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1"));
+		courseRepository.delete(new Course("2", "test course 2", "9"));
+		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
@@ -102,7 +102,7 @@ public class CourseMongoRepositoryTestIT {
 
 	private List<Course> readAllCourseFromDatabase() {
 		return StreamSupport.stream(courseCollection.find().spliterator(), false)
-				.map(d -> new Course(d.getString("id"), d.getString("name"))).collect(Collectors.toList());
+				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu"))).collect(Collectors.toList());
 	}
 
 }

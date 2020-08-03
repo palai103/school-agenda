@@ -104,7 +104,7 @@ public class AgendaControllerTestIT {
 	public void testAddCourseToStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addStudent(testStudent);
 		agendaService.addCourse(testCourse);
 
@@ -119,7 +119,7 @@ public class AgendaControllerTestIT {
 	public void testRemoveCourseFromStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addStudent(testStudent);
 		agendaService.addCourse(testCourse);
 		agendaService.addCourseToStudent(testStudent, testCourse);
@@ -134,7 +134,7 @@ public class AgendaControllerTestIT {
 	@Test
 	public void testAddCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		
 		// exercise
 		agendaController.addCourse(testCourse);
@@ -146,7 +146,7 @@ public class AgendaControllerTestIT {
 	@Test
 	public void testRemoveCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addCourse(testCourse);
 
 		// exercise
@@ -159,7 +159,7 @@ public class AgendaControllerTestIT {
 	@Test
 	public void testRemoveStudentFromCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		agendaService.addCourse(testCourse);
 		agendaService.addStudent(testStudent);
@@ -175,7 +175,7 @@ public class AgendaControllerTestIT {
 	@Test
 	public void testAddStudentToCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		agendaService.addCourse(testCourse);
 		agendaService.addStudent(testStudent);
@@ -190,7 +190,7 @@ public class AgendaControllerTestIT {
 	@Test
 	public void testGetAllCourses() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addCourse(testCourse);
 
 		// exercise
