@@ -141,11 +141,12 @@ public class AgendaViewCli implements AgendaView {
 		this.inputStream = inputStream;
 	}
 
-	public void menuChoice() {
+	public int menuChoice() {
 		showMenu();
 
 		scanner = new Scanner(inputStream);
 		String choice = scanner.nextLine();
+		int code = 0;
 
 		switch (choice) {
 		case "1":
@@ -179,12 +180,12 @@ public class AgendaViewCli implements AgendaView {
 			removeCourseCallControler();
 			break;
 		case "11":
-			System.exit(0);
+			code = -1;
 			break;
 		default:
 			break;
 		}
-
+		return code;
 	}
 
 	private void removeStudentToCourseCallController() {

@@ -40,8 +40,14 @@ public class AgendaViewTest {
 
 	@Test
 	public void testMenu() {
+		// setup
+		// testing the switch case with input "0" so that it fulfills the Scanner need
+		// for a line
+		testInput = new ByteArrayInputStream("0".getBytes());
+		cliView.setInput(testInput);
+
 		// exercise
-		cliView.showMenu();
+		cliView.menuChoice();
 
 		// verify
 		assertThat(testOutput.toString()).hasToString("--------- Pick a choice: ---------" + newline
@@ -50,7 +56,21 @@ public class AgendaViewTest {
 				+ "6) Enroll a student to a course (by course)" + newline
 				+ "7) Delete a student enrollment (by student id)" + newline
 				+ "8) Delete a student enrollment (by course id)" + newline + "9) Delete a student" + newline
-				+ "10) Delete a course" + newline + "11) Exit" + newline + "---------------------------------" + newline);
+				+ "10) Delete a course" + newline + "11) Exit" + newline + "---------------------------------"
+				+ newline);
+	}
+
+	@Test
+	public void testExit() {
+		// setup
+		testInput = new ByteArrayInputStream("11".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		int code = cliView.menuChoice();
+
+		// verify
+		assertThat(code).isEqualTo(-1);
 	}
 
 	@Test
@@ -76,8 +96,8 @@ public class AgendaViewTest {
 		cliView.showAllStudents(asList(testStudent1, testStudent2));
 
 		// verify
-		assertThat(testOutput.toString())
-				.hasToString("Student [id=1, name=test student 1]" + newline + "Student [id=2, name=test student 2]" + newline);
+		assertThat(testOutput.toString()).hasToString(
+				"Student [id=1, name=test student 1]" + newline + "Student [id=2, name=test student 2]" + newline);
 	}
 
 	@Test
@@ -155,7 +175,8 @@ public class AgendaViewTest {
 		cliView.notifyStudentNotRemoved(testStudent);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Student with id " + testStudent.getId() + " not removed" + newline);
+		assertThat(testOutput.toString())
+				.hasToString("Student with id " + testStudent.getId() + " not removed" + newline);
 	}
 
 	@Test
@@ -416,8 +437,8 @@ public class AgendaViewTest {
 		cliView.showAllCourses(asList(testCourse1, testCourse2));
 
 		// verify
-		assertThat(testOutput.toString())
-				.hasToString("Course [id=1, name=test course 1]" + newline + "Course [id=2, name=test course 2]" + newline);
+		assertThat(testOutput.toString()).hasToString(
+				"Course [id=1, name=test course 1]" + newline + "Course [id=2, name=test course 2]" + newline);
 	}
 
 	@Test
