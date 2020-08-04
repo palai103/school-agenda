@@ -9,9 +9,7 @@ import java.util.Scanner;
 import controller.AgendaController;
 import model.Course;
 import model.Student;
-import picocli.CommandLine.Command;
 
-@Command
 public class AgendaViewCli implements AgendaView {
 
 	private static final String STUDENT_WITH_ID = "Student with id ";
