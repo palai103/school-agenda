@@ -16,7 +16,7 @@ public class AgendaViewCli implements AgendaView {
 	private static final String INSERT_COURSE_ID = "Insert course id: ";
 	private static final String COURSE_WITH_ID = "Course with id ";
 	private static final String INSERT_STUDENT_ID = "Insert student id: ";
-	private static final String newline = System.getProperty("line.separator");
+	private static final String NEWLINE = System.getProperty("line.separator");
 	private AgendaController controller;
 	private InputStream inputStream;
 	private PrintStream printStream;
@@ -128,13 +128,13 @@ public class AgendaViewCli implements AgendaView {
 	}
 
 	public void showMenu() {
-		printStream.println("--------- Pick a choice: ---------" + newline
-				+ "1) Show all students" + newline + "2) Show all courses" + newline + "3) Add a student" + newline
-				+ "4) Add a course" + newline + "5) Enroll a student to a course (by student)" + newline
-				+ "6) Enroll a student to a course (by course)" + newline
-				+ "7) Delete a student enrollment (by student id)" + newline
-				+ "8) Delete a student enrollment (by course id)" + newline + "9) Delete a student" + newline
-				+ "10) Delete a course" + newline + "11) Exit" + newline + "---------------------------------");
+		printStream.println("--------- Pick a choice: ---------" + NEWLINE
+				+ "1) Show all students" + NEWLINE + "2) Show all courses" + NEWLINE + "3) Add a student" + NEWLINE
+				+ "4) Add a course" + NEWLINE + "5) Enroll a student to a course (by student)" + NEWLINE
+				+ "6) Enroll a student to a course (by course)" + NEWLINE
+				+ "7) Delete a student enrollment (by student id)" + NEWLINE
+				+ "8) Delete a student enrollment (by course id)" + NEWLINE + "9) Delete a student" + NEWLINE
+				+ "10) Delete a course" + NEWLINE + "11) Exit" + NEWLINE + "---------------------------------");
 	}
 
 	public void setInput(ByteArrayInputStream inputStream) {
