@@ -3,6 +3,7 @@ package service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Arrays.asList;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -43,6 +44,9 @@ public class AgendaServiceTestIT {
 	private MongoCollection<Document> studentCollection;
 	private MongoCollection<Document> courseCollection;
 	private AgendaService agendaService;
+	
+	private Student necessaryStudent;
+	private Course necessaryCourse;
 
 	@Before
 	public void setup() {
@@ -54,6 +58,27 @@ public class AgendaServiceTestIT {
 		database.drop();
 		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
 		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
+		
+		/**
+		 * The explanation for the following lines can be found here:
+		 * https://docs.mongodb.com/manual/core/transactions/
+		 * 
+		 * "In MongoDB 4.2 and earlier, you cannot create collections in transactions.
+		 * Write operations that result in document inserts (e.g. insert or update
+		 * operations with upsert: true) must be on existing collections if run inside
+		 * transactions."
+		 */
+		necessaryStudent = new Student("0", "necessary student");
+		studentCollection.insertOne(new Document().append("id", necessaryStudent.getId())
+				.append("name", necessaryStudent.getName())
+				.append("courses", Collections.emptyList()));
+		
+		necessaryCourse = new Course("0", "necessary course", "12");
+		courseCollection.insertOne(new Document().append("id", necessaryCourse.getId())
+				.append("name", necessaryCourse.getName())
+				.append("cfu", necessaryCourse.getCFU())
+				.append("students", Collections.emptyList()));
+		
 		agendaService = new AgendaService(transactionManagerMongo);
 	}
 
@@ -72,7 +97,7 @@ public class AgendaServiceTestIT {
 		List<Student> students = agendaService.getAllStudents();
 
 		// verify
-		assertThat(students).containsExactly(testStudent);
+		assertThat(students).containsExactly(necessaryStudent, testStudent);
 	}
 
 	@Test
@@ -110,7 +135,7 @@ public class AgendaServiceTestIT {
 		agendaService.addStudent(testStudent);
 
 		// verify
-		assertThat(readAllStudentsFromDatabase()).containsExactly(testStudent);
+		assertThat(readAllStudentsFromDatabase()).containsExactly(necessaryStudent, testStudent);
 	}
 
 	@Test
@@ -123,7 +148,7 @@ public class AgendaServiceTestIT {
 		agendaService.removeStudent(testStudent);
 
 		// verify
-		assertThat(readAllStudentsFromDatabase()).isEmpty();
+		assertThat(readAllStudentsFromDatabase()).containsExactly(necessaryStudent);
 	}
 
 	@Test
@@ -180,7 +205,7 @@ public class AgendaServiceTestIT {
 		agendaService.addCourse(testCourse);
 
 		// verify
-		assertThat(readAllCourseFromDatabase()).containsExactly(testCourse);
+		assertThat(readAllCourseFromDatabase()).containsExactly(necessaryCourse, testCourse);
 	}
 
 	@Test
@@ -193,7 +218,7 @@ public class AgendaServiceTestIT {
 		agendaService.removeCourse(testCourse);
 
 		// verify
-		assertThat(readAllCourseFromDatabase()).isEmpty();
+		assertThat(readAllCourseFromDatabase()).containsExactly(necessaryCourse);
 	}
 
 	@Test
@@ -251,7 +276,7 @@ public class AgendaServiceTestIT {
 		List<Course> courses = agendaService.getAllCourses();
 
 		// verify
-		assertThat(courses).containsExactly(testCourse);
+		assertThat(courses).containsExactly(necessaryCourse, testCourse);
 	}
 
 	private List<String> getStudentCourses(Student student) {
@@ -266,15 +291,25 @@ public class AgendaServiceTestIT {
 		studentCollection.insertOne(new Document().append("id", id).append("name", name).append("courses", courses));
 	}
 
+	
+	
+	
 	private List<Student> readAllStudentsFromDatabase() {
 		return StreamSupport.stream(studentCollection.find().spliterator(), false)
 				.map(d -> new Student(d.getString("id"), d.getString("name"))).collect(Collectors.toList());
 	}
 
+	
+	
+	
+	
 	private void addCourseToDatabase(String id, String name, List<String> students) {
 		courseCollection.insertOne(new Document().append("id", id).append("name", name).append("students", students));
 	}
 
+	
+	
+	
 	private List<Course> readAllCourseFromDatabase() {
 		return StreamSupport.stream(courseCollection.find().spliterator(), false)
 				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu"))).collect(Collectors.toList());

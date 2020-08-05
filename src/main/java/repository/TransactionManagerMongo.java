@@ -2,8 +2,11 @@ package repository;
 
 import com.mongodb.MongoClient;
 import com.mongodb.client.ClientSession;
+import com.mongodb.client.TransactionBody;
 
 public class TransactionManagerMongo implements TransactionManager {
+	
+	private ClientSession clientSession;
 
 	private MongoClient client;
 	private StudentMongoRepository studentMongoRepository;
@@ -19,51 +22,72 @@ public class TransactionManagerMongo implements TransactionManager {
 	@Override
 	public <T> T studentTransaction(StudentTransactionCode<T> code) {
 		T valueToReturn = null;
-		ClientSession clientSession = client.startSession();
-
+		clientSession = client.startSession();
+		
+		TransactionBody<T> transactionBody = new TransactionBody<T>() {
+			public T execute() {
+				return code.apply(studentMongoRepository, clientSession);
+			}
+		};
+		
 		try {
-			clientSession.startTransaction();
-			valueToReturn = code.apply(studentMongoRepository);
-			clientSession.commitTransaction();
-		} catch (RuntimeException rte) {
+			valueToReturn = clientSession.withTransaction(transactionBody);
+		}
+		catch (RuntimeException rte) {
 			clientSession.abortTransaction();
-		} finally {
+		}
+		finally {
 			clientSession.close();
 		}
+		
 		return valueToReturn;
 	}
 
 	@Override
 	public <T> T courseTransaction(CourseTransactionCode<T> code) {
 		T valueToReturn = null;
-		ClientSession clientSession = client.startSession();
-
+		clientSession = client.startSession();
+		
+		TransactionBody<T> transactionBody = new TransactionBody<T>() {
+			public T execute() {
+				return code.apply(courseMongoRepository, clientSession);
+			}
+		};
+		
 		try {
-			clientSession.startTransaction();
-			valueToReturn = code.apply(courseMongoRepository);
-			clientSession.commitTransaction();
-		} catch (RuntimeException rte) {
+			valueToReturn = clientSession.withTransaction(transactionBody);
+		}
+		catch (RuntimeException rte) {
 			clientSession.abortTransaction();
-		} finally {
+		}
+		finally {
 			clientSession.close();
 		}
+
 		return valueToReturn;
 	}
 
 	@Override
 	public <T> T compositeTransaction(TransactionCode<T> code) {
 		T valueToReturn = null;
-		ClientSession clientSession = client.startSession();
+		clientSession = client.startSession();
+		
+		TransactionBody<T> transactionBody = new TransactionBody<T>() {
+			public T execute() {
+				return code.apply(studentMongoRepository, courseMongoRepository, clientSession);
+			}
+		};
 		
 		try {
-			clientSession.startTransaction();
-			valueToReturn = code.apply(studentMongoRepository, courseMongoRepository);
-			clientSession.commitTransaction();
-		} catch (RuntimeException rte) {
+			valueToReturn = clientSession.withTransaction(transactionBody);
+		}
+		catch (RuntimeException rte) {
 			clientSession.abortTransaction();
-		} finally {
+		}
+		finally {
 			clientSession.close();
 		}
+
 		return valueToReturn;
 	}
 }

@@ -19,6 +19,9 @@ import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.mongodb.MongoClient;
+import com.mongodb.client.ClientSession;
+
 import model.Course;
 import model.Student;
 import repository.CourseRepository;
@@ -31,6 +34,9 @@ import repository.TransactionManager;
 public class AgendaServiceTest {
 
 	private AgendaService agendaService;
+	
+	@Mock
+	private MongoClient client;
 
 	@Mock
 	private TransactionManager transactionManager;
@@ -40,19 +46,22 @@ public class AgendaServiceTest {
 
 	@Mock
 	private CourseRepository courseRepository;
+	
+	private ClientSession clientSession;
 
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
+		clientSession = client.startSession();
 
 		when(transactionManager.studentTransaction(any()))
-				.thenAnswer(answer((StudentTransactionCode<?> code) -> code.apply(studentRepository)));
+				.thenAnswer(answer((StudentTransactionCode<?> code) -> code.apply(studentRepository, clientSession)));
 
 		when(transactionManager.courseTransaction(any()))
-				.thenAnswer(answer((CourseTransactionCode<?> code) -> code.apply(courseRepository)));
+				.thenAnswer(answer((CourseTransactionCode<?> code) -> code.apply(courseRepository, clientSession)));
 
 		when(transactionManager.compositeTransaction(any()))
-				.thenAnswer(answer((TransactionCode<?> code) -> code.apply(studentRepository, courseRepository)));
+				.thenAnswer(answer((TransactionCode<?> code) -> code.apply(studentRepository, courseRepository, clientSession)));
 
 		agendaService = new AgendaService(transactionManager);
 	}
@@ -66,7 +75,7 @@ public class AgendaServiceTest {
 		Student secondStudent = new Student("2", "test student two");
 
 		List<Student> allStudents = asList(firstStudent, secondStudent);
-		when(studentRepository.findAll()).thenReturn(allStudents);
+		when(studentRepository.findAll(clientSession)).thenReturn(allStudents);
 
 		// exercise
 		List<Student> retrievedStudents = agendaService.getAllStudents();
@@ -80,7 +89,7 @@ public class AgendaServiceTest {
 	public void testGetAllStudentsWithEmptyListShouldReturnEmptyList() {
 		// setup
 		List<Student> allStudents = asList();
-		when(studentRepository.findAll()).thenReturn(allStudents);
+		when(studentRepository.findAll(clientSession)).thenReturn(allStudents);
 
 		// exercise
 		List<Student> retrievedStudents = agendaService.getAllStudents();
@@ -95,7 +104,7 @@ public class AgendaServiceTest {
 		// setup
 		Student testStudent = new Student("1", "test student");
 
-		when(studentRepository.findById("1")).thenReturn(testStudent);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(testStudent);
 
 		// exercise
 		Boolean studentExists = agendaService.findStudent(testStudent);
@@ -110,7 +119,7 @@ public class AgendaServiceTest {
 		// setup
 		Student testStudent = new Student("1", "test student");
 
-		when(studentRepository.findById("1")).thenReturn(null);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(null);
 
 		// exercise
 		Boolean studentNotExists = agendaService.findStudent(testStudent);
@@ -125,7 +134,7 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 
-		when(courseRepository.findById("1")).thenReturn(testCourse);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(testCourse);
 
 		// exercise
 		Boolean courseExists = agendaService.findCourse(testCourse);
@@ -140,7 +149,7 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 
-		when(courseRepository.findById("1")).thenReturn(null);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(null);
 
 		// exercise
 		Boolean courseNotExists = agendaService.findCourse(testCourse);
@@ -159,7 +168,7 @@ public class AgendaServiceTest {
 		agendaService.addStudent(testStudent);
 
 		// verify
-		verify(studentRepository).save(testStudent);
+		verify(studentRepository).save(clientSession, testStudent);
 		verify(transactionManager).studentTransaction(any());
 	}
 
@@ -181,7 +190,7 @@ public class AgendaServiceTest {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
-		when(studentRepository.findStudentCourses(testStudent.getId()))
+		when(studentRepository.findStudentCourses(clientSession, testStudent.getId()))
 				.thenReturn(Collections.singletonList(testCourse.getId()));
 
 		// exercise
@@ -190,9 +199,9 @@ public class AgendaServiceTest {
 		// verify
 		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
 		inOrder.verify(transactionManager).compositeTransaction(any());
-		inOrder.verify(studentRepository).findStudentCourses(testStudent.getId());
-		inOrder.verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
-		inOrder.verify(studentRepository).delete(testStudent);
+		inOrder.verify(studentRepository).findStudentCourses(clientSession, testStudent.getId());
+		inOrder.verify(courseRepository).removeCourseStudent(clientSession, testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).delete(clientSession, testStudent);
 	}
 
 	@Test
@@ -215,7 +224,7 @@ public class AgendaServiceTest {
 		Course secondCourse = new Course("2", "test course two", "9");
 
 		List<Course> allCourses = asList(firstCourse, secondCourse);
-		when(courseRepository.findAll()).thenReturn(allCourses);
+		when(courseRepository.findAll(clientSession)).thenReturn(allCourses);
 
 		// exercise
 		List<Course> retrievedCourses = agendaService.getAllCourses();
@@ -229,7 +238,7 @@ public class AgendaServiceTest {
 	public void testGetAllCoursesWithEmptyListShouldReturnEmptyList() {
 		// setup
 		List<Course> allCourses = asList();
-		when(courseRepository.findAll()).thenReturn(allCourses);
+		when(courseRepository.findAll(clientSession)).thenReturn(allCourses);
 
 		// exercise
 		List<Course> retrievedCourses = agendaService.getAllCourses();
@@ -248,7 +257,7 @@ public class AgendaServiceTest {
 		agendaService.addCourse(testCourse);
 
 		// verify
-		verify(courseRepository).save(testCourse);
+		verify(courseRepository).save(clientSession, testCourse);
 		verify(transactionManager).courseTransaction(any());
 	}
 
@@ -270,7 +279,7 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		when(courseRepository.findCourseStudents(testCourse.getId()))
+		when(courseRepository.findCourseStudents(clientSession, testCourse.getId()))
 				.thenReturn(Collections.singletonList(testStudent.getId()));
 
 		// exercise
@@ -279,9 +288,9 @@ public class AgendaServiceTest {
 		// verify
 		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
 		inOrder.verify(transactionManager).compositeTransaction(any());
-		inOrder.verify(courseRepository).findCourseStudents(testCourse.getId());
-		inOrder.verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
-		inOrder.verify(courseRepository).delete(testCourse);
+		inOrder.verify(courseRepository).findCourseStudents(clientSession, testCourse.getId());
+		inOrder.verify(studentRepository).removeStudentCourse(clientSession, testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).delete(clientSession, testCourse);
 	}
 
 	@Test
@@ -302,7 +311,7 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		when(studentRepository.findById("1")).thenReturn(testStudent);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(testStudent);
 
 		// exercise
 		agendaService.addCourseToStudent(testStudent, testCourse);
@@ -310,8 +319,8 @@ public class AgendaServiceTest {
 		// verify
 		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
 		inOrder.verify(transactionManager).compositeTransaction(any());
-		inOrder.verify(studentRepository).updateStudentCourses(testStudent.getId(), testCourse.getId());
-		inOrder.verify(courseRepository).updateCourseStudents(testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).updateStudentCourses(clientSession, testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).updateCourseStudents(clientSession, testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -319,14 +328,14 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		when(studentRepository.findById("1")).thenReturn(null);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(null);
 
 		// exercise
 		agendaService.addCourseToStudent(testStudent, testCourse);
 
 		// verify
-		verify(studentRepository, never()).updateStudentCourses(testStudent.getId(), testCourse.getId());
-		verify(courseRepository, never()).updateCourseStudents(testStudent.getId(), testCourse.getId());
+		verify(studentRepository, never()).updateStudentCourses(clientSession, testStudent.getId(), testCourse.getId());
+		verify(courseRepository, never()).updateCourseStudents(clientSession, testStudent.getId(), testCourse.getId());
 		verify(transactionManager).compositeTransaction(any());
 	}
 
@@ -335,7 +344,7 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		when(studentRepository.findById("1")).thenReturn(testStudent);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(testStudent);
 
 		// exercise
 		agendaService.removeCourseFromStudent(testStudent, testCourse);
@@ -343,8 +352,8 @@ public class AgendaServiceTest {
 		// verify
 		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
 		inOrder.verify(transactionManager).compositeTransaction(any());
-		inOrder.verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
-		inOrder.verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).removeStudentCourse(clientSession, testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).removeCourseStudent(clientSession, testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -352,14 +361,14 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		when(studentRepository.findById("1")).thenReturn(null);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(null);
 
 		// exercise
 		agendaService.removeCourseFromStudent(testStudent, testCourse);
 
 		// verify
-		verify(studentRepository, never()).removeStudentCourse(testStudent.getId(), testCourse.getId());
-		verify(courseRepository, never()).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		verify(studentRepository, never()).removeStudentCourse(clientSession, testStudent.getId(), testCourse.getId());
+		verify(courseRepository, never()).removeCourseStudent(clientSession, testStudent.getId(), testCourse.getId());
 		verify(transactionManager).compositeTransaction(any());
 	}
 
@@ -371,8 +380,8 @@ public class AgendaServiceTest {
 
 		List<String> studentCourses = asList(testCourse.getId());
 
-		when(studentRepository.findById("1")).thenReturn(testStudent);
-		when(studentRepository.findStudentCourses("1")).thenReturn(studentCourses);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(testStudent);
+		when(studentRepository.findStudentCourses(clientSession, "1")).thenReturn(studentCourses);
 
 		// exercise
 		Boolean hasCourse = agendaService.studentHasCourse(testStudent, testCourse);
@@ -390,8 +399,8 @@ public class AgendaServiceTest {
 
 		List<String> courseStudents = asList(testStudent.getId());
 
-		when(courseRepository.findById("1")).thenReturn(testCourse);
-		when(courseRepository.findCourseStudents("1")).thenReturn(courseStudents);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(testCourse);
+		when(courseRepository.findCourseStudents(clientSession, "1")).thenReturn(courseStudents);
 
 		// exercise
 		Boolean hasStudent = agendaService.courseHasStudent(testStudent, testCourse);
@@ -410,8 +419,8 @@ public class AgendaServiceTest {
 
 		List<String> courseStudents = asList(studentWithinList.getId());
 
-		when(courseRepository.findById("1")).thenReturn(testCourse);
-		when(courseRepository.findCourseStudents("1")).thenReturn(courseStudents);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(testCourse);
+		when(courseRepository.findCourseStudents(clientSession, "1")).thenReturn(courseStudents);
 
 		// exercise
 		Boolean hasStudent = agendaService.courseHasStudent(studentOutsideList, testCourse);
@@ -430,8 +439,8 @@ public class AgendaServiceTest {
 
 		List<String> studentCourses = asList(courseWithinList.getId());
 
-		when(studentRepository.findById("1")).thenReturn(testStudent);
-		when(studentRepository.findStudentCourses("1")).thenReturn(studentCourses);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(testStudent);
+		when(studentRepository.findStudentCourses(clientSession, "1")).thenReturn(studentCourses);
 
 		// exercise
 		Boolean hasCourse = agendaService.studentHasCourse(testStudent, courseOutsideList);
@@ -446,7 +455,7 @@ public class AgendaServiceTest {
 		// setup
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		when(studentRepository.findById("1")).thenReturn(null);
+		when(studentRepository.findById(clientSession, "1")).thenReturn(null);
 
 		// exercise
 		Boolean hasCourse = agendaService.studentHasCourse(testStudent, testCourse);
@@ -461,7 +470,7 @@ public class AgendaServiceTest {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
-		when(courseRepository.findById("1")).thenReturn(testCourse);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(testCourse);
 
 		// exercise
 		agendaService.addStudentToCourse(testStudent, testCourse);
@@ -469,8 +478,8 @@ public class AgendaServiceTest {
 		// verify
 		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
 		inOrder.verify(transactionManager).compositeTransaction(any());
-		inOrder.verify(courseRepository).updateCourseStudents(testStudent.getId(), testCourse.getId());
-		inOrder.verify(studentRepository).updateStudentCourses(testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).updateCourseStudents(clientSession, testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).updateStudentCourses(clientSession, testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -478,13 +487,13 @@ public class AgendaServiceTest {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
-		when(courseRepository.findById("1")).thenReturn(null);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(null);
 
 		// exercise
 		agendaService.addStudentToCourse(testStudent, testCourse);
 
 		// verify
-		verify(courseRepository, never()).updateCourseStudents(testStudent.getId(), testCourse.getId());
+		verify(courseRepository, never()).updateCourseStudents(clientSession, testStudent.getId(), testCourse.getId());
 		;
 		verify(transactionManager).compositeTransaction(any());
 	}
@@ -494,7 +503,7 @@ public class AgendaServiceTest {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
-		when(courseRepository.findById("1")).thenReturn(testCourse);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(testCourse);
 
 		// exercise
 		agendaService.removeStudentFromCourse(testStudent, testCourse);
@@ -502,8 +511,8 @@ public class AgendaServiceTest {
 		// verify
 		InOrder inOrder = inOrder(transactionManager, studentRepository, courseRepository);
 		inOrder.verify(transactionManager).compositeTransaction(any());
-		inOrder.verify(courseRepository).removeCourseStudent(testStudent.getId(), testCourse.getId());
-		inOrder.verify(studentRepository).removeStudentCourse(testStudent.getId(), testCourse.getId());
+		inOrder.verify(courseRepository).removeCourseStudent(clientSession, testStudent.getId(), testCourse.getId());
+		inOrder.verify(studentRepository).removeStudentCourse(clientSession, testStudent.getId(), testCourse.getId());
 	}
 
 	@Test
@@ -511,13 +520,13 @@ public class AgendaServiceTest {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
-		when(courseRepository.findById("1")).thenReturn(null);
+		when(courseRepository.findById(clientSession, "1")).thenReturn(null);
 
 		// exercise
 		agendaService.removeStudentFromCourse(testStudent, testCourse);
 
 		// verify
-		verify(courseRepository, never()).removeCourseStudent(testStudent.getId(), testCourse.getId());
+		verify(courseRepository, never()).removeCourseStudent(clientSession, testStudent.getId(), testCourse.getId());
 		verify(transactionManager).compositeTransaction(any());
 	}
 }

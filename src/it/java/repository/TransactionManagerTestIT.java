@@ -11,6 +11,7 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoDatabase;
 
 import model.Course;
@@ -26,11 +27,14 @@ public class TransactionManagerTestIT {
 	public static final GenericContainer mongo = new GenericContainer("krnbr/mongo").withExposedPorts(27017);
 	private TransactionManagerMongo transactionManagerMongo;
 	private MongoClient client;
+	private ClientSession clientSession;
 	private StudentMongoRepository studentMongoRepository;
 	private CourseMongoRepository courseMongoRepository;
+	
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
+		clientSession = client.startSession();
 		studentMongoRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS);
 		courseMongoRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES);
 		transactionManagerMongo = new TransactionManagerMongo(client, studentMongoRepository, courseMongoRepository);
@@ -47,11 +51,11 @@ public class TransactionManagerTestIT {
 	public void testStudentTransaction() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		studentMongoRepository.save(testStudent);
+		studentMongoRepository.save(clientSession, testStudent);
 
 		// excercise
-		Student returnedStudent = transactionManagerMongo.studentTransaction(studentRepository -> {
-			return studentRepository.findById("1");
+		Student returnedStudent = transactionManagerMongo.studentTransaction((studentRepository, clientSession) -> {
+			return studentRepository.findById(clientSession, "1");
 		});
 
 		// verify
@@ -62,11 +66,11 @@ public class TransactionManagerTestIT {
 	public void testCourseTransaction() {
 		// setup
 		Course testCourse = new Course("1", "testCourse", "9");
-		courseMongoRepository.save(testCourse);
+		courseMongoRepository.save(clientSession, testCourse);
 
 		// exercise
-		Course returnedCourse = transactionManagerMongo.courseTransaction(courseRepository -> {
-			return courseRepository.findById("1");
+		Course returnedCourse = transactionManagerMongo.courseTransaction((courseRepository, clientSession) -> {
+			return courseRepository.findById(clientSession, "1");
 		});
 
 		// verify
@@ -78,16 +82,16 @@ public class TransactionManagerTestIT {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("1", "test course 1", "9");
-		studentMongoRepository.save(testStudent);
-		courseMongoRepository.save(testCourse);
+		studentMongoRepository.save(clientSession, testStudent);
+		courseMongoRepository.save(clientSession, testCourse);
 		
 		// exercise
-		Course retrievedCourse = transactionManagerMongo.compositeTransaction((studentRepository, courseRepository) -> {
-			studentRepository.updateStudentCourses(testStudent.getId(), testCourse.getId());
-			courseRepository.updateCourseStudents(testStudent.getId(), testCourse.getId());
+		Course retrievedCourse = transactionManagerMongo.compositeTransaction((studentRepository, courseRepository, clientSession) -> {
+			studentRepository.updateStudentCourses(clientSession, testStudent.getId(), testCourse.getId());
+			courseRepository.updateCourseStudents(clientSession, testStudent.getId(), testCourse.getId());
 			
-			List<String> courses = studentRepository.findStudentCourses(testStudent.getId());
-			return courses.contains(testCourse.getId()) ? courseRepository.findById(testCourse.getId()) : null;
+			List<String> courses = studentRepository.findStudentCourses(clientSession, testStudent.getId());
+			return courses.contains(testCourse.getId()) ? courseRepository.findById(clientSession, testCourse.getId()) : null;
 		});
 		
 		// verify

@@ -19,6 +19,10 @@ public class Course {
 	public String getId() {
 		return id;
 	}
+	
+	public String getCFU() {
+		return CFU;
+	}
 
 	@Override
 	public int hashCode() {

@@ -2,22 +2,24 @@ package repository;
 
 import java.util.List;
 
+import com.mongodb.client.ClientSession;
+
 import model.Student;
 
 public interface StudentRepository {
 
-	List<Student> findAll();
+	List<Student> findAll(ClientSession clientSession);
 
-	Student findById(String id);
+	Student findById(ClientSession clientSession, String id);
 
-	void save(Student student);
+	void save(ClientSession clientSession, Student student);
 
-	void delete(Student student);
+	void delete(ClientSession clientSession, Student student);
 
-	void updateStudentCourses(String studenId, String courseId);
+	void updateStudentCourses(ClientSession clientSession, String studenId, String courseId);
 
-	void removeStudentCourse(String studentId, String courseId);
+	void removeStudentCourse(ClientSession clientSession, String studentId, String courseId);
 
-	List<String> findStudentCourses(String studentId);
+	List<String> findStudentCourses(ClientSession clientSession, String studentId);
 
 }

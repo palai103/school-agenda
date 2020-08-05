@@ -127,7 +127,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 						!fieldCourseId.getText().trim().isEmpty() &&
 						!fieldCourseName.getText().trim().isEmpty() &&
 						!fieldCourseCFU.getText().trim().isEmpty() &&
-						fieldCourseCFU.getText().trim().matches("\\b([1-9]|[12][0-9]|3[01])\\b")
+						fieldCourseCFU.getText().trim().matches("^[1-9][0-9]?$|^100$")
 						);
 			}
 		};

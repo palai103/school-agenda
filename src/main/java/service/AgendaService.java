@@ -17,55 +17,59 @@ public class AgendaService {
 	}
 
 	public List<Student> getAllStudents() {
-		return transactionManager.studentTransaction(StudentRepository::findAll);
+		return transactionManager
+				.studentTransaction((studentRepository, clientSession) -> 
+				studentRepository.findAll(clientSession));
 	}
 
 	public Boolean findStudent(Student student) {
 		return transactionManager
-				.studentTransaction(studentRepository -> studentRepository.findById(student.getId()) != null);
+				.studentTransaction((studentRepository, clientSession) -> 
+				studentRepository.findById(clientSession, student.getId()) != null);
 	}
 
 	public Boolean findCourse(Course course) {
 		return transactionManager
-				.courseTransaction(courseRepository -> courseRepository.findById(course.getId()) != null);
+				.courseTransaction((courseRepository, clientSession) -> 
+				courseRepository.findById(clientSession, course.getId()) != null);
 	}
 
 	public void addStudent(Student student) {
-		transactionManager.studentTransaction(studentRepository -> {
+		transactionManager.studentTransaction((studentRepository, clientSession) -> {
 			if (student != null)
-				studentRepository.save(student);
+				studentRepository.save(clientSession, student);
 			return null;
 		});
 	}
 
 	public void removeStudent(Student student) {
-		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+		transactionManager.compositeTransaction((studentRepository, courseRepository, clientSession) -> {
 			if (student != null) {
-				List<String> studentCourses = studentRepository.findStudentCourses(student.getId());
+				List<String> studentCourses = studentRepository.findStudentCourses(clientSession, student.getId());
 				for (String courseId : studentCourses) {
-					courseRepository.removeCourseStudent(student.getId(), courseId);
+					courseRepository.removeCourseStudent(clientSession, student.getId(), courseId);
 				}
-				studentRepository.delete(student);
+				studentRepository.delete(clientSession, student);
 			}
 			return null;
 		});
 	}
 
 	public void addCourseToStudent(Student student, Course course) {
-		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
-			if (studentRepository.findById(student.getId()) != null) {
-				studentRepository.updateStudentCourses(student.getId(), course.getId());
-				courseRepository.updateCourseStudents(student.getId(), course.getId());
+		transactionManager.compositeTransaction((studentRepository, courseRepository, clientSession) -> {
+			if (studentRepository.findById(clientSession, student.getId()) != null) {
+				studentRepository.updateStudentCourses(clientSession, student.getId(), course.getId());
+				courseRepository.updateCourseStudents(clientSession, student.getId(), course.getId());
 			}
 			return null;
 		});
 	}
 
 	public void removeCourseFromStudent(Student student, Course course) {
-		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
-			if (studentRepository.findById(student.getId()) != null) {
-				studentRepository.removeStudentCourse(student.getId(), course.getId());
-				courseRepository.removeCourseStudent(student.getId(), course.getId());
+		transactionManager.compositeTransaction((studentRepository, courseRepository, clientSession) -> {
+			if (studentRepository.findById(clientSession, student.getId()) != null) {
+				studentRepository.removeStudentCourse(clientSession, student.getId(), course.getId());
+				courseRepository.removeCourseStudent(clientSession, student.getId(), course.getId());
 			}
 			return null;
 		});
@@ -73,26 +77,27 @@ public class AgendaService {
 
 	public Boolean studentHasCourse(Student student, Course course) {
 		List<String> studentCourses = transactionManager
-				.studentTransaction(studentRepository -> studentRepository.findStudentCourses(student.getId()));
+				.studentTransaction((studentRepository, clientSession) -> 
+				studentRepository.findStudentCourses(clientSession, student.getId()));
 		return studentCourses.contains(course.getId());
 	}
 
 	public void addCourse(Course course) {
-		transactionManager.courseTransaction(courseRepository -> {
+		transactionManager.courseTransaction((courseRepository, clientSession) -> {
 			if (course != null)
-				courseRepository.save(course);
+				courseRepository.save(clientSession, course);
 			return null;
 		});
 	}
 
 	public void removeCourse(Course course) {
-		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
+		transactionManager.compositeTransaction((studentRepository, courseRepository, clientSession) -> {
 			if (course != null) {
-				List<String> courseStudents = courseRepository.findCourseStudents(course.getId());
+				List<String> courseStudents = courseRepository.findCourseStudents(clientSession, course.getId());
 				for (String studentId : courseStudents) {
-					studentRepository.removeStudentCourse(studentId, course.getId());
+					studentRepository.removeStudentCourse(clientSession, studentId, course.getId());
 				}
-				courseRepository.delete(course);
+				courseRepository.delete(clientSession, course);
 			}
 			return null;
 		});
@@ -100,25 +105,26 @@ public class AgendaService {
 
 	public Boolean courseHasStudent(Student student, Course course) {
 		List<String> courseStudents = transactionManager
-				.courseTransaction(courseRepository -> courseRepository.findCourseStudents(course.getId()));
+				.courseTransaction((courseRepository, clientSession) -> 
+				courseRepository.findCourseStudents(clientSession, course.getId()));
 		return courseStudents.contains(student.getId());
 	}
 
 	public void removeStudentFromCourse(Student student, Course course) {
-		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
-			if (courseRepository.findById(course.getId()) != null) {
-				courseRepository.removeCourseStudent(student.getId(), course.getId());
-				studentRepository.removeStudentCourse(student.getId(), course.getId());
+		transactionManager.compositeTransaction((studentRepository, courseRepository, clientSession) -> {
+			if (courseRepository.findById(clientSession, course.getId()) != null) {
+				courseRepository.removeCourseStudent(clientSession, student.getId(), course.getId());
+				studentRepository.removeStudentCourse(clientSession, student.getId(), course.getId());
 			}
 			return null;
 		});
 	}
 
 	public void addStudentToCourse(Student student, Course course) {
-		transactionManager.compositeTransaction((studentRepository, courseRepository) -> {
-			if (courseRepository.findById(course.getId()) != null) {
-				courseRepository.updateCourseStudents(student.getId(), course.getId());
-				studentRepository.updateStudentCourses(student.getId(), course.getId());
+		transactionManager.compositeTransaction((studentRepository, courseRepository, clientSession) -> {
+			if (courseRepository.findById(clientSession, course.getId()) != null) {
+				courseRepository.updateCourseStudents(clientSession, student.getId(), course.getId());
+				studentRepository.updateStudentCourses(clientSession, student.getId(), course.getId());
 			}
 			return null;
 		});
