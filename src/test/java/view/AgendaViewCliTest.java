@@ -18,7 +18,7 @@ import controller.AgendaController;
 import model.Course;
 import model.Student;
 
-public class AgendaViewTest {
+public class AgendaViewCliTest {
 
 	@Mock
 	private AgendaController controller;
@@ -28,7 +28,7 @@ public class AgendaViewTest {
 
 	private ByteArrayOutputStream testOutput;
 	private ByteArrayInputStream testInput;
-	private static final String newline = System.getProperty("line.separator");
+	private static final String NEWLINE = System.getProperty("line.separator");
 
 	@Before
 	public void setup() {
@@ -50,14 +50,14 @@ public class AgendaViewTest {
 		cliView.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("--------- Pick a choice: ---------" + newline
-				+ "1) Show all students" + newline + "2) Show all courses" + newline + "3) Add a student" + newline
-				+ "4) Add a course" + newline + "5) Enroll a student to a course (by student)" + newline
-				+ "6) Enroll a student to a course (by course)" + newline
-				+ "7) Delete a student enrollment (by student id)" + newline
-				+ "8) Delete a student enrollment (by course id)" + newline + "9) Delete a student" + newline
-				+ "10) Delete a course" + newline + "11) Exit" + newline + "---------------------------------"
-				+ newline);
+		assertThat(testOutput.toString()).hasToString("--------- Pick a choice: ---------" + NEWLINE
+				+ "1) Show all students" + NEWLINE + "2) Show all courses" + NEWLINE + "3) Add a student" + NEWLINE
+				+ "4) Add a course" + NEWLINE + "5) Enroll a student to a course (by student)" + NEWLINE
+				+ "6) Enroll a student to a course (by course)" + NEWLINE
+				+ "7) Delete a student enrollment (by student id)" + NEWLINE
+				+ "8) Delete a student enrollment (by course id)" + NEWLINE + "9) Delete a student" + NEWLINE
+				+ "10) Delete a course" + NEWLINE + "11) Exit" + NEWLINE + "---------------------------------"
+				+ NEWLINE);
 	}
 
 	@Test
@@ -97,7 +97,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString(
-				"Student [id=1, name=test student 1]" + newline + "Student [id=2, name=test student 2]" + newline);
+				"Student [id=1, name=test student 1]" + NEWLINE + "Student [id=2, name=test student 2]" + NEWLINE);
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class AgendaViewTest {
 		cliView.notifyStudentAdded(testStudent);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Added " + testStudent.toString() + newline);
+		assertThat(testOutput.toString()).hasToString("Added " + testStudent.toString() + NEWLINE);
 	}
 
 	@Test
@@ -136,7 +136,7 @@ public class AgendaViewTest {
 		cliView.notifyStudentNotAdded(testStudent);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString(testStudent.toString() + " not added" + newline);
+		assertThat(testOutput.toString()).hasToString(testStudent.toString() + " not added" + NEWLINE);
 	}
 
 	@Test
@@ -148,7 +148,7 @@ public class AgendaViewTest {
 		cliView.notifyStudentRemoved(testStudent);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Removed " + testStudent.toString() + newline);
+		assertThat(testOutput.toString()).hasToString("Student with id " + testStudent.getId() + " removed" + NEWLINE);
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString())
-				.hasToString("Student with id " + testStudent.getId() + " not removed" + newline);
+				.hasToString("Student with id " + testStudent.getId() + " not removed" + NEWLINE);
 	}
 
 	@Test
@@ -190,7 +190,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString(
-				"Course with id " + testCourse.getId() + " added to student with id " + testStudent.getId() + newline);
+				"Course with id " + testCourse.getId() + " added to student with id " + testStudent.getId() + NEWLINE);
 	}
 
 	@Test
@@ -219,7 +219,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString("Course with id " + testCourse.getId()
-				+ " not added to student with id " + testStudent.getId() + newline);
+				+ " not added to student with id " + testStudent.getId() + NEWLINE);
 	}
 
 	@Test
@@ -233,7 +233,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString("Course with id " + testCourse.getId()
-				+ " removed from student with id " + testStudent.getId() + newline);
+				+ " removed from student with id " + testStudent.getId() + NEWLINE);
 	}
 
 	@Test
@@ -262,7 +262,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString("Course with id " + testCourse.getId()
-				+ " not removed from student with id " + testStudent.getId() + newline);
+				+ " not removed from student with id " + testStudent.getId() + NEWLINE);
 	}
 
 	@Test
@@ -274,7 +274,7 @@ public class AgendaViewTest {
 		cliView.notifyCourseAdded(testCourse);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Added " + testCourse.toString() + "" + newline);
+		assertThat(testOutput.toString()).hasToString("Added " + testCourse.toString() + "" + NEWLINE);
 	}
 
 	@Test
@@ -301,7 +301,7 @@ public class AgendaViewTest {
 		cliView.notifyCourseNotAdded(testCourse);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString(testCourse.toString() + " not added" + newline);
+		assertThat(testOutput.toString()).hasToString(testCourse.toString() + " not added" + NEWLINE);
 	}
 
 	@Test
@@ -313,7 +313,7 @@ public class AgendaViewTest {
 		cliView.notifyCourseRemoved(testCourse);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Removed " + testCourse.toString() + newline);
+		assertThat(testOutput.toString()).hasToString("Course with id " + testCourse.getId() + " removed" + NEWLINE);
 	}
 
 	@Test
@@ -340,7 +340,7 @@ public class AgendaViewTest {
 		cliView.notifyCourseNotRemoved(testCourse);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString(testCourse.toString() + " not removed" + newline);
+		assertThat(testOutput.toString()).hasToString("Course with id " + testCourse.getId() + " not removed" + NEWLINE);
 	}
 
 	@Test
@@ -354,7 +354,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString("Student with id " + testStudent.getId()
-				+ " removed from course with id " + testCourse.getId() + newline);
+				+ " removed from course with id " + testCourse.getId() + NEWLINE);
 	}
 
 	@Test
@@ -368,7 +368,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString("Student with id " + testStudent.getId()
-				+ " not removed from course with id " + testCourse.getId() + newline);
+				+ " not removed from course with id " + testCourse.getId() + NEWLINE);
 	}
 
 	@Test
@@ -382,7 +382,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString("Student with id " + testStudent.getId()
-				+ " not added to course with id " + testCourse.getId() + newline);
+				+ " not added to course with id " + testCourse.getId() + NEWLINE);
 	}
 
 	@Test
@@ -411,7 +411,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString(
-				"Student with id " + testStudent.getId() + " added to course with id " + testCourse.getId() + newline);
+				"Student with id " + testStudent.getId() + " added to course with id " + testCourse.getId() + NEWLINE);
 	}
 
 	@Test
@@ -438,7 +438,7 @@ public class AgendaViewTest {
 
 		// verify
 		assertThat(testOutput.toString()).hasToString(
-				"Course [id=1, name=test course 1]" + newline + "Course [id=2, name=test course 2]" + newline);
+				"Course [id=1, name=test course 1]" + NEWLINE + "Course [id=2, name=test course 2]" + NEWLINE);
 	}
 
 	@Test

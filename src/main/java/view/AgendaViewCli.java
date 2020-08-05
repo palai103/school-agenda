@@ -46,7 +46,7 @@ public class AgendaViewCli implements AgendaView {
 
 	@Override
 	public void notifyStudentRemoved(Student student) {
-		printStream.println("Removed " + student.toString());
+		printStream.println(STUDENT_WITH_ID + student.getId() + " removed");
 	}
 
 	@Override
@@ -86,12 +86,12 @@ public class AgendaViewCli implements AgendaView {
 
 	@Override
 	public void notifyCourseRemoved(Course course) {
-		printStream.println("Removed " + course.toString());
+		printStream.println(COURSE_WITH_ID + course.getId() + " removed");
 	}
 
 	@Override
 	public void notifyCourseNotRemoved(Course course) {
-		printStream.println(course.toString() + " not removed");
+		printStream.println(COURSE_WITH_ID + course.getId() + " not removed");
 
 	}
 
