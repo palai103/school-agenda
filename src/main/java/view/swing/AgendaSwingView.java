@@ -363,6 +363,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		/** Course Panel */
 		coursePanel = new JPanel();
 		GridBagConstraints gbc_coursePanel = new GridBagConstraints();
+		gbc_coursePanel.gridwidth = 2;
 		gbc_coursePanel.fill = GridBagConstraints.BOTH;
 		gbc_coursePanel.gridx = 1;
 		gbc_coursePanel.gridy = 0;
