@@ -14,7 +14,7 @@
 
 		<junit.version>4.13</junit.version>
 		<mockito.version>3.3.3</mockito.version>
-		<assertjswing.version>3.16.1</assertjswing.version>
+		<assertjswing.version>3.9.2</assertjswing.version>
 		<pitest.version>1.5.2</pitest.version>
 		<coveralls.version>4.3.0</coveralls.version>
 		<jacoco.version>0.8.5</jacoco.version>
