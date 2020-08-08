@@ -88,7 +88,7 @@
 						<configuration>
 							<excludes>
 								<exclude>/model/*.*</exclude>
-								<exclude>/SchoolSwingApp.*</exclude>
+								<exclude>/repository/TransactionManagerMongo.*</exclude>
 							</excludes>
 						</configuration>
 						<executions>
@@ -115,8 +115,17 @@
 					<excludedClasses>
 						<param>*Test</param>
 						<param>model.*</param>
-						<param>repository.TransactionManagerMongo</param>
+						<param>view.*</param>
+						<param>repository.TransactionManagerMongo*</param>
 					</excludedClasses>
+
+					<targetTests>
+						<param>*Test</param>
+					</targetTests>
+					<excludedTestClasses>
+						<!-- Excluding UI tests since it can't use xvfb and always fails -->
+						<param>view.swing.AgendaSwingViewTest</param>
+					</excludedTestClasses>
 					<mutators>
 						<mutator>DEFAULTS</mutator>
 					</mutators>

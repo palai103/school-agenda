@@ -13,10 +13,13 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.ClassRule;
 import org.junit.Test;
+import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 
 import de.bwaldvogel.mongo.MongoServer;
@@ -25,44 +28,35 @@ import model.Course;
 
 public class CourseMongoRepositoryTest {
 
-	private static MongoServer mongoServer;
-	private static InetSocketAddress serverAddres;
-
+	private static final String DB_NAME = "schoolagenda";
+	private static final String DB_COLLECTION = "courses";
+	
+	@SuppressWarnings("rawtypes")
+	@ClassRule
+	public static final GenericContainer mongo = new GenericContainer("krnbr/mongo").withExposedPorts(27017);
+	private MongoClient client;
+	private ClientSession clientSession;
 	private CourseMongoRepository courseMongoRepository;
-	private MongoClient mongoClient;
 	private MongoCollection<Document> courseCollection;
 
 
-	private static final String DB_NAME = "schoolagenda";
-	private static final String DB_COLLECTION = "courses";
-
-	@BeforeClass
-	public static void initServer() {
-		mongoServer = new MongoServer(new MemoryBackend());
-		serverAddres = mongoServer.bind();
-	}
-
-	@AfterClass
-	public static void shutdownServer() {
-		mongoServer.shutdown();
-	}
-
 	@Before
 	public void setup() {
-		mongoClient = new MongoClient(new ServerAddress(serverAddres));
-		courseMongoRepository = new CourseMongoRepository(mongoClient, DB_NAME, DB_COLLECTION);
-		mongoClient.getDatabase(DB_NAME).drop();
-		courseCollection = mongoClient.getDatabase(DB_NAME).getCollection(DB_COLLECTION);
+		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
+		clientSession = client.startSession();
+		courseMongoRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION);
+		client.getDatabase(DB_NAME).drop();
+		courseCollection = client.getDatabase(DB_NAME).getCollection(DB_COLLECTION);
 	}
 
 	@After
 	public void closeServer() {
-		mongoClient.close();
+		client.close();
 	}
 
 	@Test
 	public void testFindAllCoursesWhenCollectionIsEmptyShouldReturnEmptyList() {
-		assertThat(courseMongoRepository.findAll()).isEqualTo(Collections.emptyList());
+		assertThat(courseMongoRepository.findAll(clientSession)).isEqualTo(Collections.emptyList());
 	}
 
 	@Test
@@ -71,16 +65,16 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("id", "testCourse", Collections.emptyList());
 
 		//exercise
-		List<Course> courses = courseMongoRepository.findAll();
+		List<Course> courses = courseMongoRepository.findAll(clientSession);
 
 		//verify
-		assertThat(courses).containsExactly(new Course("id", "testCourse"));
+		assertThat(courses).containsExactly(new Course("id", "testCourse", "9"));
 	}
 	
 	@Test
 	public void testFindCourseByIdShouldNotBeFound() {
 		//verify
-		assertThat(courseMongoRepository.findById("id")).isNull();
+		assertThat(courseMongoRepository.findById(clientSession, "id")).isNull();
 	}
 	
 	@Test
@@ -89,17 +83,17 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("id", "testCourse", Collections.emptyList());
 
 		//verify
-		assertThat(courseMongoRepository.findById("id"))
-		.isEqualTo(new Course("id", "testCourse"));
+		assertThat(courseMongoRepository.findById(clientSession, "id"))
+		.isEqualTo(new Course("id", "testCourse", "9"));
 	}
 	
 	@Test
 	public void testSave() {
 		//setup
-		Course testCourse = new Course("id", "testCourse");
+		Course testCourse = new Course("id", "testCourse", "9");
 
 		//exercise
-		courseMongoRepository.save(testCourse);
+		courseMongoRepository.save(clientSession, testCourse);
 
 		//verify
 		assertThat(readAllCoursesFromDatabase()).containsExactly(testCourse);
@@ -108,10 +102,10 @@ public class CourseMongoRepositoryTest {
 	@Test
 	public void testDelete() {
 		//setup
-		Course testCourse = new Course("id", "testCourse");
+		Course testCourse = new Course("id", "testCourse", "9");
 
 		//exercise
-		courseMongoRepository.delete(testCourse);
+		courseMongoRepository.delete(clientSession, testCourse);
 
 		//verify
 		assertThat(readAllCoursesFromDatabase()).isEmpty();
@@ -123,7 +117,7 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("idCourse", "testCourse", Collections.emptyList());
 
 		//exercise
-		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+		List<String> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
 
 		//verify
 		assertThat(courseStudents).isEqualTo(Collections.emptyList());
@@ -135,7 +129,7 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("idCourse", "testCourse", Collections.singletonList("idStudent"));
 
 		//exercise
-		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+		List<String> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
 
 		//verify
 		assertThat(courseStudents).isEqualTo(Collections.singletonList("idStudent"));
@@ -147,8 +141,8 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("idCourse", "testCourse", Collections.emptyList());
 
 		//exercise
-		courseMongoRepository.updateCourseStudents("idStudent", "idCourse");
-		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+		courseMongoRepository.updateCourseStudents(clientSession, "idStudent", "idCourse");
+		List<String> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
 
 		//verify
 		assertThat(courseStudents).containsExactly("idStudent");
@@ -160,8 +154,8 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("idCourse", "testCourse", Collections.singletonList("idStudent"));
 
 		//exercise
-		courseMongoRepository.removeCourseStudent("idStudent", "idCourse");
-		List<String> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+		courseMongoRepository.removeCourseStudent(clientSession, "idStudent", "idCourse");
+		List<String> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
 
 		//verify
 		assertThat(courseStudents).isEmpty();
@@ -177,7 +171,7 @@ public class CourseMongoRepositoryTest {
 	private List<Course> readAllCoursesFromDatabase() {
 		return StreamSupport.
 				stream(courseCollection.find().spliterator(), false)
-				.map(d -> new Course(d.getString("id"), d.getString("name")))
+				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu")))
 				.collect(Collectors.toList());
 	}
 

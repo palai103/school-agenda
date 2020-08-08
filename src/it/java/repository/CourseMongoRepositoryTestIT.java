@@ -16,6 +16,7 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -31,12 +32,14 @@ public class CourseMongoRepositoryTestIT {
 	public static final GenericContainer mongo = new GenericContainer("krnbr/mongo").withExposedPorts(27017);
 
 	private MongoClient client;
+	private ClientSession clientSession;
 	private CourseMongoRepository courseRepository;
 	private MongoCollection<Document> courseCollection;
 
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
+		clientSession = client.startSession();
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
@@ -52,48 +55,48 @@ public class CourseMongoRepositoryTestIT {
 	public void testFindAll() {
 		addCourseToDatabase("1", "test course 1", Collections.emptyList());
 		addCourseToDatabase("2", "test course 2", Collections.emptyList());
-		assertThat(courseRepository.findAll()).containsExactly(new Course("1", "test course 1"),
-				new Course("2", "test course 2"));
+		assertThat(courseRepository.findAll(clientSession)).containsExactly(new Course("1", "test course 1", "9"),
+				new Course("2", "test course 2", "9"));
 	}
 
 	@Test
 	public void testFindById() {
 		addCourseToDatabase("1", "test course 1", Collections.emptyList());
-		assertThat(courseRepository.findById("1")).isEqualTo(new Course("1", "test course 1"));
+		assertThat(courseRepository.findById(clientSession, "1")).isEqualTo(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
 	public void testSave() {
-		courseRepository.save(new Course("1", "test course 1"));
-		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1"));
+		courseRepository.save(clientSession, new Course("1", "test course 1", "9"));
+		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
 	public void testDelete() {
 		addCourseToDatabase("1", "test course 1", Collections.emptyList());
 		addCourseToDatabase("2", "test course 2", Collections.emptyList());
-		courseRepository.delete(new Course("2", "test course 2"));
-		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1"));
+		courseRepository.delete(clientSession, new Course("2", "test course 2", "9"));
+		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
 	public void testUpdateCourseStudents() {
 		addCourseToDatabase("1", "test course 1", Collections.emptyList());
-		courseRepository.updateCourseStudents("2", "1");
-		assertThat(courseRepository.findCourseStudents("1")).containsExactly("2");
+		courseRepository.updateCourseStudents(clientSession, "2", "1");
+		assertThat(courseRepository.findCourseStudents(clientSession, "1")).containsExactly("2");
 	}
 	
 	@Test
 	public void testRemoveCourseStudent() {
 		addCourseToDatabase("1", "test course 1", asList("2"));
-		courseRepository.removeCourseStudent("2", "1");
-		assertThat(courseRepository.findCourseStudents("1")).isEmpty();
+		courseRepository.removeCourseStudent(clientSession, "2", "1");
+		assertThat(courseRepository.findCourseStudents(clientSession, "1")).isEmpty();
 	}
 	
 	@Test
 	public void testFindCourseStudents() {
 		addCourseToDatabase("1", "test course 1", asList("2", "3"));
-		assertThat(courseRepository.findCourseStudents("1")).containsAll(asList("2", "3"));
+		assertThat(courseRepository.findCourseStudents(clientSession, "1")).containsAll(asList("2", "3"));
 	}
 
 	private void addCourseToDatabase(String id, String name, List<String> students) {
@@ -102,7 +105,7 @@ public class CourseMongoRepositoryTestIT {
 
 	private List<Course> readAllCourseFromDatabase() {
 		return StreamSupport.stream(courseCollection.find().spliterator(), false)
-				.map(d -> new Course(d.getString("id"), d.getString("name"))).collect(Collectors.toList());
+				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu"))).collect(Collectors.toList());
 	}
 
 }

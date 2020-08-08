@@ -43,4 +43,8 @@ public interface AgendaView {
 
 	void showAllCourses(List<Course> allCourses);
 
+	void showAllStudentCourses(List<Course> studentCourses);
+
+	void showAllCourseStudents(List<Student> courseStudents);
+
 }

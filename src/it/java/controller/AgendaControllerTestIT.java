@@ -3,6 +3,9 @@ package controller;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
 
+import java.util.Collections;
+
+import org.bson.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -13,6 +16,7 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import model.Course;
@@ -41,17 +45,41 @@ public class AgendaControllerTestIT {
 	private TransactionManagerMongo transactionManagerMongo;
 	private AgendaService agendaService;
 	private AgendaController agendaController;
+	private Student necessaryStudent;
+	private MongoCollection<Document> studentCollection;
+	private MongoCollection<Document> courseCollection;
+	private Course necessaryCourse;
 
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
-		
+
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
 		studentMongoRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS);
 		courseMongoRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES);
 		transactionManagerMongo = new TransactionManagerMongo(client, studentMongoRepository, courseMongoRepository);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
+		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
+		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
+
+		/**
+		 * The explanation for the following lines can be found here:
+		 * https://docs.mongodb.com/manual/core/transactions/
+		 * 
+		 * "In MongoDB 4.2 and earlier, you cannot create collections in transactions.
+		 * Write operations that result in document inserts (e.g. insert or update
+		 * operations with upsert: true) must be on existing collections if run inside
+		 * transactions."
+		 */
+		necessaryStudent = new Student("0", "necessary student");
+		studentCollection.insertOne(new Document().append("id", necessaryStudent.getId())
+				.append("name", necessaryStudent.getName()).append("courses", Collections.emptyList()));
+
+		necessaryCourse = new Course("0", "necessary course", "12");
+		courseCollection.insertOne(
+				new Document().append("id", necessaryCourse.getId()).append("name", necessaryCourse.getName())
+						.append("cfu", necessaryCourse.getCFU()).append("students", Collections.emptyList()));
 
 		agendaService = new AgendaService(transactionManagerMongo);
 		agendaController = new AgendaController(agendaView, agendaService);
@@ -72,9 +100,9 @@ public class AgendaControllerTestIT {
 		agendaController.getAllStudents();
 
 		// verify
-		verify(agendaView).showAllStudents(asList(testStudent));
+		verify(agendaView).showAllStudents(asList(necessaryStudent, testStudent));
 	}
-	
+
 	@Test
 	public void testAddStudent() {
 		// setup
@@ -86,7 +114,7 @@ public class AgendaControllerTestIT {
 		// verify
 		verify(agendaView).notifyStudentAdded(testStudent);
 	}
-	
+
 	@Test
 	public void testRemoveStudent() {
 		// setup
@@ -99,12 +127,12 @@ public class AgendaControllerTestIT {
 		// verify
 		verify(agendaView).notifyStudentRemoved(testStudent);
 	}
-	
+
 	@Test
 	public void testAddCourseToStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addStudent(testStudent);
 		agendaService.addCourse(testCourse);
 
@@ -114,12 +142,12 @@ public class AgendaControllerTestIT {
 		// verify
 		verify(agendaView).notifyCourseAddedToStudent(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addStudent(testStudent);
 		agendaService.addCourse(testCourse);
 		agendaService.addCourseToStudent(testStudent, testCourse);
@@ -130,23 +158,23 @@ public class AgendaControllerTestIT {
 		// verify
 		verify(agendaView).notifyCourseRemovedFromStudent(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testAddCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
-		
+		Course testCourse = new Course("1", "test course", "9");
+
 		// exercise
 		agendaController.addCourse(testCourse);
 
 		// verify
 		verify(agendaView).notifyCourseAdded(testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addCourse(testCourse);
 
 		// exercise
@@ -155,30 +183,30 @@ public class AgendaControllerTestIT {
 		// verify
 		verify(agendaView).notifyCourseRemoved(testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveStudentFromCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		agendaService.addCourse(testCourse);
 		agendaService.addStudent(testStudent);
 		agendaService.addCourseToStudent(testStudent, testCourse);
-		
+
 		// exercise
 		agendaController.removeStudentFromCourse(testStudent, testCourse);
 
 		// verify
 		verify(agendaView).notifyStudentRemovedFromCourse(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testAddStudentToCourse() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		agendaService.addCourse(testCourse);
 		agendaService.addStudent(testStudent);
+		agendaService.addCourse(testCourse);
 
 		// exercise
 		agendaController.addStudentToCourse(testStudent, testCourse);
@@ -186,17 +214,17 @@ public class AgendaControllerTestIT {
 		// verify
 		verify(agendaView).notifyStudentAddedToCourse(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testGetAllCourses() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 		agendaService.addCourse(testCourse);
 
 		// exercise
 		agendaController.getAllCourses();
 
 		// verify
-		verify(agendaView).showAllCourses(asList(testCourse));
+		verify(agendaView).showAllCourses(asList(necessaryCourse, testCourse));
 	}
 }
