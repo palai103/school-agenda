@@ -16,6 +16,11 @@ public class Course {
 		return name;
 	}
 
+	@Override
+	public String toString() {
+		return "Course [name=" + name + ", id=" + id + ", CFU=" + CFU + "]";
+	}
+
 	public String getId() {
 		return id;
 	}

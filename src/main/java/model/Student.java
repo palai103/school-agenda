@@ -2,6 +2,11 @@ package model;
 
 public class Student {
 
+	@Override
+	public String toString() {
+		return "Student [id=" + id + ", name=" + name + "]";
+	}
+
 	private String id;
 	private String name;
 
