@@ -88,6 +88,7 @@
 						<configuration>
 							<excludes>
 								<exclude>/model/*.*</exclude>
+								<exclude>/repository/TransactionManagerMongo.*</exclude>
 							</excludes>
 						</configuration>
 						<executions>
@@ -115,7 +116,7 @@
 						<param>*Test</param>
 						<param>model.*</param>
 						<param>view.*</param>
-						<param>repository.TransactionManagerMongo</param>
+						<param>repository.TransactionManagerMongo*</param>
 					</excludedClasses>
 
 					<targetTests>
