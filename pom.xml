@@ -25,29 +25,35 @@
 		<testcontainers.version>1.10.5</testcontainers.version>
 		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
 
-		<sonar.coverage.exclusion>
-			model/*,
-			repository/TransactionManagerMongo*
-		</sonar.coverage.exclusion>
+		<sonar.coverage.exclusions>
+			src/main/java/model/*,
+			src/main/java/repository/TransactionManagerMongo*
+		</sonar.coverage.exclusions>
+
+		<sonar.cpd.exclusions>
+			model.*,
+			src.main.java.model.*,
+			src/main/java/model/*
+		</sonar.cpd.exclusions>
 
 		<sonar.issue.ignore.multicriteria>
 			e1,e2,e3
 		</sonar.issue.ignore.multicriteria>
-		
+
 		<sonar.issue.ignore.multicriteria.e1.ruleKey>
 			java:S2699
 		</sonar.issue.ignore.multicriteria.e1.ruleKey>
 		<sonar.issue.ignore.multicriteria.e1.resourceKey>
 			**/AgendaSwingViewTest*.*
 		</sonar.issue.ignore.multicriteria.e1.resourceKey>
-		
+
 		<sonar.issue.ignore.multicriteria.e2.ruleKey>
 			java:S110
 		</sonar.issue.ignore.multicriteria.e2.ruleKey>
 		<sonar.issue.ignore.multicriteria.e2.resourceKey>
 			**/AgendaSwingView*.*
 		</sonar.issue.ignore.multicriteria.e2.resourceKey>
-		
+
 		<sonar.issue.ignore.multicriteria.e3.ruleKey>
 			java:S2589
 		</sonar.issue.ignore.multicriteria.e3.ruleKey>
