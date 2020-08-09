@@ -90,8 +90,8 @@ public class TransactionManagerTestIT {
 			studentRepository.updateStudentCourses(clientSession, testStudent.getId(), testCourse.getId());
 			courseRepository.updateCourseStudents(clientSession, testStudent.getId(), testCourse.getId());
 			
-			List<String> courses = studentRepository.findStudentCourses(clientSession, testStudent.getId());
-			return courses.contains(testCourse.getId()) ? courseRepository.findById(clientSession, testCourse.getId()) : null;
+			List<Course> courses = studentRepository.findStudentCourses(clientSession, testStudent.getId());
+			return courses.contains(testCourse) ? courseRepository.findById(clientSession, testCourse.getId()) : null;
 		});
 		
 		// verify

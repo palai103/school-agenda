@@ -1,4 +1,4 @@
-package view;
+package view.swing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

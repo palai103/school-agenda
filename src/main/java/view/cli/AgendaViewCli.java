@@ -1,14 +1,17 @@
-package view;
+package view.cli;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 import controller.AgendaController;
 import model.Course;
 import model.Student;
+import view.AgendaView;
 
 public class AgendaViewCli implements AgendaView {
 
@@ -21,10 +24,14 @@ public class AgendaViewCli implements AgendaView {
 	private InputStream inputStream;
 	private PrintStream printStream;
 	private Scanner scanner;
+	private ArrayList<Student> students;
+	private ArrayList<Course> courses;
 
 	public AgendaViewCli(InputStream inputStream, PrintStream printStream) {
 		this.inputStream = inputStream;
 		this.printStream = printStream;
+		students = new ArrayList<>();
+		courses = new ArrayList<>();
 	}
 
 	@Override
@@ -47,6 +54,7 @@ public class AgendaViewCli implements AgendaView {
 	@Override
 	public void notifyStudentRemoved(Student student) {
 		printStream.println(STUDENT_WITH_ID + student.getId() + " removed");
+		students.remove(student);
 	}
 
 	@Override
@@ -87,6 +95,7 @@ public class AgendaViewCli implements AgendaView {
 	@Override
 	public void notifyCourseRemoved(Course course) {
 		printStream.println(COURSE_WITH_ID + course.getId() + " removed");
+		courses.remove(course);
 	}
 
 	@Override
@@ -122,19 +131,35 @@ public class AgendaViewCli implements AgendaView {
 		}
 	}
 
+	@Override
+	public void showAllStudentCourses(List<Course> studentCourses) {
+		for (Course course : studentCourses) {
+			printStream.println(course.toString());
+		}
+	}
+
+	@Override
+	public void showAllCourseStudents(List<Student> courseStudents) {
+		for (Student student : courseStudents) {
+			printStream.println(student.toString());
+		}
+	}
+
 	public void inject(AgendaController controller) {
 		this.controller = controller;
 
 	}
 
 	public void showMenu() {
-		printStream.println("--------- Pick a choice: ---------" + NEWLINE
-				+ "1) Show all students" + NEWLINE + "2) Show all courses" + NEWLINE + "3) Add a student" + NEWLINE
-				+ "4) Add a course" + NEWLINE + "5) Enroll a student to a course (by student)" + NEWLINE
+		printStream.println("--------- Pick a choice: ---------" + NEWLINE + "1) Show all students" + NEWLINE
+				+ "2) Show all courses" + NEWLINE + "3) Add a student" + NEWLINE + "4) Add a course" + NEWLINE
+				+ "5) Enroll a student to a course (by student)" + NEWLINE
 				+ "6) Enroll a student to a course (by course)" + NEWLINE
 				+ "7) Delete a student enrollment (by student id)" + NEWLINE
 				+ "8) Delete a student enrollment (by course id)" + NEWLINE + "9) Delete a student" + NEWLINE
-				+ "10) Delete a course" + NEWLINE + "11) Exit" + NEWLINE + "---------------------------------");
+				+ "10) Delete a course" + NEWLINE + "11) Show all student courses" + NEWLINE
+				+ "12) Show all course students" + NEWLINE + "13) Exit" + NEWLINE
+				+ "---------------------------------");
 	}
 
 	public void setInput(ByteArrayInputStream inputStream) {
@@ -180,6 +205,12 @@ public class AgendaViewCli implements AgendaView {
 			removeCourseCallControler();
 			break;
 		case "11":
+			showAllStudentCoursesCallController();
+			break;
+		case "12":
+			showAllCourseStudentsCallController();
+			break;
+		case "13":
 			code = -1;
 			break;
 		default:
@@ -188,12 +219,31 @@ public class AgendaViewCli implements AgendaView {
 		return code;
 	}
 
+	private void showAllCourseStudentsCallController() {
+		printStream.print(INSERT_COURSE_ID);
+		String courseId = scanner.nextLine();
+		controller.getAllCourseStudents(new Course(courseId, "", ""));
+	}
+
+	private void showAllStudentCoursesCallController() {
+		printStream.print(INSERT_STUDENT_ID);
+		String studentId = scanner.nextLine();
+		controller.getAllStudentCourses(new Student(studentId, ""));
+	}
+
 	private void removeStudentToCourseCallController() {
 		printStream.print(INSERT_STUDENT_ID);
 		String studentId = scanner.nextLine();
 		printStream.print(INSERT_COURSE_ID);
 		String courseId = scanner.nextLine();
-		controller.removeStudentFromCourse(new Student(studentId, ""), new Course(courseId, ""));
+		Student studentToFind;
+		try {
+			studentToFind = students.stream().filter(
+					student -> student.getId().equals(studentId)).collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			studentToFind = new Student(studentId, "");
+		}
+		controller.removeStudentFromCourse(studentToFind, new Course(courseId, "", ""));
 	}
 
 	private void addStudentToCourseCallController() {
@@ -201,13 +251,20 @@ public class AgendaViewCli implements AgendaView {
 		String studentId = scanner.nextLine();
 		printStream.print(INSERT_COURSE_ID);
 		String courseId = scanner.nextLine();
-		controller.addStudentToCourse(new Student(studentId, ""), new Course(courseId, ""));
+		controller.addStudentToCourse(new Student(studentId, ""), new Course(courseId, "", ""));
 	}
 
 	private void removeCourseCallControler() {
 		printStream.print(INSERT_COURSE_ID);
 		String id = scanner.nextLine();
-		controller.removeCourse(new Course(id, ""));
+		Course courseToFind;
+		try {
+			courseToFind = courses.stream().filter(
+					course -> course.getId().equals(id)).collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			courseToFind = new Course(id, "", "");
+		}
+		controller.removeCourse(courseToFind);
 	}
 
 	private void addCourseCallController() {
@@ -215,7 +272,18 @@ public class AgendaViewCli implements AgendaView {
 		String id = scanner.nextLine();
 		printStream.print("Insert course name: ");
 		String name = scanner.nextLine();
-		controller.addCourse(new Course(id, name));
+		printStream.print("Insert course CFU: ");
+		String cfu = scanner.nextLine();
+		controller.addCourse(new Course(id, name, cfu));
+		courses.add(new Course(id, name, cfu));
+	}
+
+	public List<Student> getStudents() {
+		return students;
+	}
+
+	public List<Course> getCourses() {
+		return courses;
 	}
 
 	private void removeCourseToStudentCallController() {
@@ -223,7 +291,14 @@ public class AgendaViewCli implements AgendaView {
 		String studentId = scanner.nextLine();
 		printStream.print(INSERT_COURSE_ID);
 		String courseId = scanner.nextLine();
-		controller.removeCourseFromStudent(new Student(studentId, ""), new Course(courseId, ""));
+		Course courseToFind;
+		try {
+			courseToFind = courses.stream().filter(
+					course -> course.getId().equals(courseId)).collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			courseToFind = new Course(courseId, "", "");
+		}
+		controller.removeCourseFromStudent(new Student(studentId, ""), courseToFind);
 	}
 
 	private void addCourseToStudentCallController() {
@@ -231,13 +306,20 @@ public class AgendaViewCli implements AgendaView {
 		String studentId = scanner.nextLine();
 		printStream.print(INSERT_COURSE_ID);
 		String courseId = scanner.nextLine();
-		controller.addCourseToStudent(new Student(studentId, ""), new Course(courseId, ""));
+		controller.addCourseToStudent(new Student(studentId, ""), new Course(courseId, "", ""));
 	}
 
 	private void removeStudentCallController() {
 		printStream.print(INSERT_STUDENT_ID);
 		String id = scanner.nextLine();
-		controller.removeStudent(new Student(id, ""));
+		Student studentToFind;
+		try {
+			studentToFind = students.stream().filter(
+					student -> student.getId().equals(id)).collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			studentToFind = new Student(id, "");
+		}
+		controller.removeStudent(studentToFind);
 	}
 
 	private void addStudentCallController() {
@@ -246,6 +328,7 @@ public class AgendaViewCli implements AgendaView {
 		printStream.print("Insert student name: ");
 		String name = scanner.nextLine();
 		controller.addStudent(new Student(id, name));
+		students.add(new Student(id, name));
 	}
 
 	private void showAllStudentsCallController() {
@@ -255,5 +338,4 @@ public class AgendaViewCli implements AgendaView {
 	private void showAllCoursesCallController() {
 		controller.getAllCourses();
 	}
-
 }

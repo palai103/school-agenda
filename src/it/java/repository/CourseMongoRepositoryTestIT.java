@@ -1,4 +1,5 @@
 package repository;
+
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -21,6 +22,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import model.Course;
+import model.Student;
 
 public class CourseMongoRepositoryTestIT {
 
@@ -35,6 +37,7 @@ public class CourseMongoRepositoryTestIT {
 	private ClientSession clientSession;
 	private CourseMongoRepository courseRepository;
 	private MongoCollection<Document> courseCollection;
+	private MongoCollection<Document> studentCollection;
 
 	@Before
 	public void setup() {
@@ -44,6 +47,7 @@ public class CourseMongoRepositoryTestIT {
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
 		courseCollection = database.getCollection(DB_COLLECTION);
+		studentCollection = database.getCollection("students");
 	}
 
 	@After
@@ -53,15 +57,15 @@ public class CourseMongoRepositoryTestIT {
 
 	@Test
 	public void testFindAll() {
-		addCourseToDatabase("1", "test course 1", Collections.emptyList());
-		addCourseToDatabase("2", "test course 2", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
+		addCourseToDatabase("2", "test course 2", "9", Collections.emptyList());
 		assertThat(courseRepository.findAll(clientSession)).containsExactly(new Course("1", "test course 1", "9"),
 				new Course("2", "test course 2", "9"));
 	}
 
 	@Test
 	public void testFindById() {
-		addCourseToDatabase("1", "test course 1", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
 		assertThat(courseRepository.findById(clientSession, "1")).isEqualTo(new Course("1", "test course 1", "9"));
 	}
 
@@ -73,39 +77,57 @@ public class CourseMongoRepositoryTestIT {
 
 	@Test
 	public void testDelete() {
-		addCourseToDatabase("1", "test course 1", Collections.emptyList());
-		addCourseToDatabase("2", "test course 2", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
+		addCourseToDatabase("2", "test course 2", "9", Collections.emptyList());
 		courseRepository.delete(clientSession, new Course("2", "test course 2", "9"));
 		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
 	public void testUpdateCourseStudents() {
-		addCourseToDatabase("1", "test course 1", Collections.emptyList());
+		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
+		addStudentToDatabase("2", "test student", asList("1"));
+
 		courseRepository.updateCourseStudents(clientSession, "2", "1");
-		assertThat(courseRepository.findCourseStudents(clientSession, "1")).containsExactly("2");
+		assertThat(courseRepository.findCourseStudents(clientSession, "1"))
+				.containsExactly(new Student("2", "test student"));
 	}
-	
+
 	@Test
 	public void testRemoveCourseStudent() {
-		addCourseToDatabase("1", "test course 1", asList("2"));
+		addCourseToDatabase("1", "test course 1", "9", asList("2"));
 		courseRepository.removeCourseStudent(clientSession, "2", "1");
 		assertThat(courseRepository.findCourseStudents(clientSession, "1")).isEmpty();
 	}
-	
+
 	@Test
 	public void testFindCourseStudents() {
-		addCourseToDatabase("1", "test course 1", asList("2", "3"));
-		assertThat(courseRepository.findCourseStudents(clientSession, "1")).containsAll(asList("2", "3"));
+		Course testCourse = new Course("1", "test course 1", "9");
+		Student testStudent1 = new Student("2", "test student 1");
+		Student testStudent2 = new Student("3", "test student 2");
+
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(),
+				asList(testStudent1.getId(), testStudent2.getId()));
+		addStudentToDatabase(testStudent1.getId(), testStudent1.getName(), asList(testCourse.getId()));
+		addStudentToDatabase(testStudent2.getId(), testStudent2.getName(), asList(testCourse.getId()));
+
+		assertThat(courseRepository.findCourseStudents(clientSession, testCourse.getId()))
+				.containsAll(asList(testStudent1, testStudent2));
 	}
 
-	private void addCourseToDatabase(String id, String name, List<String> students) {
-		courseCollection.insertOne(new Document().append("id", id).append("name", name).append("students", students));
+	private void addCourseToDatabase(String id, String name, String CFU, List<String> students) {
+		courseCollection.insertOne(
+				new Document().append("id", id).append("name", name).append("cfu", CFU).append("students", students));
+	}
+
+	private void addStudentToDatabase(String id, String name, List<String> courses) {
+		studentCollection.insertOne(new Document().append("id", id).append("name", name).append("courses", courses));
 	}
 
 	private List<Course> readAllCourseFromDatabase() {
 		return StreamSupport.stream(courseCollection.find().spliterator(), false)
-				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu"))).collect(Collectors.toList());
+				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu")))
+				.collect(Collectors.toList());
 	}
 
 }

@@ -4,12 +4,12 @@ public class Course {
 
 	private String name;
 	private String id;
-	private String CFU;
+	private String cfu;
 
-	public Course(String id, String name, String CFU) {
+	public Course(String id, String name, String cfu) {
 		this.id = id;
 		this.name = name;
-		this.CFU = CFU;
+		this.cfu = cfu;
 	}
 
 	public String getName() {
@@ -18,7 +18,7 @@ public class Course {
 
 	@Override
 	public String toString() {
-		return "Course [name=" + name + ", id=" + id + ", CFU=" + CFU + "]";
+		return "Course [id=" + id + ", name=" + name + ", CFU=" + cfu + "]";
 	}
 
 	public String getId() {
@@ -26,7 +26,7 @@ public class Course {
 	}
 	
 	public String getCFU() {
-		return CFU;
+		return cfu;
 	}
 
 	@Override
@@ -60,10 +60,5 @@ public class Course {
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Course [id=" + id + ", name=" + name + "]";
 	}
 }
