@@ -52,8 +52,6 @@ public class AgendaViewCliTestIT {
 	private ClientSession clientSession;
 	private MongoCollection<Document> studentCollection;
 	private MongoCollection<Document> courseCollection;
-	private Student necessaryStudent;
-	private Course necessaryCourse;
 	private static final String NEWLINE = System.getProperty("line.separator");
 
 	@Before
@@ -62,16 +60,6 @@ public class AgendaViewCliTestIT {
 		clientSession = client.startSession();
 		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS);
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES);
-
-		// explicitly empty the database through the repository
-		for (Student student : studentRepository.findAll(clientSession)) {
-			studentRepository.delete(clientSession, student);
-		}
-
-		for (Course course : courseRepository.findAll(clientSession)) {
-			courseRepository.delete(clientSession, course);
-		}
-
 		manager = new TransactionManagerMongo(client, studentRepository, courseRepository);
 		agendaService = new AgendaService(manager);
 		
@@ -80,28 +68,11 @@ public class AgendaViewCliTestIT {
 		agendaController = new AgendaController(agendaViewCli, agendaService);
 		agendaViewCli.inject(agendaController);
 		MongoDatabase database = client.getDatabase(DB_NAME);
-		
+		database.drop();
+		database.createCollection(DB_COLLECTION_STUDENTS);
+		database.createCollection(DB_COLLECTION_COURSES);
 		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
 		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
-
-		/**
-		 * The explanation for the following lines can be found here:
-		 * https://docs.mongodb.com/manual/core/transactions/
-		 * 
-		 * "In MongoDB 4.2 and earlier, you cannot create collections in transactions.
-		 * Write operations that result in document inserts (e.g. insert or update
-		 * operations with upsert: true) must be on existing collections if run inside
-		 * transactions."
-		 */
-		necessaryStudent = new Student("0", "necessary student");
-		studentCollection.insertOne(new Document().append("id", necessaryStudent.getId())
-				.append("name", necessaryStudent.getName()).append("courses", Collections.emptyList()));
-
-		necessaryCourse = new Course("0", "necessary course", "12");
-		courseCollection.insertOne(
-				new Document().append("id", necessaryCourse.getId()).append("name", necessaryCourse.getName())
-						.append("cfu", necessaryCourse.getCFU()).append("students", Collections.emptyList()));
-
 	}
 
 	@After
@@ -121,8 +92,7 @@ public class AgendaViewCliTestIT {
 		agendaController.getAllStudents();
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Student [id=0, name=necessary student]" + NEWLINE +
-				"Student [id=1, name=test student 1]" + NEWLINE + "Student [id=2, name=test student 2]" + NEWLINE);
+		assertThat(testOutput.toString()).hasToString("Student [id=1, name=test student 1]" + NEWLINE + "Student [id=2, name=test student 2]" + NEWLINE);
 	}
 
 	@Test
@@ -376,7 +346,7 @@ public class AgendaViewCliTestIT {
 		agendaController.getAllCourses();
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Course [id=0, name=necessary course, CFU=12]" + NEWLINE + "Course [id=1, name=test course 1, CFU=9]" + NEWLINE
+		assertThat(testOutput.toString()).hasToString("Course [id=1, name=test course 1, CFU=9]" + NEWLINE
 				+ "Course [id=2, name=test course 2, CFU=9]" + NEWLINE);
 	}
 

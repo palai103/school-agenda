@@ -45,10 +45,8 @@ public class AgendaControllerTestIT {
 	private TransactionManagerMongo transactionManagerMongo;
 	private AgendaService agendaService;
 	private AgendaController agendaController;
-	private Student necessaryStudent;
 	private MongoCollection<Document> studentCollection;
 	private MongoCollection<Document> courseCollection;
-	private Course necessaryCourse;
 
 	@Before
 	public void setup() {
@@ -60,26 +58,10 @@ public class AgendaControllerTestIT {
 		transactionManagerMongo = new TransactionManagerMongo(client, studentMongoRepository, courseMongoRepository);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
+		database.createCollection(DB_COLLECTION_STUDENTS);
+		database.createCollection(DB_COLLECTION_COURSES);
 		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
 		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
-
-		/**
-		 * The explanation for the following lines can be found here:
-		 * https://docs.mongodb.com/manual/core/transactions/
-		 * 
-		 * "In MongoDB 4.2 and earlier, you cannot create collections in transactions.
-		 * Write operations that result in document inserts (e.g. insert or update
-		 * operations with upsert: true) must be on existing collections if run inside
-		 * transactions."
-		 */
-		necessaryStudent = new Student("0", "necessary student");
-		studentCollection.insertOne(new Document().append("id", necessaryStudent.getId())
-				.append("name", necessaryStudent.getName()).append("courses", Collections.emptyList()));
-
-		necessaryCourse = new Course("0", "necessary course", "12");
-		courseCollection.insertOne(
-				new Document().append("id", necessaryCourse.getId()).append("name", necessaryCourse.getName())
-						.append("cfu", necessaryCourse.getCFU()).append("students", Collections.emptyList()));
 
 		agendaService = new AgendaService(transactionManagerMongo);
 		agendaController = new AgendaController(agendaView, agendaService);
@@ -100,7 +82,7 @@ public class AgendaControllerTestIT {
 		agendaController.getAllStudents();
 
 		// verify
-		verify(agendaView).showAllStudents(asList(necessaryStudent, testStudent));
+		verify(agendaView).showAllStudents(asList(testStudent));
 	}
 
 	@Test
@@ -225,6 +207,6 @@ public class AgendaControllerTestIT {
 		agendaController.getAllCourses();
 
 		// verify
-		verify(agendaView).showAllCourses(asList(necessaryCourse, testCourse));
+		verify(agendaView).showAllCourses(asList(testCourse));
 	}
 }

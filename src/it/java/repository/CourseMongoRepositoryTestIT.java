@@ -46,6 +46,8 @@ public class CourseMongoRepositoryTestIT {
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
+		database.createCollection(DB_COLLECTION);
+		database.createCollection("students");
 		courseCollection = database.getCollection(DB_COLLECTION);
 		studentCollection = database.getCollection("students");
 	}

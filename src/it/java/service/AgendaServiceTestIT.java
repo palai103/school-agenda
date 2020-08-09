@@ -44,9 +44,6 @@ public class AgendaServiceTestIT {
 	private MongoCollection<Document> studentCollection;
 	private MongoCollection<Document> courseCollection;
 	private AgendaService agendaService;
-	
-	private Student necessaryStudent;
-	private Course necessaryCourse;
 
 	@Before
 	public void setup() {
@@ -56,29 +53,10 @@ public class AgendaServiceTestIT {
 		transactionManagerMongo = new TransactionManagerMongo(client, studentMongoRepository, courseMongoRepository);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
+		database.createCollection(DB_COLLECTION_STUDENTS);
+		database.createCollection(DB_COLLECTION_COURSES);
 		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
-		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
-		
-		/**
-		 * The explanation for the following lines can be found here:
-		 * https://docs.mongodb.com/manual/core/transactions/
-		 * 
-		 * "In MongoDB 4.2 and earlier, you cannot create collections in transactions.
-		 * Write operations that result in document inserts (e.g. insert or update
-		 * operations with upsert: true) must be on existing collections if run inside
-		 * transactions."
-		 */
-		necessaryStudent = new Student("0", "necessary student");
-		studentCollection.insertOne(new Document().append("id", necessaryStudent.getId())
-				.append("name", necessaryStudent.getName())
-				.append("courses", Collections.emptyList()));
-		
-		necessaryCourse = new Course("0", "necessary course", "12");
-		courseCollection.insertOne(new Document().append("id", necessaryCourse.getId())
-				.append("name", necessaryCourse.getName())
-				.append("cfu", necessaryCourse.getCFU())
-				.append("students", Collections.emptyList()));
-		
+		courseCollection = database.getCollection(DB_COLLECTION_COURSES);		
 		agendaService = new AgendaService(transactionManagerMongo);
 	}
 
@@ -97,7 +75,7 @@ public class AgendaServiceTestIT {
 		List<Student> students = agendaService.getAllStudents();
 
 		// verify
-		assertThat(students).containsExactly(necessaryStudent, testStudent);
+		assertThat(students).containsExactly(testStudent);
 	}
 
 	@Test
@@ -135,7 +113,7 @@ public class AgendaServiceTestIT {
 		agendaService.addStudent(testStudent);
 
 		// verify
-		assertThat(readAllStudentsFromDatabase()).containsExactly(necessaryStudent, testStudent);
+		assertThat(readAllStudentsFromDatabase()).containsExactly(testStudent);
 	}
 
 	@Test
@@ -148,7 +126,7 @@ public class AgendaServiceTestIT {
 		agendaService.removeStudent(testStudent);
 
 		// verify
-		assertThat(readAllStudentsFromDatabase()).containsExactly(necessaryStudent);
+		assertThat(readAllStudentsFromDatabase()).isEmpty();
 	}
 
 	@Test
@@ -205,7 +183,7 @@ public class AgendaServiceTestIT {
 		agendaService.addCourse(testCourse);
 
 		// verify
-		assertThat(readAllCourseFromDatabase()).containsExactly(necessaryCourse, testCourse);
+		assertThat(readAllCourseFromDatabase()).containsExactly(testCourse);
 	}
 
 	@Test
@@ -218,7 +196,7 @@ public class AgendaServiceTestIT {
 		agendaService.removeCourse(testCourse);
 
 		// verify
-		assertThat(readAllCourseFromDatabase()).containsExactly(necessaryCourse);
+		assertThat(readAllCourseFromDatabase()).isEmpty();
 	}
 
 	@Test
@@ -276,7 +254,7 @@ public class AgendaServiceTestIT {
 		List<Course> courses = agendaService.getAllCourses();
 
 		// verify
-		assertThat(courses).containsExactly(necessaryCourse, testCourse);
+		assertThat(courses).containsExactly(testCourse);
 	}
 
 	private List<String> getStudentCourses(Student student) {
