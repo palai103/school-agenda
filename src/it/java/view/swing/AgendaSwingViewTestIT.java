@@ -55,8 +55,6 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	private FrameFixture window;
 	private MongoCollection<Document> studentCollection;
 	private MongoCollection<Document> courseCollection;
-	private Student necessaryStudent;
-	private Course necessaryCourse;
 	private JPanelFixture contentPanel;
 	private JPanelFixture coursesPanel;
 
@@ -66,16 +64,6 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		clientSession = client.startSession();
 		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS);
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES);
-
-		// explicitly empty the database through the repository
-		for (Student student : studentRepository.findAll(clientSession)) {
-			studentRepository.delete(clientSession, student);
-		}
-
-		for (Course course : courseRepository.findAll(clientSession)) {
-			courseRepository.delete(clientSession, course);
-		}
-
 		transactionManager = new TransactionManagerMongo(client, studentRepository, courseRepository);
 		agendaService = new AgendaService(transactionManager);
 
@@ -87,26 +75,11 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		});
 
 		MongoDatabase database = client.getDatabase(DB_NAME);
+		database.drop();
+		database.createCollection(DB_COLLECTION_STUDENTS);
+		database.createCollection(DB_COLLECTION_COURSES);
 		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
 		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
-
-		/**
-		 * The explanation for the following lines can be found here:
-		 * https://docs.mongodb.com/manual/core/transactions/
-		 * 
-		 * "In MongoDB 4.2 and earlier, you cannot create collections in transactions.
-		 * Write operations that result in document inserts (e.g. insert or update
-		 * operations with upsert: true) must be on existing collections if run inside
-		 * transactions."
-		 */
-		necessaryStudent = new Student("0", "necessary student");
-		studentCollection.insertOne(new Document().append("id", necessaryStudent.getId())
-				.append("name", necessaryStudent.getName()).append("courses", Collections.emptyList()));
-
-		necessaryCourse = new Course("0", "necessary course", "12");
-		courseCollection.insertOne(
-				new Document().append("id", necessaryCourse.getId()).append("name", necessaryCourse.getName())
-						.append("cfu", necessaryCourse.getCFU()).append("students", Collections.emptyList()));
 
 		window = new FrameFixture(robot(), agendaSwingView);
 		window.show();
@@ -146,8 +119,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		});
 
 		// verify
-		assertThat(window.list("studentsList").contents()).containsExactly(necessaryStudent.toString(),
-				testStudent1.toString(), testStudent2.toString());
+		assertThat(window.list("studentsList").contents()).containsExactly(testStudent1.toString(),
+				testStudent2.toString());
 	}
 
 	@Test
@@ -282,7 +255,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		assertThat(window.list("courseStudentsList").contents()).containsExactly(testStudent.toString());
 		window.label("courseMessageLabel").requireText(testStudent.toString() + " added to " + testCourse.toString());
 	}
-	
+
 	@Test
 	public void testAddStudentToCourseButtonError() {
 		// setup
@@ -302,7 +275,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		window.button("addStudentToCourseButton").click();
 
 		// verify
-		window.label("courseMessageLabel").requireText("ERROR! " + testStudent.toString() + " NOT added to " + testCourse.toString());
+		window.label("courseMessageLabel")
+				.requireText("ERROR! " + testStudent.toString() + " NOT added to " + testCourse.toString());
 	}
 
 	@Test
@@ -337,8 +311,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		});
 
 		// verify
-		assertThat(window.list("coursesList").contents()).containsExactly(necessaryCourse.toString(),
-				testCourse1.toString(), testCourse2.toString());
+		assertThat(window.list("coursesList").contents()).containsExactly(testCourse1.toString(),
+				testCourse2.toString());
 	}
 
 	@Test
@@ -393,7 +367,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		assertThat(window.list("coursesList").contents()).containsExactly(testCourse.toString());
 		window.label("courseMessageLabel").requireText("ERROR! " + testCourse.toString() + " NOT removed!");
 	}
-	
+
 	@Test
 	public void testRemoveStudentFromCourseButtonSuccess() {
 		// setup
@@ -403,20 +377,21 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 			agendaController.addStudent(testStudent);
 			agendaController.addCourse(testCourse);
 			agendaController.addStudentToCourse(testStudent, testCourse);
-			//agendaSwingView.getListCourseStudentsModel().addElement(testStudent);
+			// agendaSwingView.getListCourseStudentsModel().addElement(testStudent);
 		});
 		getCoursesPanel();
 		window.list("coursesList").selectItem(0);
 		window.list("courseStudentsList").selectItem(0);
-		
-		// exercise 
+
+		// exercise
 		window.button("removeStudentFromCourseButton").click();
-		
+
 		// verify
 		assertThat(window.list("courseStudentsList").contents()).isEmpty();
-		window.label("courseMessageLabel").requireText(testStudent.toString() + " removed from " + testCourse.toString());
+		window.label("courseMessageLabel")
+				.requireText(testStudent.toString() + " removed from " + testCourse.toString());
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudentButtonSuccess() {
 		// setup
@@ -429,13 +404,14 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		});
 		window.list("studentsList").selectItem(0);
 		window.list("studentCoursesList").selectItem(0);
-		
+
 		// execerise
 		window.button("removeCourseFromStudentButton").click();
-		
+
 		// verify
 		assertThat(window.list("studentCoursesList").contents()).isEmpty();
-		window.label("studentMessageLabel").requireText(testCourse.toString() + " removed from " + testStudent.toString());
+		window.label("studentMessageLabel")
+				.requireText(testCourse.toString() + " removed from " + testStudent.toString());
 	}
-	
+
 }

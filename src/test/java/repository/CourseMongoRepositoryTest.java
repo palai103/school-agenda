@@ -42,6 +42,8 @@ public class CourseMongoRepositoryTest {
 		clientSession = client.startSession();
 		courseMongoRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION);
 		client.getDatabase(DB_NAME).drop();
+		client.getDatabase(DB_NAME).createCollection(DB_COLLECTION);
+		client.getDatabase(DB_NAME).createCollection("students");
 		courseCollection = client.getDatabase(DB_NAME).getCollection(DB_COLLECTION);
 		studentCollection = client.getDatabase(DB_NAME).getCollection("students");
 	}
