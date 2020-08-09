@@ -27,7 +27,7 @@
 
 		<sonar.coverage.exclusion>
 			**/model/*,
-			**/TransactionManagerMongo/*
+			**/repository/TransactionManagerMongo.*
 		</sonar.coverage.exclusion>
 
 		<sonar.issue.ignore.multicriteria>
@@ -38,14 +38,14 @@
 			java:S2699
 		</sonar.issue.ignore.multicriteria.e1.ruleKey>
 		<sonar.issue.ignore.multicriteria.e1.resourceKey>
-			**/AgendaSwingViewTest.*
+			**/AgendaSwingViewTest*.*
 		</sonar.issue.ignore.multicriteria.e1.resourceKey>
 		
 		<sonar.issue.ignore.multicriteria.e2.ruleKey>
 			java:S110
 		</sonar.issue.ignore.multicriteria.e2.ruleKey>
 		<sonar.issue.ignore.multicriteria.e2.resourceKey>
-			**/AgendaSwingViewTest.*
+			**/AgendaSwingView*.*
 		</sonar.issue.ignore.multicriteria.e2.resourceKey>
 		
 		<sonar.issue.ignore.multicriteria.e3.ruleKey>
