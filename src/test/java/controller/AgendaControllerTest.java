@@ -54,6 +54,23 @@ public class AgendaControllerTest {
 		inOrder.verify(agendaView).showAllStudents(allStudents);
 	}
 	
+	@Test
+	public void testGetAllStudentCourses() {
+		// setup
+		Student testStudent = new Student("1", "testStudent");
+		List<Course> studentCourses = asList(new Course("1", "testCourse 1", "9"), 
+				new Course("2", "testCourse 2", "9"));
+		when(agendaService.getAllStudentCourses(testStudent)).thenReturn(studentCourses);
+
+		// exercise
+		agendaController.getAllStudentCourses(testStudent);
+
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).getAllStudentCourses(testStudent);
+		inOrder.verify(agendaView).showAllStudentCourses(studentCourses);
+	}
+	
 	/*Add student*/
 	
 	@Test
@@ -250,6 +267,22 @@ public class AgendaControllerTest {
 		// verify
 		verify(agendaView).notifyCourseNotRemovedFromStudent(testStudent, testCourse);
 		verifyNoMoreInteractions(ignoreStubs(agendaService));
+	}
+	
+	@Test
+	public void testGetAllCourseStudents() {
+		// setup
+		Course testCourse = new Course("1", "testCOurse", "9");
+		List<Student> courseStudents = asList(new Student("1", "testStudent 1"), new Student("2", "testStudent 2"));
+		when(agendaService.getAllCourseStudents(testCourse)).thenReturn(courseStudents);
+		
+		// exercise
+		agendaController.getAllCourseStudents(testCourse);
+
+		// verify
+		InOrder inOrder = inOrder(agendaService, agendaView);
+		inOrder.verify(agendaService).getAllCourseStudents(testCourse);
+		inOrder.verify(agendaView).showAllCourseStudents(courseStudents);
 	}
 	
 	/*Add course*/

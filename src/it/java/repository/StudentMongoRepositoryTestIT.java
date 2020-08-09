@@ -1,4 +1,5 @@
 package repository;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Arrays.asList;
 
@@ -20,6 +21,7 @@ import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
+import model.Course;
 import model.Student;
 
 public class StudentMongoRepositoryTestIT {
@@ -34,6 +36,7 @@ public class StudentMongoRepositoryTestIT {
 	private ClientSession clientSession;
 	private StudentMongoRepository studentRepository;
 	private MongoCollection<Document> studentCollection;
+	private MongoCollection<Document> courseCollection;
 
 	@Before
 	public void setup() {
@@ -43,6 +46,7 @@ public class StudentMongoRepositoryTestIT {
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
 		studentCollection = database.getCollection(DB_COLLECTION);
+		courseCollection = database.getCollection("courses");
 	}
 
 	@After
@@ -81,8 +85,11 @@ public class StudentMongoRepositoryTestIT {
 	@Test
 	public void testUpdateStudentCourses() {
 		addStudentToDatabase("1", "test student 1", Collections.emptyList());
+		addCourseToDatabase("2", "test course", "9", asList("1"));
+		
 		studentRepository.updateStudentCourses(clientSession, "1", "2");
-		assertThat(studentRepository.findStudentCourses(clientSession, "1")).containsExactly("2");
+		assertThat(studentRepository.findStudentCourses(clientSession, "1"))
+				.containsExactly(new Course("2", "test course", "9"));
 	}
 
 	@Test
@@ -94,12 +101,28 @@ public class StudentMongoRepositoryTestIT {
 
 	@Test
 	public void testFindStudentCourses() {
-		addStudentToDatabase("1", "test student 1", asList("2", "3"));
-		assertThat(studentRepository.findStudentCourses(clientSession, "1")).containsAll(asList("2", "3"));
+		Student testStudent = new Student("1", "test student 1");
+		Course testCourse1 = new Course("2", "test course 1", "9");
+		Course testCourse2 = new Course("3", "test course 2", "9");
+
+		addStudentToDatabase(testStudent.getId(), testStudent.getName(),
+				asList(testCourse1.getId(), testCourse2.getId()));
+		addCourseToDatabase(testCourse1.getId(), testCourse1.getName(), testCourse1.getCFU(),
+				asList(testStudent.getId()));
+		addCourseToDatabase(testCourse2.getId(), testCourse2.getName(), testCourse2.getCFU(),
+				asList(testStudent.getId()));
+
+		assertThat(studentRepository.findStudentCourses(clientSession, testStudent.getId()))
+				.containsAll(asList(testCourse1, testCourse2));
 	}
 
 	private void addStudentToDatabase(String id, String name, List<String> courses) {
 		studentCollection.insertOne(new Document().append("id", id).append("name", name).append("courses", courses));
+	}
+
+	private void addCourseToDatabase(String id, String name, String CFU, List<String> students) {
+		courseCollection.insertOne(
+				new Document().append("id", id).append("name", name).append("cfu", CFU).append("students", students));
 	}
 
 	private List<Student> readAllStudentsFromDatabase() {

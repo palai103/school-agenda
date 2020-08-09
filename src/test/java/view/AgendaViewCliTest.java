@@ -4,6 +4,7 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
+import java.awt.print.PrinterIOException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -56,14 +57,96 @@ public class AgendaViewCliTest {
 				+ "6) Enroll a student to a course (by course)" + NEWLINE
 				+ "7) Delete a student enrollment (by student id)" + NEWLINE
 				+ "8) Delete a student enrollment (by course id)" + NEWLINE + "9) Delete a student" + NEWLINE
-				+ "10) Delete a course" + NEWLINE + "11) Exit" + NEWLINE + "---------------------------------"
+				+ "10) Delete a course" + NEWLINE + "11) Show all student courses" + NEWLINE
+				+ "12) Show all course students" + NEWLINE + "13) Exit" + NEWLINE + "---------------------------------"
 				+ NEWLINE);
+	}
+
+	@Test
+	public void testShowAllStudentCourses() {
+		// setup
+		testInput = new ByteArrayInputStream("11\n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id:");
+		verify(controller).getAllStudentCourses(new Student("1", ""));
+	}
+
+	@Test
+	public void testPrintShowAllStudentCourses() {
+		// setup
+		testInput = new ByteArrayInputStream("11\n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.showAllStudentCourses(asList(new Course("1", "test course", "9")));
+
+		// verify
+		assertThat(testOutput.toString()).hasToString((new Course("1", "test course", "9").toString() + NEWLINE));
+	}
+	
+	@Test
+	public void testPrintShowAllStudentCoursesCallController() {
+		// setup
+		testInput = new ByteArrayInputStream("11\n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id:");
+	}
+
+	@Test
+	public void testShowAllCourseStudents() {
+		// setup
+		testInput = new ByteArrayInputStream("12\n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id:");
+		verify(controller).getAllCourseStudents(new Course("1", "", ""));
+	}
+
+	@Test
+	public void testPrintShowAllCourseStudents() {
+		// setup
+		testInput = new ByteArrayInputStream("12\n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id:");
+	}
+
+	@Test
+	public void testPrintShowAllCourseStudentsCallController() {
+		// setup
+
+		testInput = new ByteArrayInputStream("12\n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.showAllCourseStudents(asList(new Student("1", "test student")));
+
+		// verify
+		assertThat(testOutput.toString()).hasToString((new Student("1", "test student").toString() + NEWLINE));
 	}
 
 	@Test
 	public void testExit() {
 		// setup
-		testInput = new ByteArrayInputStream("11".getBytes());
+		testInput = new ByteArrayInputStream("13".getBytes());
 		cliView.setInput(testInput);
 
 		// exercise
@@ -157,13 +240,14 @@ public class AgendaViewCliTest {
 		String userInput = "9\n1";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
+		cliView.getStudents().add(new Student("1", "test student"));
 
 		// Exercise
 		cliView.menuChoice();
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: ");
-		verify(controller).removeStudent(new Student("1", ""));
+		verify(controller).removeStudent(new Student("1", "test student"));
 	}
 
 	@Test
@@ -183,7 +267,7 @@ public class AgendaViewCliTest {
 	public void testNotifyCourseAddedToStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyCourseAddedToStudent(testStudent, testCourse);
@@ -205,14 +289,14 @@ public class AgendaViewCliTest {
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
-		verify(controller).addCourseToStudent(new Student("1", ""), new Course("2", ""));
+		verify(controller).addCourseToStudent(new Student("1", ""), new Course("2", "", ""));
 	}
 
 	@Test
 	public void testNotifyCourseNotAddedToStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyCourseNotAddedToStudent(testStudent, testCourse);
@@ -226,7 +310,7 @@ public class AgendaViewCliTest {
 	public void testNotifyCourseRemovedFromStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyCourseRemovedFromStudent(testStudent, testCourse);
@@ -248,14 +332,14 @@ public class AgendaViewCliTest {
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
-		verify(controller).removeCourseFromStudent(new Student("1", ""), new Course("2", ""));
+		verify(controller).removeCourseFromStudent(new Student("1", ""), new Course("2", "", ""));
 	}
 
 	@Test
 	public void testNotifyCourseNotRemovedFromStudent() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyCourseNotRemovedFromStudent(testStudent, testCourse);
@@ -268,7 +352,7 @@ public class AgendaViewCliTest {
 	@Test
 	public void testNotifyCourseAdded() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		// exercise
 		cliView.notifyCourseAdded(testCourse);
@@ -280,7 +364,7 @@ public class AgendaViewCliTest {
 	@Test
 	public void testAddCourse() {
 		// Setup
-		String userInput = "4\n1\ntest course";
+		String userInput = "4\n1\ntest course\n9";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
 
@@ -289,13 +373,13 @@ public class AgendaViewCliTest {
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert course id: Insert course name: ");
-		verify(controller).addCourse(new Course("1", "test course"));
+		verify(controller).addCourse(new Course("1", "test course", "9"));
 	}
 
 	@Test
 	public void testNotifyCourseNotAdded() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		// exercise
 		cliView.notifyCourseNotAdded(testCourse);
@@ -307,7 +391,7 @@ public class AgendaViewCliTest {
 	@Test
 	public void testNotifyCourseRemoved() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		// exercise
 		cliView.notifyCourseRemoved(testCourse);
@@ -322,32 +406,34 @@ public class AgendaViewCliTest {
 		String userInput = "10\n1";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
+		cliView.getCourses().add(new Course("1", "test course", "9"));
 
 		// Exercise
 		cliView.menuChoice();
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert course id: ");
-		verify(controller).removeCourse(new Course("1", ""));
+		verify(controller).removeCourse(new Course("1", "test course", "9"));
 	}
 
 	@Test
 	public void testNotifyCourseNotRemoved() {
 		// setup
-		Course testCourse = new Course("1", "test course");
+		Course testCourse = new Course("1", "test course", "9");
 
 		// exercise
 		cliView.notifyCourseNotRemoved(testCourse);
 
 		// verify
-		assertThat(testOutput.toString()).hasToString("Course with id " + testCourse.getId() + " not removed" + NEWLINE);
+		assertThat(testOutput.toString())
+				.hasToString("Course with id " + testCourse.getId() + " not removed" + NEWLINE);
 	}
 
 	@Test
 	public void testNotifyStudentRemovedFromCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyStudentRemovedFromCourse(testStudent, testCourse);
@@ -361,7 +447,7 @@ public class AgendaViewCliTest {
 	public void testNotifyStudentNotRemovedFromCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyStudentNotRemovedFromCourse(testStudent, testCourse);
@@ -375,7 +461,7 @@ public class AgendaViewCliTest {
 	public void testNotifyStudentNotAddedToCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyStudentNotAddedToCourse(testStudent, testCourse);
@@ -397,14 +483,14 @@ public class AgendaViewCliTest {
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
-		verify(controller).addStudentToCourse(new Student("1", ""), new Course("2", ""));
+		verify(controller).addStudentToCourse(new Student("1", ""), new Course("2", "", ""));
 	}
 
 	@Test
 	public void testNotifyStudentAddedToCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
+		Course testCourse = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.notifyStudentAddedToCourse(testStudent, testCourse);
@@ -430,15 +516,15 @@ public class AgendaViewCliTest {
 	@Test
 	public void testPrintShowAllCourses() {
 		// setup
-		Course testCourse1 = new Course("1", "test course 1");
-		Course testCourse2 = new Course("2", "test course 2");
+		Course testCourse1 = new Course("1", "test course 1", "9");
+		Course testCourse2 = new Course("2", "test course 2", "9");
 
 		// exercise
 		cliView.showAllCourses(asList(testCourse1, testCourse2));
 
 		// verify
-		assertThat(testOutput.toString()).hasToString(
-				"Course [id=1, name=test course 1]" + NEWLINE + "Course [id=2, name=test course 2]" + NEWLINE);
+		assertThat(testOutput.toString()).hasToString("Course [id=1, name=test course 1, CFU=9]" + NEWLINE
+				+ "Course [id=2, name=test course 2, CFU=9]" + NEWLINE);
 	}
 
 	@Test
@@ -453,6 +539,6 @@ public class AgendaViewCliTest {
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
-		verify(controller).removeStudentFromCourse(new Student("1", ""), new Course("2", ""));
+		verify(controller).removeStudentFromCourse(new Student("1", ""), new Course("2", "", ""));
 	}
 }

@@ -18,7 +18,7 @@ public class Course {
 
 	@Override
 	public String toString() {
-		return "Course [name=" + name + ", id=" + id + ", CFU=" + CFU + "]";
+		return "Course [id=" + id + ", name=" + name + ", CFU=" + CFU + "]";
 	}
 
 	public String getId() {
@@ -60,10 +60,5 @@ public class Course {
 			return false;
 		}
 		return true;
-	}
-
-	@Override
-	public String toString() {
-		return "Course [id=" + id + ", name=" + name + "]";
 	}
 }

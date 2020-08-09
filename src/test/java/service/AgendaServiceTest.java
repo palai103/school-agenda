@@ -34,7 +34,7 @@ import repository.TransactionManager;
 public class AgendaServiceTest {
 
 	private AgendaService agendaService;
-	
+
 	@Mock
 	private MongoClient client;
 
@@ -46,7 +46,7 @@ public class AgendaServiceTest {
 
 	@Mock
 	private CourseRepository courseRepository;
-	
+
 	private ClientSession clientSession;
 
 	@Before
@@ -60,8 +60,8 @@ public class AgendaServiceTest {
 		when(transactionManager.courseTransaction(any()))
 				.thenAnswer(answer((CourseTransactionCode<?> code) -> code.apply(courseRepository, clientSession)));
 
-		when(transactionManager.compositeTransaction(any()))
-				.thenAnswer(answer((TransactionCode<?> code) -> code.apply(studentRepository, courseRepository, clientSession)));
+		when(transactionManager.compositeTransaction(any())).thenAnswer(
+				answer((TransactionCode<?> code) -> code.apply(studentRepository, courseRepository, clientSession)));
 
 		agendaService = new AgendaService(transactionManager);
 	}
@@ -88,14 +88,45 @@ public class AgendaServiceTest {
 	@Test
 	public void testGetAllStudentsWithEmptyListShouldReturnEmptyList() {
 		// setup
-		List<Student> allStudents = asList();
-		when(studentRepository.findAll(clientSession)).thenReturn(allStudents);
+		when(studentRepository.findAll(clientSession)).thenReturn(Collections.emptyList());
 
 		// exercise
 		List<Student> retrievedStudents = agendaService.getAllStudents();
 
 		// verify
 		assertThat(retrievedStudents).isEmpty();
+		verify(transactionManager).studentTransaction(any());
+	}
+
+	@Test
+	public void testGetAllStudentCoursesWithNotEmptyListShouldReturnListWithAllStudentCourses() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		Course testCourse1 = new Course("1", "student test course 1", "9");
+		Course testCourse2 = new Course("2", "student test course 2", "9");
+		when(studentRepository.findStudentCourses(clientSession, testStudent.getId()))
+				.thenReturn(asList(testCourse1, testCourse2));
+
+		// exercise
+		List<Course> retrievedStudentCourses = agendaService.getAllStudentCourses(testStudent);
+
+		// verify
+		assertThat(retrievedStudentCourses).containsExactly(testCourse1, testCourse2);
+		verify(transactionManager).studentTransaction(any());
+	}
+
+	@Test
+	public void tetsGetAllStudentCoursesWhenStudentHasNoCoursesShouldReturnEmptyList() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		when(studentRepository.findStudentCourses(clientSession, testStudent.getId()))
+				.thenReturn(Collections.emptyList());
+
+		// exercise
+		List<Course> retirevedStudentCourses = agendaService.getAllStudentCourses(testStudent);
+
+		// verify
+		assertThat(retirevedStudentCourses).isEmpty();
 		verify(transactionManager).studentTransaction(any());
 	}
 
@@ -191,7 +222,7 @@ public class AgendaServiceTest {
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
 		when(studentRepository.findStudentCourses(clientSession, testStudent.getId()))
-				.thenReturn(Collections.singletonList(testCourse.getId()));
+				.thenReturn(Collections.singletonList(testCourse));
 
 		// exercise
 		agendaService.removeStudent(testStudent);
@@ -247,6 +278,38 @@ public class AgendaServiceTest {
 		assertThat(retrievedCourses).isEmpty();
 		verify(transactionManager).courseTransaction(any());
 	}
+	
+	@Test
+	public void testGetAllCourseStudentsWithNotEmptyListShouldReturnListWithAllCourseStudents() {
+		// setup
+		Course testCourse = new Course("1", "student test course 1", "9");
+		Student testStudent1 = new Student("1", "test student 1");
+		Student testStudent2 = new Student("2", "test student 2");
+		when(courseRepository.findCourseStudents(clientSession, testCourse.getId()))
+				.thenReturn(asList(testStudent1, testStudent2));
+
+		// exercise
+		List<Student> retrievedCourseStudents = agendaService.getAllCourseStudents(testCourse);
+
+		// verify
+		assertThat(retrievedCourseStudents).containsExactly(testStudent1, testStudent2);
+		verify(transactionManager).courseTransaction(any());
+	}
+
+	@Test
+	public void ttestGetAllCourseStudentsWhenCourseHasNoStudentsShouldReturnEmptyList() {
+		// setup
+		Course testCourse = new Course("1", "student test course 1", "9");
+		when(courseRepository.findCourseStudents(clientSession, testCourse.getId()))
+				.thenReturn(Collections.emptyList());
+
+		// exercise
+		List<Student> retrievedCourseStudents = agendaService.getAllCourseStudents(testCourse);
+
+		// verify
+		assertThat(retrievedCourseStudents).isEmpty();
+		verify(transactionManager).courseTransaction(any());
+	}
 
 	@Test
 	public void testAddCourseWhenNotEmptyShouldAdd() {
@@ -280,7 +343,7 @@ public class AgendaServiceTest {
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 		when(courseRepository.findCourseStudents(clientSession, testCourse.getId()))
-				.thenReturn(Collections.singletonList(testStudent.getId()));
+				.thenReturn(Collections.singletonList(testStudent));
 
 		// exercise
 		agendaService.removeCourse(testCourse);
@@ -378,7 +441,7 @@ public class AgendaServiceTest {
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 
-		List<String> studentCourses = asList(testCourse.getId());
+		List<Course> studentCourses = asList(testCourse);
 
 		when(studentRepository.findById(clientSession, "1")).thenReturn(testStudent);
 		when(studentRepository.findStudentCourses(clientSession, "1")).thenReturn(studentCourses);
@@ -397,7 +460,7 @@ public class AgendaServiceTest {
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
 
-		List<String> courseStudents = asList(testStudent.getId());
+		List<Student> courseStudents = asList(testStudent);
 
 		when(courseRepository.findById(clientSession, "1")).thenReturn(testCourse);
 		when(courseRepository.findCourseStudents(clientSession, "1")).thenReturn(courseStudents);
@@ -417,7 +480,7 @@ public class AgendaServiceTest {
 		Student studentOutsideList = new Student("2", "test student outside");
 		Course testCourse = new Course("1", "test course", "9");
 
-		List<String> courseStudents = asList(studentWithinList.getId());
+		List<Student> courseStudents = asList(studentWithinList);
 
 		when(courseRepository.findById(clientSession, "1")).thenReturn(testCourse);
 		when(courseRepository.findCourseStudents(clientSession, "1")).thenReturn(courseStudents);
@@ -437,7 +500,7 @@ public class AgendaServiceTest {
 		Course courseOutsideList = new Course("2", "test course outside", "9");
 		Student testStudent = new Student("1", "test student");
 
-		List<String> studentCourses = asList(courseWithinList.getId());
+		List<Course> studentCourses = asList(courseWithinList);
 
 		when(studentRepository.findById(clientSession, "1")).thenReturn(testStudent);
 		when(studentRepository.findStudentCourses(clientSession, "1")).thenReturn(studentCourses);

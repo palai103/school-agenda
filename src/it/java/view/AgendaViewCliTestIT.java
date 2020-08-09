@@ -6,7 +6,9 @@ import static org.mockito.Mockito.verify;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
 
+import org.bson.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -15,6 +17,8 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.ClientSession;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import controller.AgendaController;
@@ -44,21 +48,59 @@ public class AgendaViewCliTestIT {
 	private MongoClient client;
 	private ByteArrayOutputStream testOutput;
 	private ByteArrayInputStream testInput;
+	private ClientSession clientSession;
+	private MongoCollection<Document> studentCollection;
+	private MongoCollection<Document> courseCollection;
+	private Student necessaryStudent;
+	private Course necessaryCourse;
 	private static final String NEWLINE = System.getProperty("line.separator");
 
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
+		clientSession = client.startSession();
 		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS);
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES);
+
+		// explicitly empty the database through the repository
+		for (Student student : studentRepository.findAll(clientSession)) {
+			studentRepository.delete(clientSession, student);
+		}
+
+		for (Course course : courseRepository.findAll(clientSession)) {
+			courseRepository.delete(clientSession, course);
+		}
+
 		manager = new TransactionManagerMongo(client, studentRepository, courseRepository);
-		MongoDatabase database = client.getDatabase(DB_NAME);
-		database.drop();
+		agendaService = new AgendaService(manager);
+		
 		testOutput = new ByteArrayOutputStream();
 		agendaViewCli = new AgendaViewCli(System.in, new PrintStream(testOutput));
-		agendaService = new AgendaService(manager);
 		agendaController = new AgendaController(agendaViewCli, agendaService);
 		agendaViewCli.inject(agendaController);
+		MongoDatabase database = client.getDatabase(DB_NAME);
+		
+		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
+		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
+
+		/**
+		 * The explanation for the following lines can be found here:
+		 * https://docs.mongodb.com/manual/core/transactions/
+		 * 
+		 * "In MongoDB 4.2 and earlier, you cannot create collections in transactions.
+		 * Write operations that result in document inserts (e.g. insert or update
+		 * operations with upsert: true) must be on existing collections if run inside
+		 * transactions."
+		 */
+		necessaryStudent = new Student("0", "necessary student");
+		studentCollection.insertOne(new Document().append("id", necessaryStudent.getId())
+				.append("name", necessaryStudent.getName()).append("courses", Collections.emptyList()));
+
+		necessaryCourse = new Course("0", "necessary course", "12");
+		courseCollection.insertOne(
+				new Document().append("id", necessaryCourse.getId()).append("name", necessaryCourse.getName())
+						.append("cfu", necessaryCourse.getCFU()).append("students", Collections.emptyList()));
+
 	}
 
 	@After
@@ -71,14 +113,14 @@ public class AgendaViewCliTestIT {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
 		Student testStudent2 = new Student("2", "test student 2");
-		agendaService.addStudent(testStudent1);
-		agendaService.addStudent(testStudent2);
+		studentRepository.save(clientSession, testStudent1);
+		studentRepository.save(clientSession, testStudent2);
 
 		// exercise
 		agendaController.getAllStudents();
 
 		// verify
-		assertThat(testOutput.toString()).hasToString(
+		assertThat(testOutput.toString()).hasToString("Student [id=0, name=necessary student]" + NEWLINE +
 				"Student [id=1, name=test student 1]" + NEWLINE + "Student [id=2, name=test student 2]" + NEWLINE);
 	}
 
@@ -94,14 +136,14 @@ public class AgendaViewCliTestIT {
 
 		// verify
 		assertThat(testOutput.toString())
-				.contains("Insert student id: Insert student name: Added Student [id=1, name=test student]");
+		.contains("Insert student id: Insert student name: Added Student [id=1, name=test student]");
 	}
-	
+
 	@Test
 	public void testAddStudentNotAdded() {
 		// Setup
 		Student testStudent1 = new Student("1", "test student 1");
-		agendaService.addStudent(testStudent1);
+		studentRepository.save(clientSession, testStudent1);
 		String userInput = "3\n1\ntest student";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
@@ -111,114 +153,117 @@ public class AgendaViewCliTestIT {
 
 		// verify
 		assertThat(testOutput.toString())
-				.contains("Insert student id: Insert student name: Student [id=1, name=test student] not added");
+		.contains("Insert student id: Insert student name: Student [id=1, name=test student] not added");
 	}
-	
+
 	@Test
 	public void testRemoveStudent() {
 		// Setup
 		Student testStudent1 = new Student("1", "test student 1");
-		agendaService.addStudent(testStudent1);
+		studentRepository.save(clientSession, testStudent1);
 		String userInput = "9\n1\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
+		agendaViewCli.getStudents().add(testStudent1);
 
 		// Exercise
 		agendaViewCli.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString())
-				.contains("Insert student id: Student with id 1 removed");
+		assertThat(testOutput.toString()).contains("Insert student id: Student with id 1 removed");
 	}
-	
+
 	@Test
 	public void testRemoveStudentNotRemoved() {
 		// Setup
 		String userInput = "9\n1\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
+		//agendaViewCli.getStudents().add(new Student("1", "test student"));
 
 		// Exercise
 		agendaViewCli.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString())
-				.contains("Insert student id: Student with id 1 not removed");
+		assertThat(testOutput.toString()).contains("Insert student id: Student with id 1 not removed");
 	}
-	
+
 	@Test
 	public void testAddCourseToStudent() {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
-		agendaService.addStudent(testStudent1);
-		agendaService.addCourse(testCourse);
+		Course testCourse = new Course("2", "test course 2", "9");
+		studentRepository.save(clientSession, testStudent1);
+		courseRepository.save(clientSession, testCourse);
 		String userInput = "5\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Course with id 2 added to student with id 1");
 	}
-	
+
 	@Test
 	public void testAddCourseToStudentNotAdded() {
 		// setup
 		String userInput = "5\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Course with id 2 not added to student with id 1");
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudent() {
 		// setup
-		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
-		agendaService.addStudent(testStudent);
-		agendaService.addCourse(testCourse);
-		agendaService.addCourseToStudent(testStudent, testCourse);
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("2", "test course", "9");
+		studentRepository.save(clientSession, testStudent);
+		courseRepository.save(clientSession, testCourse);
+		agendaController.addCourseToStudent(testStudent, testCourse);
 		String userInput = "7\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+		agendaViewCli.getStudents().add(testStudent);
+		agendaViewCli.getCourses().add(testCourse);
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Course with id 2 removed from student with id 1");
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudentShouldNotRemove() {
 		// setup
 		String userInput = "7\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+		agendaViewCli.getCourses().add(new Course("2", "test course", "9"));
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Course with id 2 not removed from student with id 1");
 	}
-	
+
 	@Test
 	public void testAddCourse() {
 		// Setup
-		String userInput = "4\n1\ntest course";
+		String userInput = "4\n1\ntest course\n9";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
 
@@ -226,16 +271,16 @@ public class AgendaViewCliTestIT {
 		agendaViewCli.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString())
-				.contains("Insert course id: Insert course name: Added Course [id=1, name=test course]");
+		assertThat(testOutput.toString()).contains(
+				"Insert course id: Insert course name: Insert course CFU: Added Course [id=1, name=test course, CFU=9]");
 	}
-	
+
 	@Test
 	public void testAddCourseNotAdded() {
 		// Setup
-		Course testCourse = new Course("1", "test course 1");
-		agendaService.addCourse(testCourse);
-		String userInput = "4\n1\ntest course";
+		Course testCourse = new Course("1", "test course 1", "9");
+		courseRepository.save(clientSession, testCourse);
+		String userInput = "4\n1\ntest course\n9";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
 
@@ -243,125 +288,126 @@ public class AgendaViewCliTestIT {
 		agendaViewCli.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString())
-				.contains("Insert course id: Insert course name: Course [id=1, name=test course] not added");
+		assertThat(testOutput.toString()).contains(
+				"Insert course id: Insert course name: Insert course CFU: Course [id=1, name=test course, CFU=9] not added");
 	}
-	
+
 	@Test
 	public void testAddStudentToCourse() {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
-		agendaService.addStudent(testStudent1);
-		agendaService.addCourse(testCourse);
+		Course testCourse = new Course("2", "test course 2", "9");
+		studentRepository.save(clientSession, testStudent1);
+		courseRepository.save(clientSession, testCourse);
 		String userInput = "6\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Student with id 1 added to course with id 2");
 	}
-	
+
 	@Test
 	public void testAddStudentToCourseNotAdded() {
 		// setup
 		String userInput = "6\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Student with id 1 not added to course with id 2");
 	}
-	
+
 	@Test
 	public void testRemoveStudentFromCourse() {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
-		Course testCourse = new Course("2", "test course 2");
-		agendaService.addStudent(testStudent);
-		agendaService.addCourse(testCourse);
+		Course testCourse = new Course("2", "test course 2", "9");
+		studentRepository.save(clientSession, testStudent);
+		courseRepository.save(clientSession, testCourse);
 		agendaService.addStudentToCourse(testStudent, testCourse);
 		String userInput = "8\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+		agendaViewCli.getStudents().add(testStudent);
+		agendaViewCli.getCourses().add(testCourse);
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Student with id 1 removed from course with id 2");
 	}
-	
+
 	@Test
 	public void testRemoveStudentFromCourseShouldNotRemove() {
 		// setup
 		String userInput = "8\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-		
+
 		// exercise
 		agendaViewCli.menuChoice();
-		
+
 		// verify
 		assertThat(testOutput.toString())
 		.contains("Insert student id: Insert course id: Student with id 1 not removed from course with id 2");
 	}
-	
+
 	@Test
 	public void testShowAllCourses() {
 		// setup
-		Course testCourse1 = new Course("1", "test course 1");
-		Course testCourse2 = new Course("2", "test course 2");
-		agendaService.addCourse(testCourse1);
-		agendaService.addCourse(testCourse2);
+		Course testCourse1 = new Course("1", "test course 1", "9");
+		Course testCourse2 = new Course("2", "test course 2", "9");
+		courseRepository.save(clientSession, testCourse1);
+		courseRepository.save(clientSession, testCourse2);
 
 		// exercise
 		agendaController.getAllCourses();
 
 		// verify
-		assertThat(testOutput.toString()).hasToString(
-				"Course [id=1, name=test course 1]" + NEWLINE + "Course [id=2, name=test course 2]" + NEWLINE);
+		assertThat(testOutput.toString()).hasToString("Course [id=0, name=necessary course, CFU=12]" + NEWLINE + "Course [id=1, name=test course 1, CFU=9]" + NEWLINE
+				+ "Course [id=2, name=test course 2, CFU=9]" + NEWLINE);
 	}
-	
+
 	@Test
 	public void testRemoveCourse() {
 		// Setup
-		Course testCourse = new Course("1", "test course 1");
-		agendaService.addCourse(testCourse);
+		Course testCourse = new Course("1", "test course 1", "9");
+		courseRepository.save(clientSession, testCourse);
 		String userInput = "10\n1\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
+		agendaViewCli.getCourses().add(testCourse);
 
 		// Exercise
 		agendaViewCli.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString())
-				.contains("Insert course id: Course with id 1 removed");
+		assertThat(testOutput.toString()).contains("Insert course id: Course with id 1 removed");
 	}
-	
+
 	@Test
 	public void testRemoveCourseNotRemoved() {
 		// Setup
 		String userInput = "10\n1\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
-
+		
 		// Exercise
 		agendaViewCli.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString())
-				.contains("Insert course id: Course with id 1 not removed");
+		assertThat(testOutput.toString()).contains("Insert course id: Course with id 1 not removed");
 	}
 
 }

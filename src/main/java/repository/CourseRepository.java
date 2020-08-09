@@ -5,6 +5,7 @@ import java.util.List;
 import com.mongodb.client.ClientSession;
 
 import model.Course;
+import model.Student;
 
 public interface CourseRepository {
 	
@@ -20,6 +21,6 @@ public interface CourseRepository {
 
 	void removeCourseStudent(ClientSession clientSession, String studentId, String courseId);
 
-	List<String> findCourseStudents(ClientSession clientSession, String courseId);
+	List<Student> findCourseStudents(ClientSession clientSession, String courseId);
 
 }

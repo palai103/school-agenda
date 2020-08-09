@@ -1,5 +1,6 @@
 package repository;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,15 +15,18 @@ import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
 
 import model.Course;
+import model.Student;
 
 public class CourseMongoRepository implements CourseRepository{
 	
 	private static final String ID = "id";
 	private static final String STUDENTS = "students";
 	private MongoCollection<Document> courseCollection;
+	private MongoCollection<Document> studentCollection;
 
 	public CourseMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
 		courseCollection = mongoClient.getDatabase(dbName).getCollection(dbCollection);
+		studentCollection = mongoClient.getDatabase(dbName).getCollection(STUDENTS);
 	}
 
 	@Override
@@ -70,14 +74,22 @@ public class CourseMongoRepository implements CourseRepository{
 	}
 	
 	@Override
-	public List<String> findCourseStudents(ClientSession clientSession, String courseId) {
-		return courseCollection.find(clientSession, Filters.eq(ID, courseId))
+	public List<Student> findCourseStudents(ClientSession clientSession, String courseId) {	
+		List<String> studentIds = courseCollection.find(clientSession, Filters.eq(ID, courseId))
 				.first().getList(STUDENTS, String.class);
+		List<Student> returnedStudents = new ArrayList<Student>();
+		for (String student : studentIds) {
+			returnedStudents.add(fromDocumentToStudent(studentCollection
+					.find(clientSession, Filters.eq(ID, student)).first()));
+		}
+		return returnedStudents;
 	}
 	
 	private Course fromDocumentToCourse(Document document) {
 		return new Course(document.getString(ID), document.getString("name"), document.getString("cfu"));
 	}
 
-
+	private Student fromDocumentToStudent(Document document) {
+		return new Student(document.getString(ID), document.getString("name"));
+	}
 }
