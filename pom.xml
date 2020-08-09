@@ -24,14 +24,37 @@
 		<logback-classic.version>1.2.3</logback-classic.version>
 		<testcontainers.version>1.10.5</testcontainers.version>
 		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
-		
+
 		<sonar.coverage.exclusion>
 			**/model/*,
 			**/TransactionManagerMongo/*
 		</sonar.coverage.exclusion>
-	</properties>
-	<description>A simple school agenda</description>
 
+		<sonar.issue.ignore.multicriteria>
+			e1,e2,3
+		</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e1.ruleKey>
+			java:S2699
+		</sonar.issue.ignore.multicriteria.e1.ruleKey>
+		<sonar.issue.ignore.multicriteria.e1.resourceKey>
+			**/TodoSwingViewTest.*
+		</sonar.issue.ignore.multicriteria.e1.resourceKey>
+		<sonar.issue.ignore.multicriteria.e2.ruleKey>
+			java:S110
+		</sonar.issue.ignore.multicriteria.e2.ruleKey>
+		<sonar.issue.ignore.multicriteria.e2.resourceKey>
+			**/TodoSwingView.*
+		</sonar.issue.ignore.multicriteria.e2.resourceKey>
+		<sonar.issue.ignore.multicriteria.e3.ruleKey>
+			java:S2589
+		</sonar.issue.ignore.multicriteria.e3.ruleKey>
+		<sonar.issue.ignore.multicriteria.e3.resourceKey>
+			**/CourseMongoRepository.*
+		</sonar.issue.ignore.multicriteria.e3.resourceKey>
+
+		<description>A simple school agenda</description>
+
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>junit</groupId>

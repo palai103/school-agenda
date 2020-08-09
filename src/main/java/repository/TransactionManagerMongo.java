@@ -5,7 +5,7 @@ import com.mongodb.client.ClientSession;
 import com.mongodb.client.TransactionBody;
 
 public class TransactionManagerMongo implements TransactionManager {
-	
+
 	private ClientSession clientSession;
 
 	private MongoClient client;
@@ -23,23 +23,17 @@ public class TransactionManagerMongo implements TransactionManager {
 	public <T> T studentTransaction(StudentTransactionCode<T> code) {
 		T valueToReturn = null;
 		clientSession = client.startSession();
-		
-		TransactionBody<T> transactionBody = new TransactionBody<T>() {
-			public T execute() {
-				return code.apply(studentMongoRepository, clientSession);
-			}
-		};
-		
+
+		TransactionBody<T> transactionBody = () -> code.apply(studentMongoRepository, clientSession);
+
 		try {
 			valueToReturn = clientSession.withTransaction(transactionBody);
-		}
-		catch (RuntimeException rte) {
+		} catch (RuntimeException rte) {
 			clientSession.abortTransaction();
-		}
-		finally {
+		} finally {
 			clientSession.close();
 		}
-		
+
 		return valueToReturn;
 	}
 
@@ -47,20 +41,14 @@ public class TransactionManagerMongo implements TransactionManager {
 	public <T> T courseTransaction(CourseTransactionCode<T> code) {
 		T valueToReturn = null;
 		clientSession = client.startSession();
-		
-		TransactionBody<T> transactionBody = new TransactionBody<T>() {
-			public T execute() {
-				return code.apply(courseMongoRepository, clientSession);
-			}
-		};
-		
+
+		TransactionBody<T> transactionBody = () -> code.apply(courseMongoRepository, clientSession);
+
 		try {
 			valueToReturn = clientSession.withTransaction(transactionBody);
-		}
-		catch (RuntimeException rte) {
+		} catch (RuntimeException rte) {
 			clientSession.abortTransaction();
-		}
-		finally {
+		} finally {
 			clientSession.close();
 		}
 
@@ -71,20 +59,15 @@ public class TransactionManagerMongo implements TransactionManager {
 	public <T> T compositeTransaction(TransactionCode<T> code) {
 		T valueToReturn = null;
 		clientSession = client.startSession();
-		
-		TransactionBody<T> transactionBody = new TransactionBody<T>() {
-			public T execute() {
-				return code.apply(studentMongoRepository, courseMongoRepository, clientSession);
-			}
-		};
-		
+
+		TransactionBody<T> transactionBody = () -> code.apply(studentMongoRepository, courseMongoRepository,
+				clientSession);
+
 		try {
 			valueToReturn = clientSession.withTransaction(transactionBody);
-		}
-		catch (RuntimeException rte) {
+		} catch (RuntimeException rte) {
 			clientSession.abortTransaction();
-		}
-		finally {
+		} finally {
 			clientSession.close();
 		}
 
