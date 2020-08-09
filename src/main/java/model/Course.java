@@ -6,10 +6,10 @@ public class Course {
 	private String id;
 	private String cfu;
 
-	public Course(String id, String name, String CFU) {
+	public Course(String id, String name, String cfu) {
 		this.id = id;
 		this.name = name;
-		this.cfu = CFU;
+		this.cfu = cfu;
 	}
 
 	public String getName() {
