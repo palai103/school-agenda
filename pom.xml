@@ -26,8 +26,8 @@
 		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
 
 		<sonar.coverage.exclusion>
-			**/model/*.*,
-			**/repository/TransactionManagerMongo*.*
+			model/*,
+			repository/TransactionManagerMongo*
 		</sonar.coverage.exclusion>
 
 		<sonar.issue.ignore.multicriteria>
