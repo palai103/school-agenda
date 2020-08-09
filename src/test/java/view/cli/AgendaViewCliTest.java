@@ -1,4 +1,4 @@
-package view;
+package view.cli;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -18,6 +18,7 @@ import org.mockito.MockitoAnnotations;
 import controller.AgendaController;
 import model.Course;
 import model.Student;
+import view.cli.AgendaViewCli;
 
 public class AgendaViewCliTest {
 

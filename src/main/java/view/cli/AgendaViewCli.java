@@ -1,4 +1,4 @@
-package view;
+package view.cli;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import controller.AgendaController;
 import model.Course;
 import model.Student;
+import view.AgendaView;
 
 public class AgendaViewCli implements AgendaView {
 

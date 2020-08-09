@@ -1,4 +1,4 @@
-package view;
+package view.cli;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -29,6 +29,7 @@ import repository.StudentMongoRepository;
 import repository.TransactionManager;
 import repository.TransactionManagerMongo;
 import service.AgendaService;
+import view.cli.AgendaViewCli;
 
 public class AgendaViewCliTestIT {
 
