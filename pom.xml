@@ -31,7 +31,7 @@
 		</sonar.coverage.exclusion>
 
 		<sonar.issue.ignore.multicriteria>
-			e1,e2,3
+			e1,e2,e3
 		</sonar.issue.ignore.multicriteria>
 		
 		<sonar.issue.ignore.multicriteria.e1.ruleKey>
@@ -52,7 +52,8 @@
 			java:S2589
 		</sonar.issue.ignore.multicriteria.e3.ruleKey>
 		<sonar.issue.ignore.multicriteria.e3.resourceKey>
-			**/CourseMongoRepository.*
+			**/CourseMongoRepository.*,
+			**/StudentMongoRepository.*
 		</sonar.issue.ignore.multicriteria.e3.resourceKey>
 
 		<description>A simple school agenda</description>
