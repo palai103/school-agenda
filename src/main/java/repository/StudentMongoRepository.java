@@ -21,7 +21,6 @@ public class StudentMongoRepository implements StudentRepository{
 
 	private static final String ID = "id";
 	private static final String COURSES = "courses";
-	private static final String STUDENTS = "students";
 	
 	private MongoCollection<Document> studentCollection;
 	private MongoCollection<Document> courseCollection;
@@ -78,7 +77,7 @@ public class StudentMongoRepository implements StudentRepository{
 	public List<Course> findStudentCourses(ClientSession clientSession, String studentId) {
 		List<String> courseIds = studentCollection.find(clientSession, Filters.eq(ID, studentId))
 				.first().getList(COURSES, String.class);
-		List<Course> returnedCourses = new ArrayList<Course>();
+		List<Course> returnedCourses = new ArrayList<>();
 		for (String course : courseIds) {
 			returnedCourses.add(fromDocumentToCourse(courseCollection
 					.find(clientSession, Filters.eq(ID, course)).first()));

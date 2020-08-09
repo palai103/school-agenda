@@ -5,7 +5,6 @@ import java.util.List;
 import model.Course;
 import model.Student;
 import repository.CourseRepository;
-import repository.StudentRepository;
 import repository.TransactionManager;
 
 public class AgendaService {

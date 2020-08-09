@@ -29,8 +29,8 @@ public class AgendaViewCli implements AgendaView {
 	public AgendaViewCli(InputStream inputStream, PrintStream printStream) {
 		this.inputStream = inputStream;
 		this.printStream = printStream;
-		students = new ArrayList<Student>();
-		courses = new ArrayList<Course>();
+		students = new ArrayList<>();
+		courses = new ArrayList<>();
 	}
 
 	@Override
@@ -277,11 +277,11 @@ public class AgendaViewCli implements AgendaView {
 		courses.add(new Course(id, name, cfu));
 	}
 
-	public ArrayList<Student> getStudents() {
+	public List<Student> getStudents() {
 		return students;
 	}
 
-	public ArrayList<Course> getCourses() {
+	public List<Course> getCourses() {
 		return courses;
 	}
 

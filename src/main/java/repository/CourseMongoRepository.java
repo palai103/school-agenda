@@ -77,7 +77,7 @@ public class CourseMongoRepository implements CourseRepository{
 	public List<Student> findCourseStudents(ClientSession clientSession, String courseId) {	
 		List<String> studentIds = courseCollection.find(clientSession, Filters.eq(ID, courseId))
 				.first().getList(STUDENTS, String.class);
-		List<Student> returnedStudents = new ArrayList<Student>();
+		List<Student> returnedStudents = new ArrayList<>();
 		for (String student : studentIds) {
 			returnedStudents.add(fromDocumentToStudent(studentCollection
 					.find(clientSession, Filters.eq(ID, student)).first()));

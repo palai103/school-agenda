@@ -1,7 +1,5 @@
 package controller;
 
-import java.util.List;
-
 import model.Course;
 import model.Student;
 import service.AgendaService;
