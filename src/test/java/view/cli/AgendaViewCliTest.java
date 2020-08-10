@@ -76,6 +76,20 @@ public class AgendaViewCliTest {
 		assertThat(testOutput.toString()).contains("Insert student id:");
 		verify(controller).getAllStudentCourses(new Student("1", ""));
 	}
+	
+	@Test
+	public void testShowAllStudentCoursesWithEmptyID() {
+		// setup
+		testInput = new ByteArrayInputStream("11\n \n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student id:");
+		verify(controller).getAllStudentCourses(new Student("1", ""));
+	}
 
 	@Test
 	public void testPrintShowAllStudentCourses() {
@@ -114,6 +128,20 @@ public class AgendaViewCliTest {
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert course id:");
+		verify(controller).getAllCourseStudents(new Course("1", "", ""));
+	}
+	
+	@Test
+	public void testShowAllCourseStudentsWithEmptyID() {
+		// setup
+		testInput = new ByteArrayInputStream("12\n \n1".getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id: Insert course id:");
 		verify(controller).getAllCourseStudents(new Course("1", "", ""));
 	}
 
@@ -198,17 +226,92 @@ public class AgendaViewCliTest {
 
 	@Test
 	public void testAddStudent() {
-		// Setup
+		// setup
 		String userInput = "3\n1\ntest student";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
 
-		// Exercise
+		// exercise
 		cliView.menuChoice();
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert student name: ");
 		verify(controller).addStudent(new Student("1", "test student"));
+	}
+	
+	@Test
+	public void testAddStudentWithEmptyID() {
+		// setup
+		String userInput = "3\n \n1\ntest student";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		
+		// exercise
+		cliView.menuChoice();
+		
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student id: Insert student name: ");
+		verify(controller).addStudent(new Student("1", "test student"));		
+	}
+	
+	@Test
+	public void testAddStudentWithEmptyName() {
+		// setup
+		String userInput = "3\n1\n \ntest student";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		
+		// exercise
+		cliView.menuChoice();
+		
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student name: Insert student name: ");
+		verify(controller).addStudent(new Student("1", "test student"));		
+	}	
+	
+	@Test
+	public void testAddCourseWithEmptyID() {
+		// setup
+		String userInput = "4\n \n1\ntest course\n9";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		
+		// exercise
+		cliView.menuChoice();
+		
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id: Insert course id: Insert course name: Insert course CFU: ");
+		verify(controller).addCourse(new Course("1", "test course", "9"));		
+	}
+	
+	@Test
+	public void testAddCourseWithEmptyName() {
+		// setup
+		String userInput = "4\n1\n \ntest course\n9";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		
+		// exercise
+		cliView.menuChoice();
+		
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id: Insert course name: Insert course name: Insert course CFU: ");
+		verify(controller).addCourse(new Course("1", "test course", "9"));		
+	}
+	
+	@Test
+	public void testAddCourseWithEmptyCfu() {
+		// setup
+		String userInput = "4\n1\ntest course\n \n9";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		
+		// exercise
+		cliView.menuChoice();
+		
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id: Insert course name: Insert course CFU: Insert course CFU: ");
+		verify(controller).addCourse(new Course("1", "test course", "9"));		
 	}
 
 	@Test
@@ -248,6 +351,38 @@ public class AgendaViewCliTest {
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: ");
+		verify(controller).removeStudent(new Student("1", "test student"));
+	}
+	
+	@Test
+	public void testRemoveStudentWhenStudentDoesNotExist() {
+		// Setup
+		String userInput = "9\n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		cliView.getStudents().add(new Student("1", "test student"));
+
+		// Exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: ");
+		verify(controller).removeStudent(new Student("2", ""));
+	}
+	
+	@Test
+	public void testRemoveStudentWithEmptyId() {
+		// Setup
+		String userInput = "9\n \n1";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		cliView.getStudents().add(new Student("1", "test student"));
+
+		// Exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student id: ");
 		verify(controller).removeStudent(new Student("1", "test student"));
 	}
 
@@ -292,6 +427,36 @@ public class AgendaViewCliTest {
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
 		verify(controller).addCourseToStudent(new Student("1", ""), new Course("2", "", ""));
 	}
+	
+	@Test
+	public void testAddCourseToStudentWithEmptyStudentId() {
+		// setup
+		String userInput = "5\n \n1\n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student id: Insert course id: ");
+		verify(controller).addCourseToStudent(new Student("1", ""), new Course("2", "", ""));
+	}
+	
+	@Test
+	public void testAddCourseToStudentWithEmptyCourseId() {
+		// setup
+		String userInput = "5\n1\n \n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: Insert course id: ");
+		verify(controller).addCourseToStudent(new Student("1", ""), new Course("2", "", ""));
+	}
 
 	@Test
 	public void testNotifyCourseNotAddedToStudent() {
@@ -327,12 +492,65 @@ public class AgendaViewCliTest {
 		String userInput = "7\n1\n2";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
+		Student testStudent = new Student("1", "");
+		Course testCourse = new Course("2", "test course", "9");
+		cliView.getStudents().add(testStudent);
+		cliView.getCourses().add(testCourse);
 
 		// exercise
 		cliView.menuChoice();
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
+		verify(controller).removeCourseFromStudent(new Student("1", ""), testCourse);
+	}
+	
+	@Test
+	public void testRemoveCourseFromStudentWhenCourseDoesNotExist() {
+		// setup
+		String userInput = "7\n1\n3";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		Student testStudent = new Student("1", "");
+		Course testCourse = new Course("2", "test course", "9");
+		cliView.getStudents().add(testStudent);
+		cliView.getCourses().add(testCourse);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
+		verify(controller).removeCourseFromStudent(new Student("1", ""), new Course("3", "", ""));
+	}
+	
+	@Test
+	public void testRemoveCourseFromStudentWithEmptyStudentId() {
+		// setup
+		String userInput = "7\n \n1\n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student id: Insert course id: ");
+		verify(controller).removeCourseFromStudent(new Student("1", ""), new Course("2", "", ""));
+	}
+	
+	@Test
+	public void testRemoveCourseFromStudentWithEmptyCourseId() {
+		// setup
+		String userInput = "7\n1\n \n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: Insert course id: ");
 		verify(controller).removeCourseFromStudent(new Student("1", ""), new Course("2", "", ""));
 	}
 
@@ -416,6 +634,38 @@ public class AgendaViewCliTest {
 		assertThat(testOutput.toString()).contains("Insert course id: ");
 		verify(controller).removeCourse(new Course("1", "test course", "9"));
 	}
+	
+	@Test
+	public void testRemoveCourseWhenCouseDoesNotExist() {
+		// Setup
+		String userInput = "10\n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		cliView.getCourses().add(new Course("1", "test course", "9"));
+
+		// Exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id: ");
+		verify(controller).removeCourse(new Course("2", "", ""));
+	}
+	
+	@Test
+	public void testRemoveCourseWithEmptyCourseId() {
+		// Setup
+		String userInput = "10\n \n1";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		cliView.getCourses().add(new Course("1", "test course", "9"));
+
+		// Exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert course id: Insert course id: ");
+		verify(controller).removeCourse(new Course("1", "test course", "9"));
+	}
 
 	@Test
 	public void testNotifyCourseNotRemoved() {
@@ -486,6 +736,36 @@ public class AgendaViewCliTest {
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
 		verify(controller).addStudentToCourse(new Student("1", ""), new Course("2", "", ""));
 	}
+	
+	@Test
+	public void testAddStudentToCourseWithEmptyStudentId() {
+		// setup
+		String userInput = "6\n \n1\n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student id: Insert course id: ");
+		verify(controller).addStudentToCourse(new Student("1", ""), new Course("2", "", ""));
+	}
+	
+	@Test
+	public void testAddStudentToCourseWithEmptyCourseId() {
+		// setup
+		String userInput = "6\n1\n \n2";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: Insert course id: ");
+		verify(controller).addStudentToCourse(new Student("1", ""), new Course("2", "", ""));
+	}
 
 	@Test
 	public void testNotifyStudentAddedToCourse() {
@@ -532,14 +812,76 @@ public class AgendaViewCliTest {
 	public void testRemoveStudentFromCourse() {
 		// setup
 		String userInput = "8\n1\n2";
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("2", "", "");
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
+		cliView.getStudents().add(testStudent);
+		cliView.getCourses().add(testCourse);
 
 		// exercise
 		cliView.menuChoice();
 
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
-		verify(controller).removeStudentFromCourse(new Student("1", ""), new Course("2", "", ""));
+		verify(controller).removeStudentFromCourse(testStudent, testCourse);
+	}
+	
+	@Test
+	public void testRemoveStudentFromCourseWhenStudentDoesNotExist() {
+		// setup
+		String userInput = "8\n3\n2";
+		Student testStudentToFind = new Student("3", "");
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("2", "", "");
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		cliView.getStudents().add(testStudent);
+		cliView.getCourses().add(testCourse);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: ");
+		verify(controller).removeStudentFromCourse(testStudentToFind, testCourse);
+	}
+	
+	@Test
+	public void testRemoveStudentFromCourseWithEmptyStudentId() {
+		// setup
+		String userInput = "8\n \n1\n2";
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("2", "", "");
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		cliView.getStudents().add(testStudent);
+		cliView.getCourses().add(testCourse);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert student id: Insert course id: ");
+		verify(controller).removeStudentFromCourse(testStudent, testCourse);
+	}
+	
+	@Test
+	public void testRemoveStudentFromCourseWithEmptyCourseId() {
+		// setup
+		String userInput = "8\n1\n \n2";
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("2", "", "");
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		cliView.getStudents().add(testStudent);
+		cliView.getCourses().add(testCourse);
+
+		// exercise
+		cliView.menuChoice();
+
+		// verify
+		assertThat(testOutput.toString()).contains("Insert student id: Insert course id: Insert course id: ");
+		verify(controller).removeStudentFromCourse(testStudent, testCourse);
 	}
 }
