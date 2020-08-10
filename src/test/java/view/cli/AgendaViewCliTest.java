@@ -302,6 +302,7 @@ public class AgendaViewCliTest {
 	@Test
 	public void testAddCourseWithEmptyCfu() {
 		// setup
+		Course testCourse = new Course("1", "test course", "9");
 		String userInput = "4\n1\ntest course\n \n9";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
@@ -311,7 +312,22 @@ public class AgendaViewCliTest {
 		
 		// verify
 		assertThat(testOutput.toString()).contains("Insert course id: Insert course name: Insert course CFU: Insert course CFU: ");
-		verify(controller).addCourse(new Course("1", "test course", "9"));		
+		verify(controller).addCourse(testCourse);
+	}
+	
+	@Test
+	public void testAddCourseWithNotAllowedCfu() {
+		// setup
+		Course testCourse = new Course("1", "test course", "9");
+		String userInput = "4\n1\ntest course\n333\n9";
+		testInput = new ByteArrayInputStream(userInput.getBytes());
+		cliView.setInput(testInput);
+		
+		// exercise
+		cliView.menuChoice();
+		
+		// verify
+		verify(controller).addCourse(testCourse);
 	}
 
 	@Test
@@ -582,17 +598,18 @@ public class AgendaViewCliTest {
 
 	@Test
 	public void testAddCourse() {
-		// Setup
+		// setup
+		Course testCourse = new Course("1", "test course", "9");
 		String userInput = "4\n1\ntest course\n9";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		cliView.setInput(testInput);
 
-		// Exercise
+		// exercise
 		cliView.menuChoice();
 
 		// verify
-		assertThat(testOutput.toString()).contains("Insert course id: Insert course name: ");
-		verify(controller).addCourse(new Course("1", "test course", "9"));
+		assertThat(testOutput.toString()).contains("Insert course id: Insert course name: Insert course CFU: ");
+		verify(controller).addCourse(testCourse);
 	}
 
 	@Test
@@ -693,6 +710,8 @@ public class AgendaViewCliTest {
 		assertThat(testOutput.toString()).hasToString("Student with id " + testStudent.getId()
 				+ " removed from course with id " + testCourse.getId() + NEWLINE);
 	}
+	
+	
 
 	@Test
 	public void testNotifyStudentNotRemovedFromCourse() {
