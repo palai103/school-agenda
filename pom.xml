@@ -152,6 +152,7 @@
 				<configuration>
 					<excludedClasses>
 						<param>*Test</param>
+						<param>*IT</param>
 						<param>model.*</param>
 						<param>view.*</param>
 						<param>repository.TransactionManagerMongo*</param>
