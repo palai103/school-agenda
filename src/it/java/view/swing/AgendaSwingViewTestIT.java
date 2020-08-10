@@ -47,7 +47,6 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	private MongoClient client;
 	private StudentMongoRepository studentRepository;
 	private CourseMongoRepository courseRepository;
-	private ClientSession clientSession;
 	private AgendaSwingView agendaSwingView;
 	private AgendaController agendaController;
 	private AgendaService agendaService;
@@ -61,7 +60,6 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	@Override
 	protected void onSetUp() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
-		clientSession = client.startSession();
 		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS);
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES);
 		transactionManager = new TransactionManagerMongo(client, studentRepository, courseRepository);
@@ -110,8 +108,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
 		Student testStudent2 = new Student("2", "test student 2");
-		studentRepository.save(clientSession, testStudent1);
-		studentRepository.save(clientSession, testStudent2);
+		studentRepository.save(testStudent1);
+		studentRepository.save(testStudent2);
 
 		// exercise
 		GuiActionRunner.execute(() -> {
@@ -142,7 +140,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	public void testAddNewStudentButtonError() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		studentRepository.save(clientSession, testStudent);
+		studentRepository.save(testStudent);
 		window.textBox("studentIDTextField").enterText("1");
 		window.textBox("studentNameTextField").enterText("test student");
 
@@ -302,8 +300,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		getCoursesPanel();
 		Course testCourse1 = new Course("1", "test course 1", "9");
 		Course testCourse2 = new Course("2", "test course 2", "9");
-		courseRepository.save(clientSession, testCourse1);
-		courseRepository.save(clientSession, testCourse2);
+		courseRepository.save(testCourse1);
+		courseRepository.save(testCourse2);
 
 		// exercise
 		GuiActionRunner.execute(() -> {
@@ -320,7 +318,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		// setup
 		getCoursesPanel();
 		Course testCourse = new Course("1", "test course", "9");
-		courseRepository.save(clientSession, testCourse);
+		courseRepository.save(testCourse);
 		window.textBox("courseIDTextField").enterText("1");
 		window.textBox("courseNameTextField").enterText("test course");
 		window.textBox("courseCFUTextField").enterText("9");

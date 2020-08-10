@@ -113,6 +113,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 			}
 		};
 		
+		setTitle("School Agenda");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 700, 500);
 		contentPane = new JPanel();

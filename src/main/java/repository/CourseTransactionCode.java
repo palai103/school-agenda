@@ -1,10 +1,8 @@
 package repository;
 
-import java.util.function.BiFunction;
-
-import com.mongodb.client.ClientSession;
+import java.util.function.Function;
 
 @FunctionalInterface
-public interface CourseTransactionCode<T>  extends BiFunction<CourseRepository, ClientSession, T> {
+public interface CourseTransactionCode<T>  extends Function<CourseRepository, T> {
 
 }

@@ -16,7 +16,6 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 
 import model.Course;
@@ -31,7 +30,6 @@ public class CourseMongoRepositoryTest {
 	@ClassRule
 	public static final GenericContainer mongo = new GenericContainer("krnbr/mongo").withExposedPorts(27017);
 	private MongoClient client;
-	private ClientSession clientSession;
 	private CourseMongoRepository courseMongoRepository;
 	private MongoCollection<Document> courseCollection;
 	private MongoCollection<Document> studentCollection;
@@ -39,7 +37,6 @@ public class CourseMongoRepositoryTest {
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
-		clientSession = client.startSession();
 		courseMongoRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION);
 		client.getDatabase(DB_NAME).drop();
 		client.getDatabase(DB_NAME).createCollection(DB_COLLECTION);
@@ -55,7 +52,7 @@ public class CourseMongoRepositoryTest {
 
 	@Test
 	public void testFindAllCoursesWhenCollectionIsEmptyShouldReturnEmptyList() {
-		assertThat(courseMongoRepository.findAll(clientSession)).isEqualTo(Collections.emptyList());
+		assertThat(courseMongoRepository.findAll()).isEqualTo(Collections.emptyList());
 	}
 
 	@Test
@@ -64,7 +61,7 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("id", "testCourse", "9", Collections.emptyList());
 
 		// exercise
-		List<Course> courses = courseMongoRepository.findAll(clientSession);
+		List<Course> courses = courseMongoRepository.findAll();
 
 		// verify
 		assertThat(courses).containsExactly(new Course("id", "testCourse", "9"));
@@ -73,7 +70,7 @@ public class CourseMongoRepositoryTest {
 	@Test
 	public void testFindCourseByIdShouldNotBeFound() {
 		// verify
-		assertThat(courseMongoRepository.findById(clientSession, "id")).isNull();
+		assertThat(courseMongoRepository.findById("id")).isNull();
 	}
 
 	@Test
@@ -82,7 +79,7 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("id", "testCourse", "9", Collections.emptyList());
 
 		// verify
-		assertThat(courseMongoRepository.findById(clientSession, "id")).isEqualTo(new Course("id", "testCourse", "9"));
+		assertThat(courseMongoRepository.findById("id")).isEqualTo(new Course("id", "testCourse", "9"));
 	}
 
 	@Test
@@ -91,7 +88,7 @@ public class CourseMongoRepositoryTest {
 		Course testCourse = new Course("id", "testCourse", "9");
 
 		// exercise
-		courseMongoRepository.save(clientSession, testCourse);
+		courseMongoRepository.save(testCourse);
 
 		// verify
 		assertThat(readAllCoursesFromDatabase()).containsExactly(testCourse);
@@ -103,7 +100,7 @@ public class CourseMongoRepositoryTest {
 		Course testCourse = new Course("id", "testCourse", "9");
 
 		// exercise
-		courseMongoRepository.delete(clientSession, testCourse);
+		courseMongoRepository.delete(testCourse);
 
 		// verify
 		assertThat(readAllCoursesFromDatabase()).isEmpty();
@@ -115,7 +112,7 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("idCourse", "testCourse", "9", Collections.emptyList());
 
 		// exercise
-		List<Student> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
+		List<Student> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
 
 		// verify
 		assertThat(courseStudents).isEqualTo(Collections.emptyList());
@@ -128,7 +125,7 @@ public class CourseMongoRepositoryTest {
 		addTestStudentToDatabase("idStudent", "testStudent", Collections.singletonList("idCourse"));
 
 		// exercise
-		List<Student> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
+		List<Student> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
 
 		// verify
 		assertThat(courseStudents).isEqualTo(Collections.singletonList(new Student("idStudent", "testStudent")));
@@ -144,8 +141,8 @@ public class CourseMongoRepositoryTest {
 		addTestStudentToDatabase(testStudent.getId(), testStudent.getName(), Collections.emptyList());
 
 		// exercise
-		courseMongoRepository.updateCourseStudents(clientSession, "idStudent", "idCourse");
-		List<Student> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
+		courseMongoRepository.updateCourseStudents("idStudent", "idCourse");
+		List<Student> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
 
 		// verify
 		assertThat(courseStudents).containsExactly(testStudent);
@@ -157,8 +154,8 @@ public class CourseMongoRepositoryTest {
 		addTestCourseToDatabase("idCourse", "testCourse", "9", Collections.singletonList("idStudent"));
 
 		// exercise
-		courseMongoRepository.removeCourseStudent(clientSession, "idStudent", "idCourse");
-		List<Student> courseStudents = courseMongoRepository.findCourseStudents(clientSession, "idCourse");
+		courseMongoRepository.removeCourseStudent("idStudent", "idCourse");
+		List<Student> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
 
 		// verify
 		assertThat(courseStudents).isEmpty();

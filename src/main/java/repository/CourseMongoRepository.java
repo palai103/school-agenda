@@ -23,23 +23,33 @@ public class CourseMongoRepository implements CourseRepository{
 	private static final String STUDENTS = "students";
 	private MongoCollection<Document> courseCollection;
 	private MongoCollection<Document> studentCollection;
+	
+	private MongoClient mongoClient;
+	private ClientSession clientSession;
 
 	public CourseMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
+		this.mongoClient = mongoClient;
+		this.clientSession = mongoClient.startSession();
 		courseCollection = mongoClient.getDatabase(dbName).getCollection(dbCollection);
 		studentCollection = mongoClient.getDatabase(dbName).getCollection(STUDENTS);
 	}
 
 	@Override
-	public List<Course> findAll(ClientSession clientSession) {
-		return StreamSupport.
+	public List<Course> findAll() {
+		ClientSession clientSession = mongoClient.startSession();
+		List<Course> coursesToReturn = StreamSupport.
 				stream(courseCollection.find(clientSession).spliterator(), false)
 				.map(this::fromDocumentToCourse)
 				.collect(Collectors.toList());
+		
+		return coursesToReturn;
 	}
 
 	@Override
-	public Course findById(ClientSession clientSession, String id) {
+	public Course findById(String id) {
+		ClientSession clientSession = mongoClient.startSession();
 		Document document  = courseCollection.find(clientSession, Filters.eq(ID, id)).first();
+		
 		if(document != null) {
 			return fromDocumentToCourse(document);
 		}
@@ -47,34 +57,43 @@ public class CourseMongoRepository implements CourseRepository{
 	}
 
 	@Override
-	public void save(ClientSession clientSession, Course course) {
+	public void save(Course course) {
+		ClientSession clientSession = mongoClient.startSession();
 		courseCollection.insertOne(clientSession,
 				new Document()
 				.append(ID, course.getId())
 				.append("name", course.getName())
 				.append("cfu", course.getCFU())
 				.append(STUDENTS, Collections.emptyList()));
+		
 	}
 
 	@Override
-	public void delete(ClientSession clientSession, Course course) {
-		courseCollection.deleteOne(clientSession, Filters.eq(ID, course.getId()));		
+	public void delete(Course course) {
+		ClientSession clientSession = mongoClient.startSession();
+		courseCollection.deleteOne(clientSession, Filters.eq(ID, course.getId()));	
+		
 	}
 
 	@Override
-	public void updateCourseStudents(ClientSession clientSession, String studentId, String courseId) {
+	public void updateCourseStudents(String studentId, String courseId) {
+		ClientSession clientSession = mongoClient.startSession();
 		courseCollection.updateOne(clientSession, Filters.eq(ID, courseId), 
-				Updates.push(STUDENTS, studentId));		
+				Updates.push(STUDENTS, studentId));
+		
 	}
 
 	@Override
-	public void removeCourseStudent(ClientSession clientSession, String studentId, String courseId) {
+	public void removeCourseStudent(String studentId, String courseId) {
+		ClientSession clientSession = mongoClient.startSession();
 		courseCollection.updateOne(clientSession, Filters.eq(ID, courseId), 
-				Updates.pull(STUDENTS, studentId));		
+				Updates.pull(STUDENTS, studentId));
+		
 	}
 	
 	@Override
-	public List<Student> findCourseStudents(ClientSession clientSession, String courseId) {	
+	public List<Student> findCourseStudents(String courseId) {
+		ClientSession clientSession = mongoClient.startSession();
 		List<String> studentIds = courseCollection.find(clientSession, Filters.eq(ID, courseId))
 				.first().getList(STUDENTS, String.class);
 		List<Student> returnedStudents = new ArrayList<>();
@@ -82,6 +101,7 @@ public class CourseMongoRepository implements CourseRepository{
 			returnedStudents.add(fromDocumentToStudent(studentCollection
 					.find(clientSession, Filters.eq(ID, student)).first()));
 		}
+		
 		return returnedStudents;
 	}
 	
@@ -91,5 +111,9 @@ public class CourseMongoRepository implements CourseRepository{
 
 	private Student fromDocumentToStudent(Document document) {
 		return new Student(document.getString(ID), document.getString("name"));
+	}
+
+	public ClientSession getClientSession() {
+		return clientSession;
 	}
 }

@@ -4,7 +4,6 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-import java.awt.print.PrinterIOException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -18,7 +17,6 @@ import org.mockito.MockitoAnnotations;
 import controller.AgendaController;
 import model.Course;
 import model.Student;
-import view.cli.AgendaViewCli;
 
 public class AgendaViewCliTest {
 

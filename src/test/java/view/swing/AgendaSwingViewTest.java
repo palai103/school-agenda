@@ -4,14 +4,10 @@ import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
 
-import java.awt.Frame;
-
 import javax.swing.DefaultListModel;
 
 import org.assertj.swing.annotation.GUITest;
-import org.assertj.swing.driver.FrameDriver;
 import org.assertj.swing.edt.GuiActionRunner;
-import org.assertj.swing.fixture.AbstractContainerFixture;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JButtonFixture;
 import org.assertj.swing.fixture.JPanelFixture;
