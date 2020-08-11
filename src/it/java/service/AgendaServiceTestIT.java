@@ -56,7 +56,7 @@ public class AgendaServiceTestIT {
 		database.createCollection(DB_COLLECTION_STUDENTS);
 		database.createCollection(DB_COLLECTION_COURSES);
 		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
-		courseCollection = database.getCollection(DB_COLLECTION_COURSES);		
+		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
 		agendaService = new AgendaService(transactionManagerMongo);
 	}
 
@@ -95,7 +95,7 @@ public class AgendaServiceTestIT {
 	public void testFindCourse() {
 		// setup
 		Course testCourse = new Course("1", "test course 1", "9");
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), Collections.emptyList());
 
 		// exercise
 		Boolean foundCourse = agendaService.findCourse(testCourse);
@@ -135,7 +135,7 @@ public class AgendaServiceTestIT {
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), Collections.emptyList());
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), Collections.emptyList());
 
 		// exercise
 		agendaService.addCourseToStudent(testStudent, testCourse);
@@ -150,7 +150,7 @@ public class AgendaServiceTestIT {
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), asList(testStudent.getId()));
 
 		// exercise
 		agendaService.removeCourseFromStudent(testStudent, testCourse);
@@ -165,7 +165,7 @@ public class AgendaServiceTestIT {
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), asList(testStudent.getId()));
 
 		// exercise
 		Boolean studentHasCourse = agendaService.studentHasCourse(testStudent, testCourse);
@@ -190,7 +190,7 @@ public class AgendaServiceTestIT {
 	public void testRemoveCourse() {
 		// setup
 		Course testCourse = new Course("1", "test course 1", "9");
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), Collections.emptyList());
 
 		// exercise
 		agendaService.removeCourse(testCourse);
@@ -205,7 +205,7 @@ public class AgendaServiceTestIT {
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), asList(testStudent.getId()));
 
 		// exercise
 		Boolean courseHasStudent = agendaService.courseHasStudent(testStudent, testCourse);
@@ -220,7 +220,7 @@ public class AgendaServiceTestIT {
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), asList(testCourse.getId()));
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), asList(testStudent.getId()));
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), asList(testStudent.getId()));
 
 		// exercise
 		agendaService.removeStudentFromCourse(testStudent, testCourse);
@@ -235,7 +235,7 @@ public class AgendaServiceTestIT {
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
 		addStudentToDatabase(testStudent.getId(), testStudent.getName(), Collections.emptyList());
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), Collections.emptyList());
 
 		// exercise
 		agendaService.addStudentToCourse(testStudent, testCourse);
@@ -248,7 +248,7 @@ public class AgendaServiceTestIT {
 	public void testGetAllCourses() {
 		// setup
 		Course testCourse = new Course("1", "test course 1", "9");
-		addCourseToDatabase(testCourse.getId(), testCourse.getName(), Collections.emptyList());
+		addCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(), Collections.emptyList());
 
 		// exercise
 		List<Course> courses = agendaService.getAllCourses();
@@ -269,27 +269,19 @@ public class AgendaServiceTestIT {
 		studentCollection.insertOne(new Document().append("id", id).append("name", name).append("courses", courses));
 	}
 
-	
-	
-	
 	private List<Student> readAllStudentsFromDatabase() {
 		return StreamSupport.stream(studentCollection.find().spliterator(), false)
 				.map(d -> new Student(d.getString("id"), d.getString("name"))).collect(Collectors.toList());
 	}
 
-	
-	
-	
-	
-	private void addCourseToDatabase(String id, String name, List<String> students) {
-		courseCollection.insertOne(new Document().append("id", id).append("name", name).append("students", students));
+	private void addCourseToDatabase(String id, String name, String CFU, List<String> students) {
+		courseCollection.insertOne(
+				new Document().append("id", id).append("name", name).append("cfu", CFU).append("students", students));
 	}
 
-	
-	
-	
 	private List<Course> readAllCourseFromDatabase() {
 		return StreamSupport.stream(courseCollection.find().spliterator(), false)
-				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu"))).collect(Collectors.toList());
+				.map(d -> new Course(d.getString("id"), d.getString("name"), d.getString("cfu")))
+				.collect(Collectors.toList());
 	}
 }

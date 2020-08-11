@@ -220,47 +220,43 @@ public class AgendaViewCli implements AgendaView {
 	}
 
 	private void showAllCourseStudentsCallController() {
-		printStream.print(INSERT_COURSE_ID);
-		String courseId = scanner.nextLine();
+		String courseId = getCourseIdFromUser();
 		controller.getAllCourseStudents(new Course(courseId, "", ""));
 	}
 
 	private void showAllStudentCoursesCallController() {
-		printStream.print(INSERT_STUDENT_ID);
-		String studentId = scanner.nextLine();
+		String studentId = getStudentIdFromUser();
 		controller.getAllStudentCourses(new Student(studentId, ""));
 	}
 
 	private void removeStudentToCourseCallController() {
-		printStream.print(INSERT_STUDENT_ID);
-		String studentId = scanner.nextLine();
-		printStream.print(INSERT_COURSE_ID);
-		String courseId = scanner.nextLine();
+		String studentId = getStudentIdFromUser();
+		String courseId = getCourseIdFromUser();
+		String finalStudentId = studentId;
 		Student studentToFind;
 		try {
-			studentToFind = students.stream().filter(
-					student -> student.getId().equals(studentId)).collect(Collectors.toList()).get(0);
+			studentToFind = students.stream().filter(student -> student.getId().equals(finalStudentId))
+					.collect(Collectors.toList()).get(0);
 		} catch (Exception e) {
-			studentToFind = new Student(studentId, "");
+			studentToFind = new Student(finalStudentId, "");
 		}
 		controller.removeStudentFromCourse(studentToFind, new Course(courseId, "", ""));
+
 	}
 
 	private void addStudentToCourseCallController() {
-		printStream.print(INSERT_STUDENT_ID);
-		String studentId = scanner.nextLine();
-		printStream.print(INSERT_COURSE_ID);
-		String courseId = scanner.nextLine();
+		String studentId = getStudentIdFromUser();
+		String courseId = getCourseIdFromUser();
 		controller.addStudentToCourse(new Student(studentId, ""), new Course(courseId, "", ""));
 	}
 
 	private void removeCourseCallControler() {
-		printStream.print(INSERT_COURSE_ID);
-		String id = scanner.nextLine();
+		String id = getCourseIdFromUser();
 		Course courseToFind;
+		String finalId = id;
 		try {
-			courseToFind = courses.stream().filter(
-					course -> course.getId().equals(id)).collect(Collectors.toList()).get(0);
+			courseToFind = courses.stream().filter(course -> course.getId().equals(finalId))
+					.collect(Collectors.toList()).get(0);
 		} catch (Exception e) {
 			courseToFind = new Course(id, "", "");
 		}
@@ -268,15 +264,13 @@ public class AgendaViewCli implements AgendaView {
 	}
 
 	private void addCourseCallController() {
-		printStream.print(INSERT_COURSE_ID);
-		String id = scanner.nextLine();
-		printStream.print("Insert course name: ");
-		String name = scanner.nextLine();
-		printStream.print("Insert course CFU: ");
-		String cfu = scanner.nextLine();
-		controller.addCourse(new Course(id, name, cfu));
-		courses.add(new Course(id, name, cfu));
+		String courseId = getCourseIdFromUser();
+		String courseName = getCourseNameFromUser();
+		String courseCfu = getCourseCfuFromUser();
+		controller.addCourse(new Course(courseId, courseName, courseCfu));
+		courses.add(new Course(courseId, courseName, courseCfu));
 	}
+
 
 	public List<Student> getStudents() {
 		return students;
@@ -287,14 +281,13 @@ public class AgendaViewCli implements AgendaView {
 	}
 
 	private void removeCourseToStudentCallController() {
-		printStream.print(INSERT_STUDENT_ID);
-		String studentId = scanner.nextLine();
-		printStream.print(INSERT_COURSE_ID);
-		String courseId = scanner.nextLine();
+		String studentId = getStudentIdFromUser();
+		String courseId = getCourseIdFromUser();
+		String finalCourseId = courseId;
 		Course courseToFind;
 		try {
-			courseToFind = courses.stream().filter(
-					course -> course.getId().equals(courseId)).collect(Collectors.toList()).get(0);
+			courseToFind = courses.stream().filter(course -> course.getId().equals(finalCourseId))
+					.collect(Collectors.toList()).get(0);
 		} catch (Exception e) {
 			courseToFind = new Course(courseId, "", "");
 		}
@@ -302,33 +295,36 @@ public class AgendaViewCli implements AgendaView {
 	}
 
 	private void addCourseToStudentCallController() {
-		printStream.print(INSERT_STUDENT_ID);
-		String studentId = scanner.nextLine();
-		printStream.print(INSERT_COURSE_ID);
-		String courseId = scanner.nextLine();
+		String studentId = getStudentIdFromUser();
+		String courseId = getCourseIdFromUser();
 		controller.addCourseToStudent(new Student(studentId, ""), new Course(courseId, "", ""));
 	}
 
 	private void removeStudentCallController() {
-		printStream.print(INSERT_STUDENT_ID);
-		String id = scanner.nextLine();
+		String studentId = getStudentIdFromUser();
+		// done because we can't use id inside the lambda (the scope is not enough and
+		// we can't make id final), so we have to define another
+		// String with the same value
+		String finalId = studentId;
 		Student studentToFind;
 		try {
-			studentToFind = students.stream().filter(
-					student -> student.getId().equals(id)).collect(Collectors.toList()).get(0);
+			studentToFind = students.stream().filter(student -> student.getId().equals(finalId))
+					.collect(Collectors.toList()).get(0);
 		} catch (Exception e) {
-			studentToFind = new Student(id, "");
+			studentToFind = new Student(studentId, "");
 		}
 		controller.removeStudent(studentToFind);
 	}
 
 	private void addStudentCallController() {
-		printStream.print(INSERT_STUDENT_ID);
-		String id = scanner.nextLine();
-		printStream.print("Insert student name: ");
-		String name = scanner.nextLine();
-		controller.addStudent(new Student(id, name));
-		students.add(new Student(id, name));
+		String studentId = getStudentIdFromUser();
+		String name = "";
+		do {
+			printStream.print("Insert student name: ");
+			name = scanner.nextLine();
+		} while (name.trim().isEmpty());
+		controller.addStudent(new Student(studentId, name));
+		students.add(new Student(studentId, name));
 	}
 
 	private void showAllStudentsCallController() {
@@ -337,5 +333,41 @@ public class AgendaViewCli implements AgendaView {
 
 	private void showAllCoursesCallController() {
 		controller.getAllCourses();
+	}
+
+	private String getCourseIdFromUser() {
+		String courseId = "";
+		do {
+			printStream.print(INSERT_COURSE_ID);
+			courseId = scanner.nextLine();
+		} while (courseId.trim().isEmpty());
+		return courseId;
+	}
+
+	private String getStudentIdFromUser() {
+		String studentId = "";
+		do {
+			printStream.print(INSERT_STUDENT_ID);
+			studentId = scanner.nextLine();
+		} while (studentId.trim().isEmpty());
+		return studentId;
+	}
+
+	private String getCourseCfuFromUser() {
+		String courseCfu = "";
+		do {
+			printStream.print("Insert course CFU: ");
+			courseCfu = scanner.nextLine();
+		} while (courseCfu.trim().isEmpty() || !courseCfu.trim().matches("^[1-9][0-9]?$|^100$"));
+		return courseCfu;
+	}
+
+	private String getCourseNameFromUser() {
+		String courseName = "";
+		do {
+			printStream.print("Insert course name: ");
+			courseName = scanner.nextLine();
+		} while (courseName.trim().isEmpty());
+		return courseName;
 	}
 }
