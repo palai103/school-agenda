@@ -55,6 +55,7 @@ public class AgendaSwingApp implements Callable<Void> {
 				agendaSwingView.setAgendaController(agendaController);
 				agendaSwingView.setVisible(true);
 				agendaController.getAllStudents();
+				agendaController.getAllCourses();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

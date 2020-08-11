@@ -3,6 +3,7 @@ package view.swing;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.swing.DefaultListModel;
 
@@ -21,10 +22,15 @@ import org.mockito.MockitoAnnotations;
 import controller.AgendaController;
 import model.Course;
 import model.Student;
+import repository.StudentRepository;
+import service.AgendaService;
 
 public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	@Mock
+	private AgendaService agendaService;
+	@Mock
 	private AgendaController agendaController;
+	
 	private AgendaSwingView agendaSwingView;
 	private FrameFixture window;
 	private JPanelFixture contentPanel;
@@ -146,6 +152,17 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	}
 
 	@Test
+	public void testGetAllStudentCoursesIsCalledWhenAStudentIsSelected() {
+		Student testStudent = new Student("1", "test student");
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListStudentsModel().addElement(testStudent));
+		
+		window.list("studentsList").selectItem(0);
+		
+		verify(agendaController).getAllStudentCourses(testStudent);
+	}
+
+	@Test
 	public void testAddStudentToCourseAndAddCourseToStudentShouldBeEnabledWhenAStudentAndACourseAreSelected() {		
 		GuiActionRunner.execute(() -> {
 			agendaSwingView.getListStudentsModel().addElement(new Student("1", "test student"));
@@ -200,6 +217,18 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		
 		window.list("studentCoursesList").clearSelection();
 		removeCourseFromStudentButton.requireDisabled();
+	}
+	
+	@Test
+	public void testGetAllCourseStudentsIsCalledWhenACourseIsSelected() {
+		getCoursesPanel();
+		
+		Course testCourse = new Course("1", "test course", "9");
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListCoursesModel().addElement(testCourse));
+		
+		window.list("coursesList").selectItem(0);		
+		verify(agendaController).getAllCourseStudents(testCourse);
 	}
 	
 	@Test

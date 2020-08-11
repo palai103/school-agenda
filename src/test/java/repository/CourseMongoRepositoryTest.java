@@ -1,6 +1,7 @@
 package repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Arrays.asList;
 
 import java.util.Collections;
 import java.util.List;
@@ -151,14 +152,20 @@ public class CourseMongoRepositoryTest {
 	@Test
 	public void testRemoveStudentFromCourseWhenCourseIsNotNull() {
 		// setup
-		addTestCourseToDatabase("idCourse", "testCourse", "9", Collections.singletonList("idStudent"));
+		Course testCourse = new Course("1", "test course", "9");
+		Student testStudent1 = new Student("1", "course test student 1");
+		Student testStudent2 = new Student("2", "course test student 2");
+		addTestCourseToDatabase(testCourse.getId(), testCourse.getName(), testCourse.getCFU(),
+				asList(testStudent1.getId(), testStudent2.getId()));
+		addTestStudentToDatabase(testStudent1.getId(), testStudent1.getName(), Collections.emptyList());
+		addTestStudentToDatabase(testStudent2.getId(), testStudent2.getName(), Collections.emptyList());
 
 		// exercise
-		courseMongoRepository.removeCourseStudent("idStudent", "idCourse");
-		List<Student> courseStudents = courseMongoRepository.findCourseStudents("idCourse");
+		courseMongoRepository.removeCourseStudent(testStudent1.getId(), testCourse.getId());
+		List<Student> courseStudents = courseMongoRepository.findCourseStudents(testCourse.getId());
 
 		// verify
-		assertThat(courseStudents).isEmpty();
+		assertThat(courseStudents).containsExactly(testStudent2);
 	}
 
 	private void addTestCourseToDatabase(String id, String name, String CFU, List<String> students) {
