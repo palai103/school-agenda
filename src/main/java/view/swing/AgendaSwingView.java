@@ -230,15 +230,14 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		studentsList = new JList<>(studentsListModel);
 		studentsList.addListSelectionListener(e -> {
 			btnRemoveStudent.setEnabled(studentsList.getSelectedIndex() != -1);
-			btnAddCourseToStudent.setEnabled(studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1);
-			btnAddStudentToCourse.setEnabled(studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1);
+			Boolean btnAddCourseToStudentCondition = studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1;
+			Boolean btnAddStudentToCourseCondition = studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1;
+			btnAddCourseToStudent.setEnabled(btnAddCourseToStudentCondition);
+			btnAddStudentToCourse.setEnabled(btnAddStudentToCourseCondition);
 
 			// Prevent multiple firings
 			if (!e.getValueIsAdjusting()) {
-				if (studentsList.getSelectedIndex() != -1)
-					agendaController.getAllStudentCourses(studentsList.getSelectedValue());
-				else
-					studentCoursesListModel.clear();
+				showStudentCourses();
 			}
 		});
 
@@ -408,15 +407,14 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		coursesList = new JList<>(coursesListModel);
 		coursesList.addListSelectionListener(e -> {
 			btnRemoveCourse.setEnabled(coursesList.getSelectedIndex() != -1);
-			btnAddCourseToStudent.setEnabled(coursesList.getSelectedIndex() != -1 && studentsList.getSelectedIndex() != -1);
-			btnAddStudentToCourse.setEnabled(coursesList.getSelectedIndex() != -1 && studentsList.getSelectedIndex() != -1);
+			Boolean btnAddCourseToStudentCondition = studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1;
+			Boolean btnAddStudentToCourseCondition = studentsList.getSelectedIndex() != -1 && coursesList.getSelectedIndex() != -1;
+			btnAddCourseToStudent.setEnabled(btnAddCourseToStudentCondition);
+			btnAddStudentToCourse.setEnabled(btnAddStudentToCourseCondition);
 
 			// Prevent multiple firings
 			if (!e.getValueIsAdjusting()) {
-				if(coursesList.getSelectedIndex() != -1)
-					agendaController.getAllCourseStudents(coursesList.getSelectedValue());
-				else
-					courseStudentsListModel.clear();
+				showCourseStudents();
 			}	
 		});
 
@@ -471,6 +469,20 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 		gbcLblCourseMessage.gridx = 1;
 		gbcLblCourseMessage.gridy = 15;
 		courseTab.add(lblCourseMessage, gbcLblCourseMessage);
+	}
+
+	private void showStudentCourses() {
+		if (studentsList.getSelectedIndex() != -1)
+			agendaController.getAllStudentCourses(studentsList.getSelectedValue());
+		else
+			studentCoursesListModel.clear();
+	}
+
+	private void showCourseStudents() {
+		if(coursesList.getSelectedIndex() != -1)
+			agendaController.getAllCourseStudents(coursesList.getSelectedValue());
+		else
+			courseStudentsListModel.clear();
 	}
 
 	@Override
