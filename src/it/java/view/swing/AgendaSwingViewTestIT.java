@@ -419,7 +419,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 
 		// exercise
 		window.button("removeStudentFromCourseButton").click();
-
+		
 		// verify
 		assertThat(window.list("courseStudentsList").contents()).isEmpty();
 		window.label("courseMessageLabel")
@@ -449,4 +449,46 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		.requireText(testCourse.toString() + " removed from " + testStudent.toString());
 	}
 
+	@Test
+	public void testRemoveStudentFromCourseButtonError() {
+		// setup
+		Course testCourse = new Course("1", "test course", "9");
+		Student testStudent = new Student("1", "test student");
+		GuiActionRunner.execute(() -> {
+			agendaController.addCourse(testCourse);
+			agendaSwingView.getListCourseStudentsModel().addElement(testStudent);
+		});
+		getCoursesPanel();
+		window.list("coursesList").selectItem(0);
+		window.list("courseStudentsList").selectItem(0);
+		studentRepository.delete(testStudent);
+
+		// exercise
+		window.button("removeStudentFromCourseButton").click();
+		
+		// verify
+		window.label("courseMessageLabel")
+		.requireText("ERROR! " + testStudent.toString() + " NOT removed from " + testCourse.toString());
+	}
+
+	@Test
+	public void testRemoveCourseFromStudentButtonError() {
+		// setup
+		Student testStudent = new Student("1", "test student");
+		Course testCourse = new Course("2", "test course (not in db)", "9");
+		GuiActionRunner.execute(() -> {
+			agendaController.addStudent(testStudent);
+			agendaSwingView.getListStudentCoursesModel().addElement(testCourse);
+		});
+		
+		window.list("studentsList").selectItem(0);
+		window.list("studentCoursesList").selectItem(0);
+
+		// execerise
+		window.button("removeCourseFromStudentButton").click();
+
+		// verify
+		window.label("studentMessageLabel")
+		.requireText("ERROR! " + testCourse.toString() + " NOT removed from " + testStudent.toString());
+	}
 }

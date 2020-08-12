@@ -4,6 +4,8 @@ import java.util.List;
 
 import model.Course;
 import model.Student;
+import repository.CourseRepository;
+import repository.StudentRepository;
 import repository.TransactionManager;
 
 public class AgendaService {
@@ -15,7 +17,7 @@ public class AgendaService {
 	}
 
 	public List<Student> getAllStudents() {
-		return transactionManager.studentTransaction(studentRepository -> studentRepository.findAll());
+		return transactionManager.studentTransaction(StudentRepository::findAll);
 	}
 
 	public Boolean findStudent(Student student) {
@@ -123,7 +125,7 @@ public class AgendaService {
 	}
 
 	public List<Course> getAllCourses() {
-		return transactionManager.courseTransaction(courseRepository -> courseRepository.findAll());
+		return transactionManager.courseTransaction(CourseRepository::findAll);
 	}
 
 	public List<Course> getAllStudentCourses(Student student) {

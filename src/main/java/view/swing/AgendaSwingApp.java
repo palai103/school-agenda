@@ -19,20 +19,26 @@ import service.AgendaService;
 @Command(mixinStandardHelpOptions = true)
 public class AgendaSwingApp implements Callable<Void> {
 
+	private static final int MONGO_PORT = 27017;
+	private static final String DB_COURSES_COLLECTION = "courses";
+	private static final String DB_STUDENTS_COLLECTION = "students";
+	private static final String MONGO_ADDRESS = "locahost";
+	private static final String DB_NAME = "schoolagenda";
+
 	@Option(names = { "--mongo-host" }, description = "MongoDB host address")
-	private String mongoHost = "locahost";
+	private String mongoHost = MONGO_ADDRESS;
 
 	@Option(names = { "--mongo-port" }, description = "MongoDB host port")
-	private int mongoPort = 27017;
+	private int mongoPort = MONGO_PORT;
 
 	@Option(names = { "--db-name" }, description = "Database name")
-	private String databaseName = "schoolagenda";
+	private String databaseName = DB_NAME;
 
 	@Option(names = { "--db-students-collection" }, description = "Student collection name")
-	private String studentCollectionName = "students";
+	private String studentCollectionName = DB_STUDENTS_COLLECTION;
 
 	@Option(names = { "--db-courses-collection" }, description = "Courses collection name")
-	private String courseCollectionName = "courses";
+	private String courseCollectionName = DB_COURSES_COLLECTION;
 
 	public static void main(String[] args) {
 		new CommandLine(new AgendaSwingApp()).execute(args);
@@ -43,11 +49,11 @@ public class AgendaSwingApp implements Callable<Void> {
 		EventQueue.invokeLater(() -> {
 			try {
 				MongoClient mongoClient = new MongoClient(new ServerAddress(mongoHost, mongoPort));
-				StudentMongoRepository studentMongoRepository = new StudentMongoRepository(mongoClient, "schoolagenda",
-						"students");
+				StudentMongoRepository studentMongoRepository = new StudentMongoRepository(mongoClient, DB_NAME,
+						DB_STUDENTS_COLLECTION);
 				AgendaSwingView agendaSwingView = new AgendaSwingView();
-				CourseMongoRepository courseMongoRepository = new CourseMongoRepository(mongoClient, "schoolagenda",
-						"courses");
+				CourseMongoRepository courseMongoRepository = new CourseMongoRepository(mongoClient, DB_NAME,
+						DB_COURSES_COLLECTION);
 				TransactionManager transactionManager = new TransactionManagerMongo(mongoClient, studentMongoRepository,
 						courseMongoRepository);
 				AgendaService agendaService = new AgendaService(transactionManager);

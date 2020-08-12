@@ -26,19 +26,18 @@ public class StudentMongoRepository implements StudentRepository{
 	private MongoCollection<Document> courseCollection;
 	
 	private MongoClient mongoClient;
-	private ClientSession clientSession;
 
 	public StudentMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
 		this.mongoClient = mongoClient;
-		this.clientSession = mongoClient.startSession();
 		studentCollection = mongoClient.getDatabase(dbName).getCollection(dbCollection);
 		courseCollection = mongoClient.getDatabase(dbName).getCollection(COURSES);
 	}
 
 	@Override
 	public List<Student> findAll() {
+		ClientSession clientSession = mongoClient.startSession();
 		return StreamSupport.
-				stream(studentCollection.find(getClientSession()).spliterator(), false)
+				stream(studentCollection.find(clientSession).spliterator(), false)
 				.map(this::fromDocumentToStudent)
 				.collect(Collectors.toList());
 	}
@@ -108,9 +107,5 @@ public class StudentMongoRepository implements StudentRepository{
 	
 	private Course fromDocumentToCourse(Document document) {
 		return new Course(document.getString(ID), document.getString("name"), document.getString("cfu"));
-	}
-
-	public ClientSession getClientSession() {
-		return clientSession;
 	}
 }
