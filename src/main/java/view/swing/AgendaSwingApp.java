@@ -47,24 +47,20 @@ public class AgendaSwingApp implements Callable<Void> {
 	@Override
 	public Void call() throws Exception {
 		EventQueue.invokeLater(() -> {
-			try {
-				MongoClient mongoClient = new MongoClient(new ServerAddress(mongoHost, mongoPort));
-				StudentMongoRepository studentMongoRepository = new StudentMongoRepository(mongoClient, DB_NAME,
-						DB_STUDENTS_COLLECTION);
-				AgendaSwingView agendaSwingView = new AgendaSwingView();
-				CourseMongoRepository courseMongoRepository = new CourseMongoRepository(mongoClient, DB_NAME,
-						DB_COURSES_COLLECTION);
-				TransactionManager transactionManager = new TransactionManagerMongo(mongoClient, studentMongoRepository,
-						courseMongoRepository);
-				AgendaService agendaService = new AgendaService(transactionManager);
-				AgendaController agendaController = new AgendaController(agendaSwingView, agendaService);
-				agendaSwingView.setAgendaController(agendaController);
-				agendaSwingView.setVisible(true);
-				agendaController.getAllStudents();
-				agendaController.getAllCourses();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+			MongoClient mongoClient = new MongoClient(new ServerAddress(mongoHost, mongoPort));
+			StudentMongoRepository studentMongoRepository = new StudentMongoRepository(mongoClient, DB_NAME,
+					DB_STUDENTS_COLLECTION);
+			AgendaSwingView agendaSwingView = new AgendaSwingView();
+			CourseMongoRepository courseMongoRepository = new CourseMongoRepository(mongoClient, DB_NAME,
+					DB_COURSES_COLLECTION);
+			TransactionManager transactionManager = new TransactionManagerMongo(mongoClient, studentMongoRepository,
+					courseMongoRepository);
+			AgendaService agendaService = new AgendaService(transactionManager);
+			AgendaController agendaController = new AgendaController(agendaSwingView, agendaService);
+			agendaSwingView.setAgendaController(agendaController);
+			agendaSwingView.setVisible(true);
+			agendaController.getAllStudents();
+			agendaController.getAllCourses();
 		});
 		return null;
 	}
