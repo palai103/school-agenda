@@ -24,6 +24,8 @@
 		<logback-classic.version>1.2.3</logback-classic.version>
 		<testcontainers.version>1.10.5</testcontainers.version>
 		<build-helper-maven-plugin.version>3.0.0</build-helper-maven-plugin.version>
+		<picocli.version>4.2.0</picocli.version>
+		<awaitility.version>4.0.3</awaitility.version>
 
 		<sonar.coverage.exclusions>
 			src/main/java/model/*,
@@ -112,6 +114,19 @@
 			<version>${testcontainers.version}</version>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>info.picocli</groupId>
+			<artifactId>picocli</artifactId>
+			<version>${picocli.version}</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<version>${awaitility.version}</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<profiles>
@@ -185,6 +200,7 @@
 						<configuration>
 							<sources>
 								<source>src/it/java</source>
+								<source>src/e2e/java</source>
 							</sources>
 						</configuration>
 					</execution>
@@ -196,10 +212,26 @@
 				<version>2.22.1</version>
 				<executions>
 					<execution>
+						<id>default-it</id>
 						<goals>
 							<goal>integration-test</goal>
 							<goal>verify</goal>
 						</goals>
+					</execution>
+					<execution>
+						<id>e2e-tests</id>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<excludes>
+								<exclude>**/*IT.java</exclude>
+							</excludes>
+							<includes>
+								<include>**/*E2E.java</include>
+							</includes>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
