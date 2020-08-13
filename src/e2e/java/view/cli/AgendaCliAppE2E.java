@@ -11,7 +11,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.List;
-import java.util.Scanner;
 
 import org.bson.Document;
 import org.junit.After;
@@ -41,6 +40,12 @@ public class AgendaCliAppE2E {
 	private static final String DB_NAME = "schoolagenda";
 	private static final String STUDENTS_COLLECTION_NAME = "students";
 	private static final String COURSES_COLLECTION_NAME = "courses";
+	private static final String LOOP_MESSAGE = "--------- Pick a choice: ---------"
+			+ "1) Show all students2) Show all courses3) Add a student4) Add a course"
+			+ "5) Enroll a student to a course (by student)6) Enroll a student to a course (by course)"
+			+ "7) Delete a student enrollment (by student id)8) Delete a student enrollment (by course id)"
+			+ "9) Delete a student10) Delete a course11) Show all student courses"
+			+ "12) Show all course students13) Exit---------------------------------";
 
 	private MongoClient client;
 
@@ -48,6 +53,8 @@ public class AgendaCliAppE2E {
 	public static void classSetup() {
 		try {
 			mongo = Runtime.getRuntime().exec("docker run --name mongo -p 27017:27017 --rm krnbr/mongo:4.2.6");
+			InputStream inputStream = mongo.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -104,11 +111,10 @@ public class AgendaCliAppE2E {
 	}
 
 	@Test
-	public void testAddNewStudentSuccess() {
-		String result = getResponse("1\n3\ntest student 3\n");
+	public void testAddNewStudentSuccess() throws IOException {
+		String result = getResponse("3\n3\ntest student\n");
 		assertThat(result)
-				.hasToString("Insert student id: Insert student name: Added Student [id=3, name=test student 3]");
-
+		.contains("Insert student id: Insert student name: Added Student [id=3, name=test student]");
 	}
 
 	private String getResponse(String input) {
