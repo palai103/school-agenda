@@ -78,10 +78,10 @@ public class AgendaSwingAppE2E extends AssertJSwingJUnitTestCase {
 		addTestCourseToDatabase(COURSE_1_ID, COURSE_1_NAME, COURSE_1_CFU, asList(STUDENT_2_ID));
 		addTestCourseToDatabase(COURSE_2_ID, COURSE_2_NAME, COURSE_2_CFU, asList(STUDENT_1_ID));
 
-		application("view.swing.AgendaSwingApp")
+		application("app.AgendaSwingApp")
 				.withArgs("--mongo-host=" + containerIpAddress, "--mongo-port=" + mappedPort.toString(),
 						"--db-name=" + DB_NAME, "--db-students-collection=" + STUDENTS_COLLECTION_NAME,
-						"--db-courses-collection=" + COURSES_COLLECTION_NAME)
+						"--db-courses-collection=" + COURSES_COLLECTION_NAME, "--interface=gui")
 				.start();
 		window = WindowFinder.findFrame(new GenericTypeMatcher<JFrame>(JFrame.class) {
 			@Override

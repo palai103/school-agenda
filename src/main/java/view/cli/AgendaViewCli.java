@@ -168,7 +168,7 @@ public class AgendaViewCli implements AgendaView {
 
 	public int menuChoice() {
 		showMenu();
-
+		
 		scanner = new Scanner(inputStream);
 		String choice = scanner.nextLine();
 		int code = 0;
