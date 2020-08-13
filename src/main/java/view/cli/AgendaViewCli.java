@@ -247,7 +247,15 @@ public class AgendaViewCli implements AgendaView {
 	private void addStudentToCourseCallController() {
 		String studentId = getStudentIdFromUser();
 		String courseId = getCourseIdFromUser();
-		controller.addStudentToCourse(new Student(studentId, ""), new Course(courseId, "", ""));
+		String finalStudentId = studentId;
+		Student studentToFind;
+		try {
+			studentToFind = students.stream().filter(student -> student.getId().equals(finalStudentId))
+					.collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			studentToFind = new Student(finalStudentId, "");
+		}
+		controller.addStudentToCourse(studentToFind, new Course(courseId, "", ""));
 	}
 
 	private void removeCourseCallControler() {
@@ -297,7 +305,15 @@ public class AgendaViewCli implements AgendaView {
 	private void addCourseToStudentCallController() {
 		String studentId = getStudentIdFromUser();
 		String courseId = getCourseIdFromUser();
-		controller.addCourseToStudent(new Student(studentId, ""), new Course(courseId, "", ""));
+		String finalCourseId = courseId;
+		Course courseToFind;
+		try {
+			courseToFind = courses.stream().filter(course -> course.getId().equals(finalCourseId))
+					.collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			courseToFind = new Course(courseId, "", "");
+		}
+		controller.addCourseToStudent(new Student(studentId, ""), courseToFind);
 	}
 
 	private void removeStudentCallController() {
