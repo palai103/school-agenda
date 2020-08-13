@@ -368,7 +368,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	}
 
 	@Test
-	public void testNotifyCourseAddedToStudentShouldAddToTheListAndShowCourseAddedToStudentMessage() {
+	public void testNotifyCourseAddedToStudentShouldAddToTheListsAndShowCourseAddedToStudentMessage() {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
@@ -399,7 +399,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	}
 
 	@Test
-	public void testNotifyCourseRemovedFromStudentShouldRemoveFromTheListAndShowCourseRemovedFromStudentMessage() {
+	public void testNotifyCourseRemovedFromStudentShouldRemoveFromTheListsAndShowCourseRemovedFromStudentMessage() {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse1 = new Course("1", "student test course 1", "9");
@@ -413,8 +413,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		});
 
 		// verify
-		String[] listContents = window.list("studentCoursesList").contents();
-		assertThat(listContents).containsExactly(testCourse2.toString());
+		assertThat(window.list("studentCoursesList").contents()).doesNotContain(testCourse1.toString());
 		window.label("studentMessageLabel").requireText(testCourse1.toString() + " removed from " + testStudent.toString());
 	}
 

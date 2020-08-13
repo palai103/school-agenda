@@ -6,6 +6,7 @@ import java.awt.Frame;
 import java.net.InetSocketAddress;
 import java.util.Collections;
 
+import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.driver.FrameDriver;
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.AbstractContainerFixture;
@@ -224,6 +225,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		// verify
 		assertThat(window.list("studentCoursesList").contents()).containsExactly(testCourse.toString());
 		window.label("studentMessageLabel").requireText(testCourse.toString() + " added to " + testStudent.toString());
+		getCoursesPanel();
+		assertThat(window.list("courseStudentsList").contents()).containsExactly(testStudent.toString());
 	}
 
 	@Test
@@ -270,6 +273,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		// verify
 		assertThat(window.list("courseStudentsList").contents()).containsExactly(testStudent.toString());
 		window.label("courseMessageLabel").requireText(testStudent.toString() + " added to " + testCourse.toString());
+		getStudentsPanel();
+		assertThat(window.list("studentCoursesList").contents()).containsExactly(testCourse.toString());
 	}
 
 	@Test
@@ -411,7 +416,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> {
 			agendaController.addStudent(testStudent);
 			agendaController.addCourse(testCourse);
-			courseRepository.updateCourseStudents(testStudent.getId(), testCourse.getId());
+			agendaController.addStudentToCourse(testStudent, testCourse);
 		});
 		getCoursesPanel();
 		window.list("coursesList").selectItem(0);
@@ -421,9 +426,11 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		window.button("removeStudentFromCourseButton").click();
 		
 		// verify
-		assertThat(window.list("courseStudentsList").contents()).isEmpty();
+		assertThat(window.list("courseStudentsList").contents()).doesNotContain(testStudent.toString());
 		window.label("courseMessageLabel")
 		.requireText(testStudent.toString() + " removed from " + testCourse.toString());
+		getStudentsPanel();
+		assertThat(window.list("studentCoursesList").contents()).doesNotContain(testCourse.toString());
 	}
 
 	@Test
@@ -434,19 +441,21 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> {
 			agendaController.addCourse(testCourse);
 			agendaController.addStudent(testStudent);
-			studentRepository.updateStudentCourses(testStudent.getId(), testCourse.getId());
+			agendaController.addCourseToStudent(testStudent, testCourse);
 		});
 		
 		window.list("studentsList").selectItem(0);
 		window.list("studentCoursesList").selectItem(0);
 
-		// execerise
+		// exercise
 		window.button("removeCourseFromStudentButton").click();
 
 		// verify
-		assertThat(window.list("studentCoursesList").contents()).isEmpty();
+		assertThat(window.list("studentCoursesList").contents()).doesNotContain(testCourse.toString());
 		window.label("studentMessageLabel")
 		.requireText(testCourse.toString() + " removed from " + testStudent.toString());
+		getCoursesPanel();
+		assertThat(window.list("courseStudentsList").contents()).doesNotContain(testStudent.toString());
 	}
 
 	@Test
@@ -456,7 +465,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		Student testStudent = new Student("1", "test student");
 		GuiActionRunner.execute(() -> {
 			agendaController.addCourse(testCourse);
-			agendaSwingView.getListCourseStudentsModel().addElement(testStudent);
+			agendaController.addStudent(testStudent);
+			agendaController.addStudentToCourse(testStudent, testCourse);
 		});
 		getCoursesPanel();
 		window.list("coursesList").selectItem(0);
@@ -478,11 +488,13 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		Course testCourse = new Course("2", "test course (not in db)", "9");
 		GuiActionRunner.execute(() -> {
 			agendaController.addStudent(testStudent);
-			agendaSwingView.getListStudentCoursesModel().addElement(testCourse);
+			agendaController.addCourse(testCourse);
+			agendaController.addCourseToStudent(testStudent, testCourse);
 		});
 		
 		window.list("studentsList").selectItem(0);
 		window.list("studentCoursesList").selectItem(0);
+		courseRepository.delete(testCourse);
 
 		// execerise
 		window.button("removeCourseFromStudentButton").click();

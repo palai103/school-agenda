@@ -472,15 +472,19 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 	}
 
 	private void showStudentCourses() {
-		if (studentsList.getSelectedIndex() != -1)
+		if (studentsList.getSelectedIndex() != -1) {
+			studentCoursesListModel.clear();
 			agendaController.getAllStudentCourses(studentsList.getSelectedValue());
+		}
 		else
 			studentCoursesListModel.clear();
 	}
 
 	private void showCourseStudents() {
-		if(coursesList.getSelectedIndex() != -1)
+		if(coursesList.getSelectedIndex() != -1) {
+			courseStudentsListModel.clear();
 			agendaController.getAllCourseStudents(coursesList.getSelectedValue());
+		}
 		else
 			courseStudentsListModel.clear();
 	}
@@ -518,6 +522,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 	@Override
 	public void notifyCourseAddedToStudent(Student student, Course course) {
 		studentCoursesListModel.addElement(course);
+		courseStudentsListModel.addElement(student);
 		lblStudentMessage.setText(course.toString() + " added to " + student.toString());
 	}
 
@@ -529,6 +534,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 	@Override
 	public void notifyCourseRemovedFromStudent(Student student, Course course) {
 		studentCoursesListModel.removeElement(course);
+		courseStudentsListModel.removeElement(student);
 		lblStudentMessage.setText(course.toString() + " removed from " + student.toString());
 	}
 
@@ -568,6 +574,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 	@Override
 	public void notifyStudentRemovedFromCourse(Student student, Course course) {
 		courseStudentsListModel.removeElement(student);
+		studentCoursesListModel.removeElement(course);
 		lblCourseMessage.setText(student.toString() + " removed from " + course.toString());
 	}
 
@@ -587,6 +594,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 	@Override
 	public void notifyStudentAddedToCourse(Student student, Course course) {
 		courseStudentsListModel.addElement(student);
+		studentCoursesListModel.addElement(course);
 		lblCourseMessage.setText(student.toString() + " added to " + course.toString());
 	}
 
