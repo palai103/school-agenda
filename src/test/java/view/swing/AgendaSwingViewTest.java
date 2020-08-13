@@ -3,6 +3,7 @@ package view.swing;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import javax.swing.DefaultListModel;
 
@@ -28,7 +29,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	private AgendaService agendaService;
 	@Mock
 	private AgendaController agendaController;
-	
+
 	private AgendaSwingView agendaSwingView;
 	private FrameFixture window;
 	private JPanelFixture contentPanel;
@@ -45,17 +46,17 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 
 		window = new FrameFixture(robot(), agendaSwingView);
 		window.show();
-		
+
 		contentPanel = window.panel("contentPane");
 		coursesPanel = contentPanel.panel("studentTab");
 	}
-	
+
 	private void getCoursesPanel() {
 		JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 		tabPanel.selectTab("Courses");
 		coursesPanel = contentPanel.panel("courseTab");
 	}
-	
+
 	private void getStudentsPanel() {
 		JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 		tabPanel.selectTab("Students");
@@ -69,42 +70,42 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		window.label("studentIDLabel");
 		window.label("studentNameLabel");
 		window.label("studentMessageLabel");
-		
+
 
 		// Text fields check
 		window.textBox("studentIDTextField").requireEnabled();
 		window.textBox("studentNameTextField").requireEnabled();
-		
+
 
 		// Buttons check
 		window.button("addNewStudentButton").requireDisabled();
 		window.button("addCourseToStudentButton").requireDisabled();
 		window.button("removeStudentButton").requireDisabled();
 		window.button("removeCourseFromStudentButton").requireDisabled();
-		
+
 		// Lists check
 		window.list("studentsList");
 		window.list("studentCoursesList");
-			
+
 		getCoursesPanel();
-		
+
 		// Labels check
 		window.label("courseIDLabel");
 		window.label("courseNameLabel");
 		window.label("courseCFULabel");
 		window.label("courseMessageLabel");
-		
+
 		// Text fields check
 		window.textBox("courseIDTextField").requireEnabled();
 		window.textBox("courseNameTextField").requireEnabled();
 		window.textBox("courseCFUTextField").requireEnabled();
-		
+
 		// Buttons check
 		window.button("addNewCourseButton").requireDisabled();
 		window.button("addStudentToCourseButton").requireDisabled();
 		window.button("removeCourseButton").requireDisabled();
 		window.button("removeStudentFromCourseButton").requireDisabled();
-		
+
 		// Lists check
 		window.list("coursesList");
 		window.list("courseStudentsList");
@@ -153,10 +154,10 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	public void testGetAllStudentCoursesIsCalledWhenAStudentIsSelected() {
 		Student testStudent = new Student("1", "test student");
 		GuiActionRunner.execute(() ->
-			agendaSwingView.getListStudentsModel().addElement(testStudent));
-		
+		agendaSwingView.getListStudentsModel().addElement(testStudent));
+
 		window.list("studentsList").selectItem(0);
-		
+
 		verify(agendaController).getAllStudentCourses(testStudent);
 	}
 
@@ -194,60 +195,60 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		getCoursesPanel();
 		addCourseToStudentButton.requireDisabled();
 		getStudentsPanel();
-		
+
 		window.list("studentsList").clearSelection();
 		addStudentToCourseButton.requireDisabled();
 		getCoursesPanel();
 		addCourseToStudentButton.requireDisabled();
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudentButtonShouldBeEnabledWhenAStudentCourseIsSelected() {
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "student test course", "9");
-		
-		GuiActionRunner.execute(() -> {
-			agendaSwingView.getListStudentsModel().addElement(testStudent);
-			agendaSwingView.getListStudentCoursesModel().addElement(testCourse);
-		});
+
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListStudentsModel().addElement(testStudent));
 		window.list("studentsList").selectItem(0);
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListStudentCoursesModel().addElement(testCourse));
 		window.list("studentCoursesList").selectItem(0);
 		JButtonFixture removeCourseFromStudentButton = window.button("removeCourseFromStudentButton");
-		
+
 		removeCourseFromStudentButton.requireEnabled();
-		
+
 		window.list("studentCoursesList").clearSelection();
 		removeCourseFromStudentButton.requireDisabled();
 	}
-	
+
 	@Test
 	public void testGetAllCourseStudentsIsCalledWhenACourseIsSelected() {
 		getCoursesPanel();
-		
+
 		Course testCourse = new Course("1", "test course", "9");
 		GuiActionRunner.execute(() ->
-			agendaSwingView.getListCoursesModel().addElement(testCourse));
-		
+		agendaSwingView.getListCoursesModel().addElement(testCourse));
+
 		window.list("coursesList").selectItem(0);		
 		verify(agendaController).getAllCourseStudents(testCourse);
 	}
-	
+
 	@Test
 	public void testRemoveStudentFromCourseButtonShouldBeEnabledWhenACourseStudentIsSelected() {
 		getCoursesPanel();
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "course test student");
-		
-		GuiActionRunner.execute(() -> {
-			agendaSwingView.getListCoursesModel().addElement(testCourse);
-			agendaSwingView.getListCourseStudentsModel().addElement(testStudent);
-		});
+
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListCoursesModel().addElement(testCourse));
 		window.list("coursesList").selectItem(0);
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListCourseStudentsModel().addElement(testStudent));
 		window.list("courseStudentsList").selectItem(0);
 		JButtonFixture removeStudentFromCourse = window.button("removeStudentFromCourseButton");
-		
+
 		removeStudentFromCourse.requireEnabled();
-		
+
 		window.list("courseStudentsList").clearSelection();
 		removeStudentFromCourse.requireDisabled();
 	}
@@ -267,7 +268,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		String[] listContents = window.list("studentsList").contents();
 		assertThat(listContents).containsExactly(testStudent1.toString(), testStudent2.toString());
 	}
-	
+
 	@Test
 	public void testShowAllStudentCoursesShouldAddStudentCoursesToTheList() {
 		// setup
@@ -283,7 +284,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		String[] listContents = window.list("studentCoursesList").contents();
 		assertThat(listContents).containsExactly(testCourse1.toString(), testCourse2.toString());
 	}
-	
+
 	@Test
 	public void testNotifyStudentNotAddedShouldShowStudentErrorNotAddedMessage() {
 		// setup
@@ -428,11 +429,11 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		// verify
 		window.button("addNewCourseButton").requireEnabled();
 	}
-	
+
 	@Test
 	public void testWhenCourseCFUIsNotANumberThenAddCourseButtonShouldBeDisabled() {
 		getCoursesPanel();
-		
+
 		JTextComponentFixture courseIDTextField = window.textBox("courseIDTextField");
 		JTextComponentFixture courseNameTextField = window.textBox("courseNameTextField");
 		JTextComponentFixture courseCFUTextField = window.textBox("courseCFUTextField");
@@ -440,14 +441,14 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		courseIDTextField.enterText("1");
 		courseNameTextField.enterText("test");
 		courseCFUTextField.enterText("definitely not a number");
-		
+
 		window.button("addNewCourseButton").requireDisabled();
 	}
 
 	@Test
 	public void testWhenEitherCourseIdOrCourseNameOrCourseCFUAreBlankThenAddButtonShouldBeDisabled() {
 		getCoursesPanel();
-		
+
 		JTextComponentFixture courseIDTextField = window.textBox("courseIDTextField");
 		JTextComponentFixture courseNameTextField = window.textBox("courseNameTextField");
 		JTextComponentFixture courseCFUTextField = window.textBox("courseCFUTextField");
@@ -511,7 +512,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	@Test
 	public void testRemoveCourseButtonShouldBeEnabledOnlyWhenACourseIsSelected() {
 		getCoursesPanel();
-		
+
 		GuiActionRunner.execute(() -> agendaSwingView.getListCoursesModel().addElement(new Course("1", "test course", "9")));
 		window.list("coursesList").selectItem(0);
 		JButtonFixture removeCourseButton = window.button("removeCourseButton");
@@ -537,7 +538,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		String[] listContents = window.list("coursesList").contents();
 		assertThat(listContents).containsExactly(testCourse1.toString(), testCourse2.toString());
 	}
-	
+
 	@Test
 	public void testShowAllCourseStudentsShouldAddCourseStudentsToTheList() {
 		// setup
@@ -694,13 +695,13 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		assertThat(listContents).containsExactly(testStudent2.toString());
 		window.label("courseMessageLabel").requireText(testStudent1.toString() + " removed from " + testCourse.toString());
 	}
-	
+
 	@Test
 	public void testAddNewStudentButtonShouldDelegateToAgendaControllerAddStudent() {
 		window.textBox("studentIDTextField").enterText("1");
 		window.textBox("studentNameTextField").enterText("test student");
 		window.button("addNewStudentButton").click();
-		
+
 		verify(agendaController).addStudent(new Student("1", "test student"));
 	}
 
@@ -710,16 +711,16 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 			agendaSwingView.getListStudentsModel().addElement(new Student("1", "test student"));
 			agendaSwingView.getListCoursesModel().addElement(new Course("1", "test course", "9"));
 		});
-		
+
 		window.list("studentsList").selectItem(0);
 		getCoursesPanel();
 		window.list("coursesList").selectItem(0);
 		getCoursesPanel();
 		window.button("addStudentToCourseButton").click();
-		
+
 		verify(agendaController).addStudentToCourse(new Student("1", "test student"), new Course("1", "test course", "9"));
 	}
-	
+
 	@Test
 	public void testRemoveStudentButtonShouldDelegateToAgendaControllerRemoveStudent() {
 		Student testStudent1 = new Student("1", "test student 1");
@@ -730,39 +731,39 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		});
 		window.list("studentsList").selectItem(1);
 		window.button("removeStudentButton").click();
-		
+
 		verify(agendaController).removeStudent(testStudent2);
 	}
-	
+
 	@Test
 	public void testRemoveStudentFromCourseButtonShouldDelegateToAgendaControllerRemoveStudentFromCourse() {
 		getCoursesPanel();
 		Course testCourse = new Course("1", "test course", "9");
 		Student testStudent = new Student("1", "test student");
-		
-		GuiActionRunner.execute(() -> {
-			agendaSwingView.getListCoursesModel().addElement(testCourse);
-			agendaSwingView.getListCourseStudentsModel().addElement(testStudent);
-		});
+
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListCoursesModel().addElement(testCourse));
 		window.list("coursesList").selectItem(0);
+		GuiActionRunner.execute(() ->
+			agendaSwingView.getListCourseStudentsModel().addElement(testStudent));
 		window.list("courseStudentsList").selectItem(0);
 		window.button("removeStudentFromCourseButton").click();
-		
+
 		verify(agendaController).removeStudentFromCourse(testStudent, testCourse);
 	}
-	
+
 	@Test
 	public void testAddNewCourseButtonShouldDelegateToAgendaControllerAddCourse() {
 		getCoursesPanel();
-		
+
 		window.textBox("courseIDTextField").enterText("1");
 		window.textBox("courseNameTextField").enterText("test course");
 		window.textBox("courseCFUTextField").enterText("9");
 		window.button("addNewCourseButton").click();
-		
+
 		verify(agendaController).addCourse(new Course("1", "test course", "9"));
 	}
-	
+
 	@Test
 	public void testAddCourseToStudentButtonShouldDelegateToAgendaControllerAddCourseToStudent() {		
 		GuiActionRunner.execute(() -> {
@@ -774,14 +775,14 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		window.list("coursesList").selectItem(0);
 		getStudentsPanel();
 		window.button("addCourseToStudentButton").click();
-		
+
 		verify(agendaController).addCourseToStudent(new Student("1", "test student"), new Course("1", "test course", "9"));
 	}
-	
+
 	@Test
 	public void testRemoveCourseButtonShouldDelegateToAgendaControllerRemoveCourse() {
 		getCoursesPanel();
-		
+
 		Course testCourse1 = new Course("1", "test course 1", "9");
 		Course testCourse2 = new Course("2", "test course 2", "9");
 		GuiActionRunner.execute(() -> {
@@ -790,23 +791,25 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		});
 		window.list("coursesList").selectItem(1);
 		window.button("removeCourseButton").click();
-		
+
 		verify(agendaController).removeCourse(testCourse2);
 	}
-	
+
 	@Test
 	public void testRemoveCourseFromStudentButtonShouldDelegateToAgendaControllerRemoveCourseFromStudent() {
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("1", "test course", "9");
-		
-		GuiActionRunner.execute(() -> {
-			agendaSwingView.getListStudentsModel().addElement(testStudent);
-			agendaSwingView.getListStudentCoursesModel().addElement(testCourse);
-		});
+
+		GuiActionRunner.execute(() ->
+		agendaSwingView.getListStudentsModel().addElement(testStudent));
 		window.list("studentsList").selectItem(0);
+
+		GuiActionRunner.execute(() ->
+		agendaSwingView.getListStudentCoursesModel().addElement(testCourse));
 		window.list("studentCoursesList").selectItem(0);
+
 		window.button("removeCourseFromStudentButton").click();
-		
+
 		verify(agendaController).removeCourseFromStudent(testStudent, testCourse);
 	}
 }
