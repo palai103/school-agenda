@@ -7,7 +7,9 @@ import static org.mockito.Mockito.verify;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.List;
 
+import org.assertj.swing.edt.GuiActionRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -235,6 +237,63 @@ public class AgendaViewCliTest {
 		// verify
 		assertThat(testOutput.toString()).contains("Insert student id: Insert student name: ");
 		verify(controller).addStudent(new Student("1", "test student"));
+	}
+	
+	@Test
+	public void testShowAllStudentsShouldAddStudentsToTheList() {
+		// setup
+		Student testStudent1 = new Student("1", "test student 1");
+		Student testStudent2 = new Student("2", "test student 2");
+
+		// exercise
+		cliView.showAllStudents(asList(testStudent1, testStudent2));
+
+		// verify
+		List<Student> listContents = cliView.getStudents();
+		assertThat(listContents).containsExactly(testStudent1, testStudent2);
+	}
+	
+	@Test
+	public void testShowAllStudentsShouldAddStudentsToTheListClearBefore() {
+		// setup
+		Student testStudent1 = new Student("1", "test student 1");
+		Student testStudent2 = new Student("2", "test student 2");
+		cliView.getStudents().add(testStudent1);
+
+		// exercise
+		cliView.showAllStudents(asList(testStudent1, testStudent2));
+
+		// verify
+		List<Student> listContents = cliView.getStudents();
+		assertThat(listContents).containsExactly(testStudent1, testStudent2);
+	}
+	
+	@Test
+	public void testShowAllCoursesShouldAddCoursessToTheList() {
+		// setup
+		Course testcourse1 = new Course("1", "test course 1", "9");
+		Course testcourse2 = new Course("2", "test course 2", "9");
+
+		// exercise
+		cliView.showAllCourses(asList(testcourse1, testcourse2));
+
+		// verify
+		List<Course> listContents = cliView.getCourses();
+		assertThat(listContents).containsExactly(testcourse1, testcourse2);
+	}
+	
+	@Test
+	public void testShowAllCoursesShouldAddCoursessToTheListClearBefore() {
+		// setup
+		Course testcourse1 = new Course("1", "test course 1", "9");
+		Course testcourse2 = new Course("2", "test course 2", "9");
+		cliView.getCourses().add(testcourse1);
+		// exercise
+		cliView.showAllCourses(asList(testcourse1, testcourse2));
+
+		// verify
+		List<Course> listContents = cliView.getCourses();
+		assertThat(listContents).containsExactly(testcourse1, testcourse2);
 	}
 
 	@Test

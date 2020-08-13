@@ -193,6 +193,7 @@
 						<param>*IT</param>
 						<param>model.*</param>
 						<param>view.*</param>
+						<param>app.*</param>
 						<param>repository.TransactionManagerMongo*</param>
 					</excludedClasses>
 

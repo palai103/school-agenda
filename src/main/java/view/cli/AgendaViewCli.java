@@ -36,7 +36,11 @@ public class AgendaViewCli implements AgendaView {
 
 	@Override
 	public void showAllStudents(List<Student> allStudents) {
+		students.clear();
 		for (Student student : allStudents) {
+			if (!allStudents.isEmpty()) {
+				students.add(student);
+			}
 			printStream.println(student.toString());
 		}
 	}
@@ -126,7 +130,11 @@ public class AgendaViewCli implements AgendaView {
 
 	@Override
 	public void showAllCourses(List<Course> allCourses) {
+		courses.clear();
 		for (Course course : allCourses) {
+			if (!allCourses.isEmpty()) {
+				courses.add(course);				
+			}
 			printStream.println(course.toString());
 		}
 	}

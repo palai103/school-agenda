@@ -137,7 +137,7 @@ public class AgendaCliAppE2E {
 		removeTestStudentFromDatabase(STUDENT_1_ID);
 		removeTestStudentFromDatabase(STUDENT_2_ID);
 		String result = getResponse("1\n");
-		assertThat(result).hasToString("" + LOOP_MESSAGE);
+		assertThat(result).contains("" + LOOP_MESSAGE);
 	}
 
 	@Test
@@ -178,7 +178,7 @@ public class AgendaCliAppE2E {
 		removeTestCourseFromDatabase(COURSE_1_ID);
 		removeTestCourseFromDatabase(COURSE_2_ID);
 		String result = getResponse("2\n");
-		assertThat(result).hasToString("" + LOOP_MESSAGE);
+		assertThat(result).contains("" + LOOP_MESSAGE);
 	}
 
 	@Test
@@ -195,9 +195,8 @@ public class AgendaCliAppE2E {
 
 	@Test
 	public void testAddCourseToStudentSuccess() throws IOException {
-		// FIXME I pass but I should not
-		String result = getResponse("5\n" + STUDENT_1_ID + "\n" + COURSE_1_ID + "\n");
-		assertThat(result).contains("Insert student id: Insert course id: Course with id " + COURSE_1_ID
+		String result = getResponse("5\n" + STUDENT_1_ID + "\n" + COURSE_2_ID + "\n");
+		assertThat(result).contains("Insert student id: Insert course id: Course with id " + COURSE_2_ID
 				+ " added to student with id " + STUDENT_1_ID);
 	}
 
@@ -210,9 +209,8 @@ public class AgendaCliAppE2E {
 
 	@Test
 	public void testAddStudentToCourseSuccess() throws IOException {
-		//FIXME I pass but I should not
-		String result = getResponse("6\n" + STUDENT_1_ID + "\n" + COURSE_1_ID + "\n");
-		assertThat(result).contains("Insert student id: Insert course id: Student with id " + STUDENT_1_ID
+		String result = getResponse("6\n" + STUDENT_2_ID + "\n" + COURSE_1_ID + "\n");
+		assertThat(result).contains("Insert student id: Insert course id: Student with id " + STUDENT_2_ID
 				+ " added to course with id " + COURSE_1_ID);
 	}
 
@@ -224,10 +222,10 @@ public class AgendaCliAppE2E {
 	}
 
 	@Test
-	public void testRemoveCourseToStudentSuccess() {
-		String result = getResponse("7\n" + STUDENT_1_ID + "\n" + COURSE_1_ID + "\n");
-		assertThat(result).contains("Insert student id: Insert course id: Course with id " + COURSE_1_ID
-				+ " removed from student with id " + STUDENT_1_ID);
+	public void testRemoveCourseToStudentSuccess() throws IOException, InterruptedException {
+		String result = getResponse("7\n1\n1\n");
+		assertThat(result)
+				.contains("Insert student id: Insert course id: Course with id 1 removed from student with id 1");
 	}
 
 	@Test
@@ -283,6 +281,43 @@ public class AgendaCliAppE2E {
 		try {
 			testOutput.write(input);
 			testOutput.close();
+			String line = null;
+			while (((line = testInput.readLine()) != null)) {
+				result += line;
+			}
+			return result;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	private String getMultipleResponse(String input1, String input2) {
+		String result = "";
+		try {
+			testOutput.write(input1);
+			testOutput.close();
+			String line = null;
+			while (((line = testInput.readLine()) != null)) {
+				result += line;
+			}
+			testOutput.write(input2);
+			testOutput.close();
+			line = null;
+			while (((line = testInput.readLine()) != null)) {
+				result += line;
+			}
+			return result;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return "";
+	}
+	
+	private String getResponseFirst(String input) {
+		String result = "";
+		try {
+			testOutput.write(input);
 			String line = null;
 			while (((line = testInput.readLine()) != null)) {
 				result += line;
