@@ -36,7 +36,11 @@ public class AgendaViewCli implements AgendaView {
 
 	@Override
 	public void showAllStudents(List<Student> allStudents) {
+		students.clear();
 		for (Student student : allStudents) {
+			if (!allStudents.isEmpty()) {
+				students.add(student);
+			}
 			printStream.println(student.toString());
 		}
 	}
@@ -126,7 +130,11 @@ public class AgendaViewCli implements AgendaView {
 
 	@Override
 	public void showAllCourses(List<Course> allCourses) {
+		courses.clear();
 		for (Course course : allCourses) {
+			if (!allCourses.isEmpty()) {
+				courses.add(course);				
+			}
 			printStream.println(course.toString());
 		}
 	}
@@ -168,7 +176,7 @@ public class AgendaViewCli implements AgendaView {
 
 	public int menuChoice() {
 		showMenu();
-
+		
 		scanner = new Scanner(inputStream);
 		String choice = scanner.nextLine();
 		int code = 0;
@@ -247,7 +255,15 @@ public class AgendaViewCli implements AgendaView {
 	private void addStudentToCourseCallController() {
 		String studentId = getStudentIdFromUser();
 		String courseId = getCourseIdFromUser();
-		controller.addStudentToCourse(new Student(studentId, ""), new Course(courseId, "", ""));
+		String finalStudentId = studentId;
+		Student studentToFind;
+		try {
+			studentToFind = students.stream().filter(student -> student.getId().equals(finalStudentId))
+					.collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			studentToFind = new Student(finalStudentId, "");
+		}
+		controller.addStudentToCourse(studentToFind, new Course(courseId, "", ""));
 	}
 
 	private void removeCourseCallControler() {
@@ -297,7 +313,15 @@ public class AgendaViewCli implements AgendaView {
 	private void addCourseToStudentCallController() {
 		String studentId = getStudentIdFromUser();
 		String courseId = getCourseIdFromUser();
-		controller.addCourseToStudent(new Student(studentId, ""), new Course(courseId, "", ""));
+		String finalCourseId = courseId;
+		Course courseToFind;
+		try {
+			courseToFind = courses.stream().filter(course -> course.getId().equals(finalCourseId))
+					.collect(Collectors.toList()).get(0);
+		} catch (Exception e) {
+			courseToFind = new Course(courseId, "", "");
+		}
+		controller.addCourseToStudent(new Student(studentId, ""), courseToFind);
 	}
 
 	private void removeStudentCallController() {
