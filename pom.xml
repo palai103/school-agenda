@@ -29,6 +29,7 @@
 
 		<sonar.coverage.exclusions>
 			src/main/java/model/*,
+			src/main/java/app/*,
 			src/main/java/repository/TransactionManagerMongo*
 		</sonar.coverage.exclusions>
 
@@ -39,7 +40,7 @@
 		</sonar.cpd.exclusions>
 
 		<sonar.issue.ignore.multicriteria>
-			e1,e2,e3
+			e1,e2,e3,e4
 		</sonar.issue.ignore.multicriteria>
 
 		<sonar.issue.ignore.multicriteria.e1.ruleKey>
@@ -63,6 +64,13 @@
 			**/CourseMongoRepository.*,
 			**/StudentMongoRepository.*
 		</sonar.issue.ignore.multicriteria.e3.resourceKey>
+		
+		<sonar.issue.ignore.multicriteria.e4.ruleKey>
+			java:S106
+		</sonar.issue.ignore.multicriteria.e4.ruleKey>
+		<sonar.issue.ignore.multicriteria.e4.resourceKey>
+			**/AgendaSwingApp*.*
+		</sonar.issue.ignore.multicriteria.e4.resourceKey>
 
 		<description>A simple school agenda</description>
 
@@ -141,6 +149,7 @@
 						<configuration>
 							<excludes>
 								<exclude>/model/*.*</exclude>
+								<exclude>/app/*.*</exclude>
 								<exclude>/repository/TransactionManagerMongo.*</exclude>
 							</excludes>
 						</configuration>

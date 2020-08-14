@@ -56,46 +56,43 @@ public class AgendaSwingApp implements Callable<Void> {
 
 	@Override
 	public Void call() throws Exception {
-		EventQueue.invokeLater(new Runnable() {
+		EventQueue.invokeLater(() -> {
 
-			@Override
-			public void run() {
-
-				if ((!interfaceType.equals("gui") && !interfaceType.equals("cli"))) {
-					System.err.println("Invalid value for optin --interface. Allowed values: are \"gui\" and \"cli\"");
-					System.exit(1);
-				}
-				MongoClient mongoClient = new MongoClient(new ServerAddress(mongoHost, mongoPort));
-				StudentMongoRepository studentMongoRepository = new StudentMongoRepository(mongoClient, DB_NAME,
-						DB_STUDENTS_COLLECTION);
-				CourseMongoRepository courseMongoRepository = new CourseMongoRepository(mongoClient, DB_NAME,
-						DB_COURSES_COLLECTION);
-				TransactionManager transactionManager = new TransactionManagerMongo(mongoClient, studentMongoRepository,
-						courseMongoRepository);
-				AgendaService agendaService = new AgendaService(transactionManager);
-				if (interfaceType.equals("gui")) {
-					AgendaSwingView agendaSwingView = new AgendaSwingView();
-					AgendaController agendaController = new AgendaController(agendaSwingView, agendaService);
-					agendaSwingView.setAgendaController(agendaController);
-					agendaSwingView.setVisible(true);
-					agendaController.getAllStudents();
-					agendaController.getAllCourses();
-				}
-				if (interfaceType.equals("cli")) {
-					LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
-					Logger logger = loggerContext.getLogger("org.mongodb.driver");
-					logger.setLevel(Level.OFF);
-					AgendaViewCli agendaViewCli = new AgendaViewCli(System.in, System.out);
-					AgendaController agendaController = new AgendaController(agendaViewCli, agendaService);
-					agendaViewCli.inject(agendaController);
-					agendaController.getAllStudents();
-					agendaController.getAllCourses();
-					int returnStatus;
-					do {
-						returnStatus = agendaViewCli.menuChoice();
-					} while (returnStatus != -1);
-				}
+			if ((!interfaceType.equals("gui") && !interfaceType.equals("cli"))) {
+				System.err.println("Invalid value for optin --interface. Allowed values: are \"gui\" and \"cli\"");
+				System.exit(1);
 			}
+			MongoClient mongoClient = new MongoClient(new ServerAddress(mongoHost, mongoPort));
+			StudentMongoRepository studentMongoRepository = new StudentMongoRepository(mongoClient, DB_NAME,
+					DB_STUDENTS_COLLECTION);
+			CourseMongoRepository courseMongoRepository = new CourseMongoRepository(mongoClient, DB_NAME,
+					DB_COURSES_COLLECTION);
+			TransactionManager transactionManager = new TransactionManagerMongo(mongoClient, studentMongoRepository,
+					courseMongoRepository);
+			AgendaService agendaService = new AgendaService(transactionManager);
+			if (interfaceType.equals("gui")) {
+				AgendaSwingView agendaSwingView = new AgendaSwingView();
+				AgendaController agendaController = new AgendaController(agendaSwingView, agendaService);
+				agendaSwingView.setAgendaController(agendaController);
+				agendaSwingView.setVisible(true);
+				agendaController.getAllStudents();
+				agendaController.getAllCourses();
+			}
+			if (interfaceType.equals("cli")) {
+				LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+				Logger logger = loggerContext.getLogger("org.mongodb.driver");
+				logger.setLevel(Level.OFF);
+				AgendaViewCli agendaViewCli = new AgendaViewCli(System.in, System.out);
+				AgendaController agendaController = new AgendaController(agendaViewCli, agendaService);
+				agendaViewCli.inject(agendaController);
+				agendaController.getAllStudents();
+				agendaController.getAllCourses();
+				int returnStatus;
+				do {
+					returnStatus = agendaViewCli.menuChoice();
+				} while (returnStatus != -1);
+			}
+
 		});
 		return null;
 	}
