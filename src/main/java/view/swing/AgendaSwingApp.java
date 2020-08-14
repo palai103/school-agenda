@@ -22,7 +22,7 @@ public class AgendaSwingApp implements Callable<Void> {
 	private static final int MONGO_PORT = 27017;
 	private static final String DB_COURSES_COLLECTION = "courses";
 	private static final String DB_STUDENTS_COLLECTION = "students";
-	private static final String MONGO_ADDRESS = "locahost";
+	private static final String MONGO_ADDRESS = "localhost";
 	private static final String DB_NAME = "schoolagenda";
 
 	@Option(names = { "--mongo-host" }, description = "MongoDB host address")
