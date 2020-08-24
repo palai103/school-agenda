@@ -38,9 +38,7 @@ public class AgendaViewCli implements AgendaView {
 	public void showAllStudents(List<Student> allStudents) {
 		students.clear();
 		for (Student student : allStudents) {
-			if (!allStudents.isEmpty()) {
-				students.add(student);
-			}
+			students.add(student);
 			printStream.println(student.toString());
 		}
 	}
@@ -132,9 +130,7 @@ public class AgendaViewCli implements AgendaView {
 	public void showAllCourses(List<Course> allCourses) {
 		courses.clear();
 		for (Course course : allCourses) {
-			if (!allCourses.isEmpty()) {
-				courses.add(course);				
-			}
+			courses.add(course);
 			printStream.println(course.toString());
 		}
 	}
@@ -176,7 +172,7 @@ public class AgendaViewCli implements AgendaView {
 
 	public int menuChoice() {
 		showMenu();
-		
+
 		scanner = new Scanner(inputStream);
 		String choice = scanner.nextLine();
 		int code = 0;
@@ -286,7 +282,6 @@ public class AgendaViewCli implements AgendaView {
 		controller.addCourse(new Course(courseId, courseName, courseCfu));
 		courses.add(new Course(courseId, courseName, courseCfu));
 	}
-
 
 	public List<Student> getStudents() {
 		return students;
