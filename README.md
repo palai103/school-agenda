@@ -2,6 +2,8 @@
 [![forthebadge](https://forthebadge.com/images/badges/made-with-java.svg)](https://forthebadge.com) [![Build Status](https://travis-ci.org/palai103/school-agenda.svg?branch=master)](https://travis-ci.org/palai103/school-agenda) [![Coverage Status](https://coveralls.io/repos/github/palai103/school-agenda/badge.svg?branch=master)](https://coveralls.io/github/palai103/school-agenda?branch=master) [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=it.unifi.app%3Aschool-agenda&metric=alert_status)](https://sonarcloud.io/dashboard?id=it.unifi.app%3Aschool-agenda)
 
 School Agenda is an application developed using TDD techniques for the final exam of the Advanced Techniques and Tools for Software Development course at Università degli Studi di Firenze. 
+
+A complete report of the project can be found [here](https://github.com/palai103/school-agenda/raw/master/Project%20Report.pdf).
 ## System requirements
  - Java 8 (or higher)
  - Maven
