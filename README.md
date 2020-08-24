@@ -7,7 +7,7 @@ School Agenda is an application developed using TDD techniques for the final exa
  - Maven
  - Docker
 ## Run the application
-There are two different ways to run the application, eaither building it from source code with Maven or downloading the pre-packaged jar from the release page on Github.
+There are two different ways to run the application, eaither building it from source code with Maven or downloading the latest pre-packaged jar from the [releases](https://github.com/palai103/school-agenda/releases) page on Github.
 ### Setup the Mongo Docker instance
 Before running the application, a valid Mongo Docker istance must be already running. You can create one with the following command:
 
