@@ -43,6 +43,7 @@ public class CourseMongoRepositoryTestIT {
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
+		clientSession = client.startSession();
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION, DB_COLLECTION_STUDENTS);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
