@@ -64,9 +64,9 @@ public class AgendaSwingApp implements Callable<Void> {
 			}
 			MongoClient mongoClient = new MongoClient(new ServerAddress(mongoHost, mongoPort));
 			StudentMongoRepository studentMongoRepository = new StudentMongoRepository(mongoClient, DB_NAME,
-					DB_STUDENTS_COLLECTION);
+					DB_STUDENTS_COLLECTION, DB_COURSES_COLLECTION);
 			CourseMongoRepository courseMongoRepository = new CourseMongoRepository(mongoClient, DB_NAME,
-					DB_COURSES_COLLECTION);
+					DB_COURSES_COLLECTION, DB_STUDENTS_COLLECTION);
 			TransactionManager transactionManager = new TransactionManagerMongo(mongoClient, studentMongoRepository,
 					courseMongoRepository);
 			AgendaService agendaService = new AgendaService(transactionManager);

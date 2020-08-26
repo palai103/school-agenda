@@ -50,9 +50,8 @@ public class AgendaViewCliTestIT {
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
-		clientSession = client.startSession();
-		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS);
-		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES);
+		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS, DB_COLLECTION_COURSES);
+		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES, DB_COLLECTION_STUDENTS);
 		manager = new TransactionManagerMongo(client, studentRepository, courseRepository);
 		agendaService = new AgendaService(manager);
 		
