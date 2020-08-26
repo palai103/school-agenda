@@ -17,6 +17,7 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
@@ -37,10 +38,12 @@ public class CourseMongoRepositoryTestIT {
 	private CourseMongoRepository courseRepository;
 	private MongoCollection<Document> courseCollection;
 	private MongoCollection<Document> studentCollection;
+	private ClientSession clientSession;
 
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
+		clientSession = client.startSession();
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION, DB_COLLECTION_STUDENTS);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
@@ -59,19 +62,19 @@ public class CourseMongoRepositoryTestIT {
 	public void testFindAll() {
 		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
 		addCourseToDatabase("2", "test course 2", "9", Collections.emptyList());
-		assertThat(courseRepository.findAll()).containsExactly(new Course("1", "test course 1", "9"),
+		assertThat(courseRepository.findAll(clientSession)).containsExactly(new Course("1", "test course 1", "9"),
 				new Course("2", "test course 2", "9"));
 	}
 
 	@Test
 	public void testFindById() {
 		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
-		assertThat(courseRepository.findById("1")).isEqualTo(new Course("1", "test course 1", "9"));
+		assertThat(courseRepository.findById("1", clientSession)).isEqualTo(new Course("1", "test course 1", "9"));
 	}
 
 	@Test
 	public void testSave() {
-		courseRepository.save(new Course("1", "test course 1", "9"));
+		courseRepository.save(new Course("1", "test course 1", "9"), clientSession);
 		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1", "9"));
 	}
 
@@ -79,7 +82,7 @@ public class CourseMongoRepositoryTestIT {
 	public void testDelete() {
 		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
 		addCourseToDatabase("2", "test course 2", "9", Collections.emptyList());
-		courseRepository.delete(new Course("2", "test course 2", "9"));
+		courseRepository.delete(new Course("2", "test course 2", "9"), clientSession);
 		assertThat(readAllCourseFromDatabase()).containsExactly(new Course("1", "test course 1", "9"));
 	}
 
@@ -88,16 +91,16 @@ public class CourseMongoRepositoryTestIT {
 		addCourseToDatabase("1", "test course 1", "9", Collections.emptyList());
 		addStudentToDatabase("2", "test student", asList("1"));
 
-		courseRepository.updateCourseStudents("2", "1");
-		assertThat(courseRepository.findCourseStudents("1"))
+		courseRepository.updateCourseStudents("2", "1", clientSession);
+		assertThat(courseRepository.findCourseStudents("1", clientSession))
 				.containsExactly(new Student("2", "test student"));
 	}
 
 	@Test
 	public void testRemoveCourseStudent() {
 		addCourseToDatabase("1", "test course 1", "9", asList("2"));
-		courseRepository.removeCourseStudent("2", "1");
-		assertThat(courseRepository.findCourseStudents("1")).isEmpty();
+		courseRepository.removeCourseStudent("2", "1", clientSession);
+		assertThat(courseRepository.findCourseStudents("1", clientSession)).isEmpty();
 	}
 
 	@Test
@@ -111,7 +114,7 @@ public class CourseMongoRepositoryTestIT {
 		addStudentToDatabase(testStudent1.getId(), testStudent1.getName(), asList(testCourse.getId()));
 		addStudentToDatabase(testStudent2.getId(), testStudent2.getName(), asList(testCourse.getId()));
 
-		assertThat(courseRepository.findCourseStudents(testCourse.getId()))
+		assertThat(courseRepository.findCourseStudents(testCourse.getId(), clientSession))
 				.containsAll(asList(testStudent1, testStudent2));
 	}
 
