@@ -27,6 +27,7 @@ public class CourseMongoRepositoryTestIT {
 
 	private static final String DB_NAME = "schoolagenda";
 	private static final String DB_COLLECTION = "courses";
+	private static final String DB_COLLECTION_STUDENTS = "students";
 
 	@SuppressWarnings("rawtypes")
 	@ClassRule
@@ -40,7 +41,7 @@ public class CourseMongoRepositoryTestIT {
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
-		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION);
+		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION, DB_COLLECTION_STUDENTS);
 		MongoDatabase database = client.getDatabase(DB_NAME);
 		database.drop();
 		database.createCollection(DB_COLLECTION);
