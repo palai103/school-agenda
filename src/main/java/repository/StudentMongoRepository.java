@@ -24,18 +24,14 @@ public class StudentMongoRepository implements StudentRepository{
 	
 	private MongoCollection<Document> studentCollection;
 	private MongoCollection<Document> courseCollection;
-	
-	private MongoClient mongoClient;
 
 	public StudentMongoRepository(MongoClient mongoClient, String dbName, String dbCollection) {
-		this.mongoClient = mongoClient;
 		studentCollection = mongoClient.getDatabase(dbName).getCollection(dbCollection);
 		courseCollection = mongoClient.getDatabase(dbName).getCollection(COURSES);
 	}
 
 	@Override
-	public List<Student> findAll() {
-		ClientSession clientSession = mongoClient.startSession();
+	public List<Student> findAll(ClientSession clientSession) {
 		return StreamSupport.
 				stream(studentCollection.find(clientSession).spliterator(), false)
 				.map(this::fromDocumentToStudent)
@@ -43,8 +39,7 @@ public class StudentMongoRepository implements StudentRepository{
 	}
 
 	@Override
-	public Student findById(String id) {
-		ClientSession clientSession = mongoClient.startSession();
+	public Student findById(String id, ClientSession clientSession) {
 		Document document  = studentCollection.find(clientSession, Filters.eq(ID, id)).first();
 
 		if(document != null) {
@@ -54,8 +49,7 @@ public class StudentMongoRepository implements StudentRepository{
 	}
 
 	@Override
-	public void save(Student student) {
-		ClientSession clientSession = mongoClient.startSession();
+	public void save(Student student, ClientSession clientSession) {
 		studentCollection.insertOne(clientSession,
 				new Document()
 				.append(ID, student.getId())
@@ -65,31 +59,27 @@ public class StudentMongoRepository implements StudentRepository{
 	}
 
 	@Override
-	public void delete(Student student) {
-		ClientSession clientSession = mongoClient.startSession();
+	public void delete(Student student, ClientSession clientSession) {
 		studentCollection.deleteOne(clientSession, Filters.eq(ID, student.getId()));
 
 	}
 
 	@Override
-	public void updateStudentCourses(String studentId, String courseId) {
-		ClientSession clientSession = mongoClient.startSession();
+	public void updateStudentCourses(String studentId, String courseId, ClientSession clientSession) {
 		studentCollection.updateOne(clientSession, Filters.eq(ID, studentId), 
 				Updates.push(COURSES, courseId));
 
 	}
 
 	@Override
-	public void removeStudentCourse(String studentId, String courseId) {
-		ClientSession clientSession = mongoClient.startSession();
+	public void removeStudentCourse(String studentId, String courseId, ClientSession clientSession) {
 		studentCollection.updateOne(clientSession, Filters.eq(ID, studentId), 
 				Updates.pull(COURSES, courseId));
 
 	}
 
 	@Override
-	public List<Course> findStudentCourses(String studentId) {
-		ClientSession clientSession = mongoClient.startSession();
+	public List<Course> findStudentCourses(String studentId, ClientSession clientSession) {
 		List<String> courseIds = studentCollection.find(clientSession, Filters.eq(ID, studentId))
 				.first().getList(COURSES, String.class);
 		List<Course> returnedCourses = new ArrayList<>();

@@ -24,7 +24,7 @@ public class TransactionManagerMongo implements TransactionManager {
 		T valueToReturn = null;
 		clientSession = client.startSession();
 
-		TransactionBody<T> transactionBody = () -> code.apply(studentMongoRepository);
+		TransactionBody<T> transactionBody = () -> code.apply(clientSession, studentMongoRepository);
 
 		try {
 			valueToReturn = clientSession.withTransaction(transactionBody);
@@ -42,7 +42,7 @@ public class TransactionManagerMongo implements TransactionManager {
 		T valueToReturn = null;
 		clientSession = client.startSession();
 
-		TransactionBody<T> transactionBody = () -> code.apply(courseMongoRepository);
+		TransactionBody<T> transactionBody = () -> code.apply(clientSession, courseMongoRepository);
 
 		try {
 			valueToReturn = clientSession.withTransaction(transactionBody);
@@ -60,7 +60,7 @@ public class TransactionManagerMongo implements TransactionManager {
 		T valueToReturn = null;
 		clientSession = client.startSession();
 
-		TransactionBody<T> transactionBody = () -> code.apply(studentMongoRepository, courseMongoRepository);
+		TransactionBody<T> transactionBody = () -> code.apply(clientSession, studentMongoRepository, courseMongoRepository);
 
 		try {
 			valueToReturn = clientSession.withTransaction(transactionBody);
