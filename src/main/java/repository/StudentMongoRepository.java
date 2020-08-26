@@ -26,7 +26,6 @@ public class StudentMongoRepository implements StudentRepository{
 	private MongoCollection<Document> courseCollection;
 
 	public StudentMongoRepository(MongoClient mongoClient, String dbName, String dbCollection, String courseCollectionName) {
-		this.mongoClient = mongoClient;
 		studentCollection = mongoClient.getDatabase(dbName).getCollection(dbCollection);
 		courseCollection = mongoClient.getDatabase(dbName).getCollection(courseCollectionName);
 	}
