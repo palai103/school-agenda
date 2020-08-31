@@ -2,14 +2,11 @@ package view.swing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.net.InetSocketAddress;
-
 import org.assertj.swing.edt.GuiActionRunner;
 import org.assertj.swing.fixture.FrameFixture;
 import org.assertj.swing.fixture.JPanelFixture;
 import org.assertj.swing.fixture.JTabbedPaneFixture;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
-import org.bson.Document;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.testcontainers.containers.GenericContainer;
@@ -17,7 +14,6 @@ import org.testcontainers.containers.GenericContainer;
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.ClientSession;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import controller.AgendaController;
@@ -32,8 +28,6 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	private static String DB_NAME = "schoolagenda";
 	private static String DB_COLLECTION_STUDENTS = "students";
 	private static String DB_COLLECTION_COURSES = "courses";
-	private static InetSocketAddress serverAddress;
-
 	@SuppressWarnings("rawtypes")
 	@ClassRule
 	public static final GenericContainer mongo = new GenericContainer("krnbr/mongo:4.2.6").withExposedPorts(27017);
@@ -46,10 +40,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	private AgendaService agendaService;
 	private TransactionManagerMongo transactionManager;
 	private FrameFixture window;
-	private MongoCollection<Document> studentCollection;
-	private MongoCollection<Document> courseCollection;
 	private JPanelFixture contentPanel;
-	private JPanelFixture coursesPanel;
 	private ClientSession clientSession;
 
 	@Override
@@ -72,26 +63,26 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		database.drop();
 		database.createCollection(DB_COLLECTION_STUDENTS);
 		database.createCollection(DB_COLLECTION_COURSES);
-		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
-		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
+		database.getCollection(DB_COLLECTION_STUDENTS);
+		database.getCollection(DB_COLLECTION_COURSES);
 
 		window = new FrameFixture(robot(), agendaSwingView);
 		window.show();
 
 		contentPanel = window.panel("contentPane");
-		coursesPanel = contentPanel.panel("studentTab");
+		contentPanel.panel("studentTab");
 	}
 
 	private void getCoursesPanel() {
 		JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 		tabPanel.selectTab("Courses");
-		coursesPanel = contentPanel.panel("courseTab");
+		contentPanel.panel("courseTab");
 	}
 
 	private void getStudentsPanel() {
 		JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 		tabPanel.selectTab("Students");
-		coursesPanel = contentPanel.panel("studentTab");
+		contentPanel.panel("studentTab");
 	}
 
 	@Override

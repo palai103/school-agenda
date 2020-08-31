@@ -3,7 +3,6 @@ package service;
 import static org.assertj.core.api.Assertions.assertThat;
 import static java.util.Arrays.asList;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
