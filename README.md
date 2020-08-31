@@ -19,7 +19,7 @@ The `krnbr/mongo` image was used instead of the `mongo` one because the former i
 To build the application locally from the source code, clone the repository and move into the home directory of the project, then run:
 
     mvn clean package
-A jar with all dependencies will be located in the `./target/` subfolder of the project. 
+A jar with all dependencies will be located in the `./school-agenda-gui/target/` subfolder of the project. 
 ### Execute the jar
 Use `java -jar {jar_name} [options]` to run the application, where `{jar_name}` is the name of the jar that Maven created, and `[options]` are:
 |  Option|Description|Allowed values|
