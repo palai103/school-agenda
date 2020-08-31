@@ -3,8 +3,6 @@ package view.swing;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import javax.swing.DefaultListModel;
 
 import org.assertj.swing.annotation.GUITest;
@@ -33,8 +31,6 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	private AgendaSwingView agendaSwingView;
 	private FrameFixture window;
 	private JPanelFixture contentPanel;
-	private JPanelFixture coursesPanel;
-
 	protected void onSetUp() {
 		MockitoAnnotations.initMocks(this);
 
@@ -48,19 +44,19 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 		window.show();
 
 		contentPanel = window.panel("contentPane");
-		coursesPanel = contentPanel.panel("studentTab");
+		contentPanel.panel("studentTab");
 	}
 
 	private void getCoursesPanel() {
 		JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 		tabPanel.selectTab("Courses");
-		coursesPanel = contentPanel.panel("courseTab");
+		contentPanel.panel("courseTab");
 	}
 
 	private void getStudentsPanel() {
 		JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 		tabPanel.selectTab("Students");
-		coursesPanel = contentPanel.panel("studentTab");
+		contentPanel.panel("studentTab");
 	}
 
 	@Test 

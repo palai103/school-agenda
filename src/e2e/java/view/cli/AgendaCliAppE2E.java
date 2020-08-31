@@ -292,43 +292,6 @@ public class AgendaCliAppE2E {
 		return "";
 	}
 	
-	private String getMultipleResponse(String input1, String input2) {
-		String result = "";
-		try {
-			testOutput.write(input1);
-			testOutput.close();
-			String line = null;
-			while (((line = testInput.readLine()) != null)) {
-				result += line;
-			}
-			testOutput.write(input2);
-			testOutput.close();
-			line = null;
-			while (((line = testInput.readLine()) != null)) {
-				result += line;
-			}
-			return result;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
-	
-	private String getResponseFirst(String input) {
-		String result = "";
-		try {
-			testOutput.write(input);
-			String line = null;
-			while (((line = testInput.readLine()) != null)) {
-				result += line;
-			}
-			return result;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return "";
-	}
-
 	private void addTestStudentToDatabase(String id, String name, List<String> courses) {
 		client.getDatabase(DB_NAME).getCollection(STUDENTS_COLLECTION_NAME)
 				.insertOne(new Document().append("id", id).append("name", name).append("courses", courses));

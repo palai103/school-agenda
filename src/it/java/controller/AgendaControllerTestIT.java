@@ -3,9 +3,6 @@ package controller;
 import static java.util.Arrays.asList;
 import static org.mockito.Mockito.verify;
 
-import java.util.Collections;
-
-import org.bson.Document;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -16,7 +13,6 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 
 import model.Course;
@@ -45,9 +41,6 @@ public class AgendaControllerTestIT {
 	private TransactionManagerMongo transactionManagerMongo;
 	private AgendaService agendaService;
 	private AgendaController agendaController;
-	private MongoCollection<Document> studentCollection;
-	private MongoCollection<Document> courseCollection;
-
 	@Before
 	public void setup() {
 		MockitoAnnotations.initMocks(this);
@@ -60,8 +53,8 @@ public class AgendaControllerTestIT {
 		database.drop();
 		database.createCollection(DB_COLLECTION_STUDENTS);
 		database.createCollection(DB_COLLECTION_COURSES);
-		studentCollection = database.getCollection(DB_COLLECTION_STUDENTS);
-		courseCollection = database.getCollection(DB_COLLECTION_COURSES);
+		database.getCollection(DB_COLLECTION_STUDENTS);
+		database.getCollection(DB_COLLECTION_COURSES);
 
 		agendaService = new AgendaService(transactionManagerMongo);
 		agendaController = new AgendaController(agendaView, agendaService);

@@ -9,7 +9,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.List;
 
-import org.assertj.swing.edt.GuiActionRunner;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;

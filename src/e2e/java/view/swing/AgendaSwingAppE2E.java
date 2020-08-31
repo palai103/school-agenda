@@ -5,13 +5,9 @@ import static org.assertj.swing.launcher.ApplicationLauncher.application;
 import static org.awaitility.Awaitility.await;
 import static java.util.Arrays.asList;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
-
 import javax.swing.JFrame;
 
 import org.assertj.swing.annotation.GUITest;
@@ -19,7 +15,6 @@ import org.assertj.swing.core.GenericTypeMatcher;
 import org.assertj.swing.finder.WindowFinder;
 import org.assertj.swing.fixture.AbstractContainerFixture;
 import org.assertj.swing.fixture.FrameFixture;
-import org.assertj.swing.fixture.JPanelFixture;
 import org.assertj.swing.fixture.JTabbedPaneFixture;
 import org.assertj.swing.junit.runner.GUITestRunner;
 import org.assertj.swing.junit.testcase.AssertJSwingJUnitTestCase;
@@ -30,7 +25,6 @@ import org.junit.runner.RunWith;
 import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
-import com.mongodb.client.MongoIterable;
 import com.mongodb.client.model.Filters;
 
 import model.Course;
@@ -56,14 +50,12 @@ public class AgendaSwingAppE2E extends AssertJSwingJUnitTestCase {
 
 	@SuppressWarnings("rawtypes")
 	@ClassRule
-	public static final GenericContainer mongo = new GenericContainer("krnbr/mongo").withExposedPorts(MONGO_PORT);
+	public static final GenericContainer<?> mongo = new GenericContainer("krnbr/mongo").withExposedPorts(MONGO_PORT);
 
 	private MongoClient mongoClient;
 	private FrameFixture window;
 
-	private AbstractContainerFixture contentPanel;
-
-	private JPanelFixture coursesPanel;
+	private AbstractContainerFixture<?, ?, ?> contentPanel;
 
 	@Override
 	protected void onSetUp() {
@@ -91,7 +83,7 @@ public class AgendaSwingAppE2E extends AssertJSwingJUnitTestCase {
 		}).using(robot());
 
 		contentPanel = window.panel("contentPane");
-		coursesPanel = contentPanel.panel("studentTab");
+		contentPanel.panel("studentTab");
 	}
 
 	@Override
@@ -372,7 +364,7 @@ public class AgendaSwingAppE2E extends AssertJSwingJUnitTestCase {
 			try {
 				JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 				tabPanel.selectTab("Courses");
-				coursesPanel = contentPanel.panel("courseTab");
+				contentPanel.panel("courseTab");
 				return true;
 			} catch (Exception e) {
 				return false;
@@ -385,7 +377,7 @@ public class AgendaSwingAppE2E extends AssertJSwingJUnitTestCase {
 			try {
 				JTabbedPaneFixture tabPanel = contentPanel.tabbedPane("tabbedPane");
 				tabPanel.selectTab("Students");
-				coursesPanel = contentPanel.panel("studentTab");
+				contentPanel.panel("studentTab");
 
 				return true;
 			} catch (Exception e) {
