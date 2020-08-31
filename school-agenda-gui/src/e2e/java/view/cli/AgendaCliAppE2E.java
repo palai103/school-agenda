@@ -83,7 +83,7 @@ public class AgendaCliAppE2E {
 			addTestCourseToDatabase(COURSE_2_ID, COURSE_2_NAME, COURSE_2_CFU, asList(STUDENT_2_ID));
 
 			ProcessBuilder processBuilder = new ProcessBuilder("java", "-jar",
-					"./target/school-agenda-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "--interface=cli");
+					"./target/school-agenda-gui-0.0.1-SNAPSHOT-jar-with-dependencies.jar", "--interface=cli");
 			processBuilder.redirectErrorStream(true);
 			Process cliProcess = processBuilder.start();
 
@@ -291,7 +291,7 @@ public class AgendaCliAppE2E {
 		}
 		return "";
 	}
-	
+
 	private void addTestStudentToDatabase(String id, String name, List<String> courses) {
 		client.getDatabase(DB_NAME).getCollection(STUDENTS_COLLECTION_NAME)
 				.insertOne(new Document().append("id", id).append("name", name).append("courses", courses));
