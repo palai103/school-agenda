@@ -9,7 +9,6 @@ import java.util.stream.StreamSupport;
 import org.bson.Document;
 
 import com.mongodb.MongoClient;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.Updates;
@@ -30,16 +29,16 @@ public class CourseMongoRepository implements CourseRepository{
 	}
 
 	@Override
-	public List<Course> findAll(ClientSession clientSession) {
+	public List<Course> findAll() {
 		return StreamSupport.
-				stream(courseCollection.find(clientSession).spliterator(), false)
+				stream(courseCollection.find().spliterator(), false)
 				.map(this::fromDocumentToCourse)
 				.collect(Collectors.toList());
 	}
 
 	@Override
-	public Course findById(String id, ClientSession clientSession) {
-		Document document  = courseCollection.find(clientSession, Filters.eq(ID, id)).first();
+	public Course findById(String id) {
+		Document document  = courseCollection.find(Filters.eq(ID, id)).first();
 		
 		if(document != null) {
 			return fromDocumentToCourse(document);
@@ -48,8 +47,8 @@ public class CourseMongoRepository implements CourseRepository{
 	}
 
 	@Override
-	public void save(Course course, ClientSession clientSession) {
-		courseCollection.insertOne(clientSession,
+	public void save(Course course) {
+		courseCollection.insertOne(
 				new Document()
 				.append(ID, course.getId())
 				.append("name", course.getName())
@@ -59,33 +58,33 @@ public class CourseMongoRepository implements CourseRepository{
 	}
 
 	@Override
-	public void delete(Course course, ClientSession clientSession) {
-		courseCollection.deleteOne(clientSession, Filters.eq(ID, course.getId()));	
+	public void delete(Course course) {
+		courseCollection.deleteOne(Filters.eq(ID, course.getId()));	
 		
 	}
 
 	@Override
-	public void updateCourseStudents(String studentId, String courseId, ClientSession clientSession) {
-		courseCollection.updateOne(clientSession, Filters.eq(ID, courseId), 
+	public void updateCourseStudents(String studentId, String courseId) {
+		courseCollection.updateOne(Filters.eq(ID, courseId), 
 				Updates.push(STUDENTS, studentId));
 		
 	}
 
 	@Override
-	public void removeCourseStudent(String studentId, String courseId, ClientSession clientSession) {
-		courseCollection.updateOne(clientSession, Filters.eq(ID, courseId), 
+	public void removeCourseStudent(String studentId, String courseId) {
+		courseCollection.updateOne(Filters.eq(ID, courseId), 
 				Updates.pull(STUDENTS, studentId));
 		
 	}
 	
 	@Override
-	public List<Student> findCourseStudents(String courseId, ClientSession clientSession) {
-		List<String> studentIds = courseCollection.find(clientSession, Filters.eq(ID, courseId))
+	public List<Student> findCourseStudents(String courseId) {
+		List<String> studentIds = courseCollection.find(Filters.eq(ID, courseId))
 				.first().getList(STUDENTS, String.class);
 		List<Student> returnedStudents = new ArrayList<>();
 		for (String student : studentIds) {
 			returnedStudents.add(fromDocumentToStudent(studentCollection
-					.find(clientSession, Filters.eq(ID, student)).first()));
+					.find(Filters.eq(ID, student)).first()));
 		}
 		
 		return returnedStudents;

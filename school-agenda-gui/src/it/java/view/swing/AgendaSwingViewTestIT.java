@@ -13,7 +13,6 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoDatabase;
 
 import controller.AgendaController;
@@ -41,12 +40,10 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	private TransactionManagerMongo transactionManager;
 	private FrameFixture window;
 	private JPanelFixture contentPanel;
-	private ClientSession clientSession;
 
 	@Override
 	protected void onSetUp() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
-		clientSession = client.startSession();
 		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS, DB_COLLECTION_COURSES);
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES, DB_COLLECTION_STUDENTS);
 		transactionManager = new TransactionManagerMongo(client, studentRepository, courseRepository);
@@ -95,8 +92,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
 		Student testStudent2 = new Student("2", "test student 2");
-		studentRepository.save(testStudent1, clientSession);
-		studentRepository.save(testStudent2, clientSession);
+		studentRepository.save(testStudent1);
+		studentRepository.save(testStudent2);
 
 		// exercise
 		GuiActionRunner.execute(() -> {
@@ -116,7 +113,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> {
 			agendaController.addStudent(testStudent);
 			agendaController.addCourse(testCourse);
-			studentRepository.updateStudentCourses(testStudent.getId(), testCourse.getId(), clientSession);
+			studentRepository.updateStudentCourses(testStudent.getId(), testCourse.getId());
 		});
 
 		// execerise
@@ -145,7 +142,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 	public void testAddNewStudentButtonError() {
 		// setup
 		Student testStudent = new Student("1", "test student");
-		studentRepository.save(testStudent, clientSession);
+		studentRepository.save(testStudent);
 		window.textBox("studentIDTextField").enterText("1");
 		window.textBox("studentNameTextField").enterText("test student");
 
@@ -171,6 +168,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 
 		// verify
 		assertThat(window.list("studentsList").contents()).isEmpty();
+		getCoursesPanel();
+		assertThat(window.list("courseStudentsList").contents()).doesNotContain(testStudent.toString());
 	}
 
 	@Test
@@ -309,8 +308,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		getCoursesPanel();
 		Course testCourse1 = new Course("1", "test course 1", "9");
 		Course testCourse2 = new Course("2", "test course 2", "9");
-		courseRepository.save(testCourse1, clientSession);
-		courseRepository.save(testCourse2, clientSession);
+		courseRepository.save(testCourse1);
+		courseRepository.save(testCourse2);
 
 		// exercise
 		GuiActionRunner.execute(() -> {
@@ -331,7 +330,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		GuiActionRunner.execute(() -> {
 			agendaController.addCourse(testCourse);
 			agendaController.addStudent(testStudent);
-			courseRepository.updateCourseStudents(testStudent.getId(), testCourse.getId(), clientSession);
+			courseRepository.updateCourseStudents(testStudent.getId(), testCourse.getId());
 		});
 
 		// execerise
@@ -346,7 +345,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		// setup
 		getCoursesPanel();
 		Course testCourse = new Course("1", "test course", "9");
-		courseRepository.save(testCourse, clientSession);
+		courseRepository.save(testCourse);
 		window.textBox("courseIDTextField").enterText("1");
 		window.textBox("courseNameTextField").enterText("test course");
 		window.textBox("courseCFUTextField").enterText("9");
@@ -374,6 +373,8 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 
 		// verify
 		assertThat(window.list("coursesList").contents()).isEmpty();
+		getStudentsPanel();
+		assertThat(window.list("studentCoursesList").contents()).doesNotContain(testCourse.toString());
 	}
 
 	@Test
@@ -457,7 +458,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		getCoursesPanel();
 		window.list("coursesList").selectItem(0);
 		window.list("courseStudentsList").selectItem(0);
-		studentRepository.delete(testStudent, clientSession);
+		studentRepository.delete(testStudent);
 
 		// exercise
 		window.button("removeStudentFromCourseButton").click();
@@ -480,7 +481,7 @@ public class AgendaSwingViewTestIT extends AssertJSwingJUnitTestCase {
 		
 		window.list("studentsList").selectItem(0);
 		window.list("studentCoursesList").selectItem(0);
-		courseRepository.delete(testCourse, clientSession);
+		courseRepository.delete(testCourse);
 
 		// execerise
 		window.button("removeCourseFromStudentButton").click();

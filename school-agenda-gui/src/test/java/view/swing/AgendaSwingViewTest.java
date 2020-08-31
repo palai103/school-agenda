@@ -718,7 +718,7 @@ public class AgendaSwingViewTest extends AssertJSwingJUnitTestCase{
 	}
 
 	@Test
-	public void testRemoveStudentButtonShouldDelegateToAgendaControllerRemoveStudent() {
+	public void testRemoveStudentButtonShouldDelegateToAgendaControllerRemoveStudentAndRemoveItFromCourses() {
 		Student testStudent1 = new Student("1", "test student 1");
 		Student testStudent2 = new Student("2", "test student 2");
 		GuiActionRunner.execute(() -> {

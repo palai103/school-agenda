@@ -508,6 +508,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 	@Override
 	public void notifyStudentRemoved(Student student) {
 		studentsListModel.removeElement(student);
+		courseStudentsListModel.removeElement(student);
 		lblStudentMessage.setText(student.toString() + " successfully removed!");
 	}
 
@@ -560,6 +561,7 @@ public class AgendaSwingView extends JFrame implements AgendaView {
 	@Override
 	public void notifyCourseRemoved(Course course) {
 		coursesListModel.removeElement(course);
+		studentCoursesListModel.removeElement(course);
 		lblCourseMessage.setText(course.toString() + " successfully removed!");
 	}
 
