@@ -4,6 +4,7 @@
     <groupId>it.unifi.app</groupId>
     <artifactId>school-agenda</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
   </parent>
   <artifactId>school-agenda-base</artifactId>
 </project>
