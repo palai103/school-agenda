@@ -4,6 +4,8 @@ import java.util.List;
 
 import model.Course;
 import model.Student;
+import repository.CourseRepository;
+import repository.StudentRepository;
 import repository.TransactionManager;
 
 public class AgendaService {
@@ -15,21 +17,21 @@ public class AgendaService {
 	}
 
 	public List<Student> getAllStudents() {
-		return transactionManager.studentTransaction((studentRepository) -> studentRepository.findAll());
+		return transactionManager.studentTransaction(StudentRepository::findAll);
 	}
 
 	public Boolean findStudent(Student student) {
 		return transactionManager.studentTransaction(
-				(studentRepository) -> studentRepository.findById(student.getId()) != null);
+				studentRepository -> studentRepository.findById(student.getId()) != null);
 	}
 
 	public Boolean findCourse(Course course) {
 		return transactionManager.courseTransaction(
-				(courseRepository) -> courseRepository.findById(course.getId()) != null);
+				courseRepository -> courseRepository.findById(course.getId()) != null);
 	}
 
 	public void addStudent(Student student) {
-		transactionManager.studentTransaction((studentRepository) -> {
+		transactionManager.studentTransaction(studentRepository -> {
 			if (student != null)
 				studentRepository.save(student);
 			return null;
@@ -71,12 +73,12 @@ public class AgendaService {
 
 	public Boolean studentHasCourse(Student student, Course course) {
 		List<Course> studentCourses = transactionManager.studentTransaction(
-				(studentRepository) -> studentRepository.findStudentCourses(student.getId()));
+				studentRepository -> studentRepository.findStudentCourses(student.getId()));
 		return studentCourses.contains(course);
 	}
 
 	public void addCourse(Course course) {
-		transactionManager.courseTransaction((courseRepository) -> {
+		transactionManager.courseTransaction(courseRepository -> {
 			if (course != null)
 				courseRepository.save(course);
 			return null;
@@ -98,7 +100,7 @@ public class AgendaService {
 
 	public Boolean courseHasStudent(Student student, Course course) {
 		List<Student> courseStudents = transactionManager.courseTransaction(
-				(courseRepository) -> courseRepository.findCourseStudents(course.getId()));
+				courseRepository -> courseRepository.findCourseStudents(course.getId()));
 		return courseStudents.contains(student);
 	}
 
@@ -123,17 +125,17 @@ public class AgendaService {
 	}
 
 	public List<Course> getAllCourses() {
-		return transactionManager.courseTransaction((courseRepository) -> courseRepository.findAll());
+		return transactionManager.courseTransaction(CourseRepository::findAll);
 	}
 
 	public List<Course> getAllStudentCourses(Student student) {
 		return transactionManager.studentTransaction(
-				(studentRepository) -> studentRepository.findStudentCourses(student.getId()));
+				studentRepository -> studentRepository.findStudentCourses(student.getId()));
 	}
 
 	public List<Student> getAllCourseStudents(Course course) {
 		return transactionManager.courseTransaction(
-				(courseRepository) -> courseRepository.findCourseStudents(course.getId()));
+				courseRepository -> courseRepository.findCourseStudents(course.getId()));
 	}
 
 }
