@@ -14,7 +14,6 @@ import org.testcontainers.containers.GenericContainer;
 
 import com.mongodb.MongoClient;
 import com.mongodb.ServerAddress;
-import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoDatabase;
 
 import controller.AgendaController;
@@ -44,13 +43,11 @@ public class AgendaViewCliTestIT {
 	private MongoClient client;
 	private ByteArrayOutputStream testOutput;
 	private ByteArrayInputStream testInput;
-	private ClientSession clientSession;
 	private static final String NEWLINE = System.getProperty("line.separator");
 
 	@Before
 	public void setup() {
 		client = new MongoClient(new ServerAddress(mongo.getContainerIpAddress(), mongo.getMappedPort(27017)));
-		clientSession = client.startSession();
 		studentRepository = new StudentMongoRepository(client, DB_NAME, DB_COLLECTION_STUDENTS, DB_COLLECTION_COURSES);
 		courseRepository = new CourseMongoRepository(client, DB_NAME, DB_COLLECTION_COURSES, DB_COLLECTION_STUDENTS);
 		manager = new TransactionManagerMongo(client, studentRepository, courseRepository);
@@ -76,8 +73,8 @@ public class AgendaViewCliTestIT {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
 		Student testStudent2 = new Student("2", "test student 2");
-		studentRepository.save(testStudent1, clientSession);
-		studentRepository.save(testStudent2, clientSession);
+		studentRepository.save(testStudent1);
+		studentRepository.save(testStudent2);
 
 		// exercise
 		agendaController.getAllStudents();
@@ -105,7 +102,7 @@ public class AgendaViewCliTestIT {
 	public void testAddStudentNotAdded() {
 		// Setup
 		Student testStudent1 = new Student("1", "test student 1");
-		studentRepository.save(testStudent1, clientSession);
+		studentRepository.save(testStudent1);
 		String userInput = "3\n1\ntest student";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
@@ -122,7 +119,7 @@ public class AgendaViewCliTestIT {
 	public void testRemoveStudent() {
 		// Setup
 		Student testStudent1 = new Student("1", "test student 1");
-		studentRepository.save(testStudent1, clientSession);
+		studentRepository.save(testStudent1);
 		String userInput = "9\n1\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
@@ -155,8 +152,8 @@ public class AgendaViewCliTestIT {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
-		studentRepository.save(testStudent1, clientSession);
-		courseRepository.save(testCourse, clientSession);
+		studentRepository.save(testStudent1);
+		courseRepository.save(testCourse);
 		String userInput = "5\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
@@ -189,8 +186,8 @@ public class AgendaViewCliTestIT {
 		// setup
 		Student testStudent = new Student("1", "test student");
 		Course testCourse = new Course("2", "test course", "9");
-		studentRepository.save(testStudent, clientSession);
-		courseRepository.save(testCourse, clientSession);
+		studentRepository.save(testStudent);
+		courseRepository.save(testCourse);
 		agendaController.addCourseToStudent(testStudent, testCourse);
 		String userInput = "7\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
@@ -241,7 +238,7 @@ public class AgendaViewCliTestIT {
 	public void testAddCourseNotAdded() {
 		// Setup
 		Course testCourse = new Course("1", "test course 1", "9");
-		courseRepository.save(testCourse, clientSession);
+		courseRepository.save(testCourse);
 		String userInput = "4\n1\ntest course\n9";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
@@ -259,8 +256,8 @@ public class AgendaViewCliTestIT {
 		// setup
 		Student testStudent1 = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
-		studentRepository.save(testStudent1, clientSession);
-		courseRepository.save(testCourse, clientSession);
+		studentRepository.save(testStudent1);
+		courseRepository.save(testCourse);
 		String userInput = "6\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);
@@ -293,8 +290,8 @@ public class AgendaViewCliTestIT {
 		// setup
 		Student testStudent = new Student("1", "test student 1");
 		Course testCourse = new Course("2", "test course 2", "9");
-		studentRepository.save(testStudent, clientSession);
-		courseRepository.save(testCourse, clientSession);
+		studentRepository.save(testStudent);
+		courseRepository.save(testCourse);
 		agendaService.addStudentToCourse(testStudent, testCourse);
 		String userInput = "8\n1\n2\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
@@ -330,8 +327,8 @@ public class AgendaViewCliTestIT {
 		// setup
 		Course testCourse1 = new Course("1", "test course 1", "9");
 		Course testCourse2 = new Course("2", "test course 2", "9");
-		courseRepository.save(testCourse1, clientSession);
-		courseRepository.save(testCourse2, clientSession);
+		courseRepository.save(testCourse1);
+		courseRepository.save(testCourse2);
 
 		// exercise
 		agendaController.getAllCourses();
@@ -345,7 +342,7 @@ public class AgendaViewCliTestIT {
 	public void testRemoveCourse() {
 		// Setup
 		Course testCourse = new Course("1", "test course 1", "9");
-		courseRepository.save(testCourse, clientSession);
+		courseRepository.save(testCourse);
 		String userInput = "10\n1\n";
 		testInput = new ByteArrayInputStream(userInput.getBytes());
 		agendaViewCli.setInput(testInput);

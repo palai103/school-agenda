@@ -29,15 +29,15 @@
 		<awaitility.version>4.0.3</awaitility.version>
 
 		<sonar.coverage.exclusions>
-			src/main/java/model/*,
-			src/main/java/app/*,
-			src/main/java/repository/TransactionManagerMongo*
+			**/src/main/java/model/*,
+			**/src/main/java/app/*,
+			**/src/main/java/repository/TransactionManagerMongo*
 		</sonar.coverage.exclusions>
 
 		<sonar.cpd.exclusions>
-			model.*,
-			src.main.java.model.*,
-			src/main/java/model/*
+			**model.*,
+			**src.main.java.model.*,
+			**/src/main/java/model/*
 		</sonar.cpd.exclusions>
 
 		<sonar.issue.ignore.multicriteria>
@@ -147,38 +147,8 @@
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
-
-	<profiles>
-		<profile>
-			<id>jacoco</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.jacoco</groupId>
-						<artifactId>jacoco-maven-plugin</artifactId>
-						<version>${jacoco.version}</version>
-						<configuration>
-							<excludes>
-								<exclude>/model/*.*</exclude>
-								<exclude>/app/*.*</exclude>
-								<exclude>/repository/TransactionManagerMongo.*</exclude>
-							</excludes>
-						</configuration>
-						<executions>
-							<execution>
-								<goals>
-									<goal>prepare-agent</goal>
-									<goal>report</goal>
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
-
 	<build>
+		<pluginManagement>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -291,5 +261,38 @@
 				<version>${sonar.version}</version>
 			</plugin>
 		</plugins>
+		
+		</pluginManagement>
 	</build>
+	<profiles>
+		<profile>
+			<id>jacoco</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.jacoco</groupId>
+						<artifactId>jacoco-maven-plugin</artifactId>
+						<version>${jacoco.version}</version>
+						<configuration>
+							<excludes>
+								<exclude>/model/*.*</exclude>
+								<exclude>/app/*.*</exclude>
+								<exclude>/repository/TransactionManagerMongo.*</exclude>
+							</excludes>
+						</configuration>
+						<executions>
+							<execution>
+								<goals>
+									<goal>prepare-agent</goal>
+									<goal>report</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+
 </project>
