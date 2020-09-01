@@ -166,7 +166,7 @@
 							</descriptorRefs>
 							<archive>
 								<manifest>
-									<mainClass>it.unifi.app.school-agenda-gui.app.AgendaSwingApp</mainClass>
+									<mainClass>app.AgendaSwingApp</mainClass>
 								</manifest>
 							</archive>
 						</configuration>
